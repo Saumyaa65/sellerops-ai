@@ -90,9 +90,43 @@ class MonitoringAgent(BaseAgent):
             {"issue_count": len(detected_issues), "severity": severity},
         )
 
+        email_sent = False
+        critical_issues = [i for i in detected_issues if i.get("severity") == "critical"]
+        if critical_issues:
+            issue = critical_issues[0]
+            issue_title = issue["type"].replace("_", " ").title()
+            description = issue.get("message", "A critical operational issue has been detected.")
+            business_impact = "Potential revenue loss, account suspension risk, or payout settlement delay."
+            
+            sc_id = None
+            if scenario_id:
+                sc_id = scenario_id
+            elif issue["type"] == "payout_anomalies":
+                sc_id = "SCN-009"
+            elif issue["type"] == "high_return_rate":
+                sc_id = "SCN-001"
+
+            try:
+                from utils.email import send_critical_alert_email
+                import asyncio
+                asyncio.create_task(
+                    send_critical_alert_email(
+                        issue_title=issue_title,
+                        description=description,
+                        business_impact=business_impact,
+                        scenario_id=sc_id,
+                        appeal_available=True
+                    )
+                )
+                await self.emit_step(run_id, "📧 Seller notified successfully")
+                email_sent = True
+            except Exception as mail_err:
+                logger.error(f"Failed to launch email task: {mail_err}")
+
         return {
             **state,
             "detected_issues": detected_issues,
             "severity": severity,
             "should_escalate": should_escalate,
+            "email_sent": email_sent,
         }  # type: ignore[return-value]

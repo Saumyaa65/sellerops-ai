@@ -34,3 +34,4 @@ class AgentState(TypedDict):
     should_escalate: bool
     is_complete: bool
     error: Optional[str]
+    email_sent: Optional[bool]

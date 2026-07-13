@@ -45,6 +45,7 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict) -> None
         "should_escalate": False,
         "is_complete": False,
         "error": None,
+        "email_sent": False,
     }
 
     try:

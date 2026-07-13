@@ -6,6 +6,7 @@ All configuration is driven by environment variables with sensible defaults.
 from functools import lru_cache
 from typing import List
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -48,6 +49,15 @@ class Settings(BaseSettings):
     # Data paths
     mock_data_dir: str = "data/mock"
     policies_dir: str = "data/policies"
+
+    # Email
+    email_sending_enabled: bool = True
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_sender: str = Field(default="", validation_alias="SMTP_FROM")
+    smtp_recipient: str = Field(default="", validation_alias="ALERT_EMAIL")
 
 
 @lru_cache(maxsize=1)

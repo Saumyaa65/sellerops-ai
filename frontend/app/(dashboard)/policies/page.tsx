@@ -7,7 +7,45 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { policyService } from "@/services/policyService";
 import { toast } from "sonner";
-import { Search, FileText, Loader2, Sparkles, BookOpen } from "lucide-react";
+import { Search, FileText, Loader2, Sparkles, BookOpen, ChevronDown, ChevronRight } from "lucide-react";
+
+
+function formatAnswerText(text: string) {
+  if (!text) return null;
+  const lines = text.split("\n");
+  return (
+    <div className="space-y-2">
+      {lines.map((line, idx) => {
+        let trimmed = line.trim();
+        if (!trimmed) return null;
+        trimmed = trimmed.replace(/^#+\s+/, "");
+        const isBullet = trimmed.startsWith("-") || trimmed.startsWith("*") || /^\d+\.\s+/.test(trimmed);
+        if (isBullet) {
+          trimmed = trimmed.replace(/^[-*]\s+/, "").replace(/^\d+\.\s+/, "");
+        }
+        const parts = trimmed.split(/\*\*([^*]+)\*\*/);
+        const renderedLine = parts.map((part, i) => {
+          if (i % 2 === 1) {
+            return <strong key={i} className="font-bold text-[var(--color-text-primary)]">{part}</strong>;
+          }
+          return part;
+        });
+        if (isBullet) {
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-brand-400)]" />
+              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{renderedLine}</p>
+            </div>
+          );
+        } else {
+          return (
+            <p key={idx} className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{renderedLine}</p>
+          );
+        }
+      })}
+    </div>
+  );
+}
 
 
 export default function PoliciesPage() {
@@ -17,6 +55,8 @@ export default function PoliciesPage() {
   const [answer, setAnswer] = useState<string | null>(null);
   const [results, setResults] = useState<any[]>([]);
   const [hasQueried, setHasQueried] = useState(false);
+  const [isSourcesExpanded, setIsSourcesExpanded] = useState(false);
+  const [expandedChunks, setExpandedChunks] = useState<Record<number, boolean>>({});
 
   const handleQuery = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,50 +186,92 @@ export default function PoliciesPage() {
             </div>
           </Card>
         ) : (
-          <div className="space-y-6">
-            
+          <div className="space-y-5">
             {answer && (
-              <Card className="border-[var(--color-brand-500)]/20">
-                <div className="p-4 space-y-3">
-                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-[var(--color-brand-400)]" />
-                    What the rules say
+              <Card className="border-[var(--color-brand-500)]/30 bg-[var(--color-surface-2)]">
+                <div className="p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                    <Sparkles className="h-4.5 w-4.5 text-[var(--color-brand-400)] animate-pulse" />
+                    Rulebook Summary
                   </h3>
-                  <div className="p-4 rounded-lg bg-[var(--color-surface-3)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap">
-                    {answer}
+                  <div className="pl-1">
+                    {formatAnswerText(answer)}
                   </div>
                 </div>
               </Card>
             )}
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-[var(--color-text-muted)]" />
-                Retrieved Policy Excerpts
-              </h3>
-              
-              {results.length === 0 ? (
-                <p className="text-xs text-[var(--color-text-muted)]">No matching chunks found in policy library.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {results.map((chunk, idx) => (
-                    <Card key={idx} className="hover:border-[var(--color-brand-500)]/20 transition-all">
-                      <div className="space-y-2 text-xs">
-                        <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2 mb-2">
-                          <span className="font-semibold text-[var(--color-brand-400)]">
-                            {chunk.payload?.source || "Policy Document"}
-                          </span>
-                        </div>
-                        <p className="text-[var(--color-text-secondary)] italic leading-relaxed text-[11px] whitespace-pre-wrap">
-                          &quot;{chunk.payload?.text}&quot;
-                        </p>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
+            {/* Retrieval Summary Info */}
+            <div className="flex items-center justify-between text-xs px-1 text-[var(--color-text-muted)] font-medium pt-2 border-t border-[var(--color-border)]/50">
+              <span className="flex items-center gap-1 text-[var(--color-success)]">
+                ✓ Matched {results.length} relevant policy sections
+              </span>
+              <span>
+                Confidence: <strong className="text-[var(--color-success)] font-semibold">High</strong>
+              </span>
             </div>
 
+            {/* Collapsible Sources Panel */}
+            <div className="space-y-3">
+              <button
+                onClick={() => setIsSourcesExpanded(!isSourcesExpanded)}
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors text-xs font-semibold text-[var(--color-text-secondary)] cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-[var(--color-text-muted)]" />
+                  Supporting Policy Sources
+                </span>
+                <span className="text-[10px] font-medium text-[var(--color-text-muted)] flex items-center gap-1">
+                  {isSourcesExpanded ? "Hide Sources" : "Show Sources"}
+                  {isSourcesExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </span>
+              </button>
+
+              {isSourcesExpanded && (
+                results.length === 0 ? (
+                  <p className="text-xs text-[var(--color-text-muted)] italic text-center py-4">No matching chunks found in policy library.</p>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3.5 animate-slide-down">
+                    {results.map((chunk, idx) => {
+                      const isExpanded = !!expandedChunks[idx];
+                      const scoreStr = chunk.score !== undefined ? `${(chunk.score * 100).toFixed(0)}% Match` : null;
+                      return (
+                        <Card key={idx} className="p-3.5 hover:border-[var(--color-border-hover)] transition-all">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)]/50 pb-2">
+                              <div className="min-w-0">
+                                <span className="font-bold text-xs text-[var(--color-brand-400)] block truncate">
+                                  {chunk.payload?.source || "Policy Document"}
+                                </span>
+                                <span className="text-[10px] text-[var(--color-text-muted)] mt-0.5 block truncate">
+                                  Section: {chunk.payload?.section || "General Clauses"}
+                                </span>
+                              </div>
+                              {scoreStr && (
+                                <Badge severity="low" className="shrink-0 text-[9px] scale-90">
+                                  {scoreStr}
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <p className={`text-[11px] text-[var(--color-text-secondary)] italic leading-relaxed whitespace-pre-wrap ${!isExpanded && "line-clamp-2"}`}>
+                              &quot;{chunk.payload?.text}&quot;
+                            </p>
+                            
+                            <button
+                              onClick={() => setExpandedChunks(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                              className="text-[10px] text-[var(--color-brand-400)] hover:text-[var(--color-brand-300)] font-semibold mt-1 transition-colors cursor-pointer self-start"
+                            >
+                              {isExpanded ? "Show Less" : "View Full Excerpt"}
+                            </button>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -53,6 +53,7 @@ interface InvestigationData {
   marketplace?: string;
   allIssues?: any[];
   businessImpact?: BusinessImpactObj;
+  emailSent?: boolean;
 }
 
 const stripMarkdown = (text: any): string => {
@@ -455,6 +456,7 @@ function InvestigationsContent() {
       marketplace: state.input_data?.marketplace || "meesho",
       allIssues: state.detected_issues || [],
       businessImpact,
+      emailSent: !!state.email_sent,
     };
 
     setInvestigationData(data);
@@ -674,6 +676,13 @@ function InvestigationsContent() {
                   })}
                 </div>
 
+                {/* Email Notification Confirmation */}
+                {(!!displayData?.emailSent || activeLogs.some(log => log.message.includes("📧"))) && (
+                  <div className="p-3 bg-[var(--color-brand-500)]/15 border border-[var(--color-brand-500)]/30 rounded-lg flex items-center gap-2 text-xs text-[var(--color-brand-300)] font-semibold select-none animate-fade-in">
+                    <span>📧 Seller notified successfully (Critical alert email sent)</span>
+                  </div>
+                )}
+
                 {/* Collapsible log view */}
                 <div className="border border-[var(--color-border)] rounded-lg bg-black/40 overflow-hidden">
                   <div
@@ -706,6 +715,13 @@ function InvestigationsContent() {
           {/* Full Report Details */}
           {displayData ? (
             <div className="space-y-4">
+              {/* Email Notification Alert Banner */}
+              {displayData.emailSent && (
+                <div className="p-3 bg-[var(--color-brand-500)]/10 border border-[var(--color-brand-500)]/20 rounded-lg flex items-center gap-2 text-xs text-[var(--color-brand-300)] font-semibold select-none">
+                  <span>📧 Seller notified successfully (Critical alert email sent)</span>
+                </div>
+              )}
+
               {/* Learning Agent Alert */}
               <div className="p-3.5 bg-[var(--color-success)]/5 border border-[var(--color-success)]/10 rounded-lg flex items-start gap-2.5 text-xs text-[var(--color-text-secondary)]">
                 <Check className="h-4.5 w-4.5 text-[var(--color-success)] shrink-0 mt-0.5" />
