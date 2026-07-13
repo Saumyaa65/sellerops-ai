@@ -5,9 +5,11 @@ from fastapi import APIRouter
 from models.schemas import ApiResponse, PolicyQueryRequest, PolicyQueryResult
 from rag.retriever import PolicyRetriever
 from services.groq_service import groq_service
+from config.settings import get_settings
 
 router = APIRouter()
 _retriever = PolicyRetriever()
+settings = get_settings()
 
 
 @router.post("/query", response_model=ApiResponse[PolicyQueryResult])
@@ -29,14 +31,19 @@ async def query_policy(body: PolicyQueryRequest) -> ApiResponse[PolicyQueryResul
         messages = [
             {
                 "role": "system",
-                "content": "You are a marketplace policy expert. Answer the seller's question based on the policy excerpts provided. Be concise and specific.",
+                "content": "You are a marketplace policy expert. Answer based ONLY on the policy excerpts. Be concise.",
             },
             {
                 "role": "user",
-                "content": f"Policy excerpts:\n{context}\n\nSeller question: {body.query}",
+                "content": f"Policy:\n{context}\n\nQuestion: {body.query}",
             },
         ]
-        answer = await groq_service.chat(messages, temperature=0.2, max_tokens=512)
+        answer = await groq_service.chat(
+            messages,
+            temperature=0.2,
+            max_tokens=400,
+            model=settings.groq_model_light,
+        )
 
     return ApiResponse(
         data=PolicyQueryResult(

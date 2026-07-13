@@ -56,11 +56,31 @@ export default function PoliciesPage() {
   return (
     <>
       <TopBar
-        title="Policy RAG"
-        description="Semantic search over Meesho, Amazon, Flipkart policies"
+        title="Marketplace Rules"
+        description="Find the rules that apply to your situation — search across Meesho, Amazon and Flipkart policies"
       />
       <div className="p-6 space-y-6">
         
+        {/* Suggested search pills */}
+        {!hasQueried && !loading && (
+          <div className="flex flex-wrap gap-2">
+            <span className="text-xs text-[var(--color-text-muted)] font-medium self-center">Try asking about:</span>
+            {[
+              "Return policy and penalties",
+              "Listing suspension rules",
+              "Payment deduction reasons",
+            ].map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => setQuery(suggestion)}
+                className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-brand-500)]/30 bg-[var(--color-brand-500)]/5 text-[var(--color-brand-300)] hover:bg-[var(--color-brand-500)]/15 transition-colors font-medium cursor-pointer"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
+
         <Card>
           <form onSubmit={handleQuery} className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3">
@@ -100,7 +120,7 @@ export default function PoliciesPage() {
                 ) : (
                   <Search className="h-4 w-4" />
                 )}
-                {loading ? "Querying..." : "Query Policy"}
+                {loading ? "Searching..." : "Search Rules"}
               </Button>
             </div>
           </form>
@@ -109,7 +129,7 @@ export default function PoliciesPage() {
         {loading ? (
           <div className="flex items-center justify-center py-20 flex-col gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-400)]" />
-            <p className="text-xs text-[var(--color-text-muted)]">Scanning index and querying Groq LLM...</p>
+            <p className="text-xs text-[var(--color-text-muted)]">Searching the rulebook...</p>
           </div>
         ) : !hasQueried ? (
           <Card>
@@ -118,9 +138,9 @@ export default function PoliciesPage() {
                 <FileText className="h-8 w-8 text-[var(--color-brand-400)]" />
               </div>
               <div className="text-center max-w-md">
-                <p className="text-sm font-medium text-[var(--color-text-primary)]">Ask a policy question</p>
+                <p className="text-sm font-medium text-[var(--color-text-primary)]">Ask about any marketplace rule</p>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                  The Policy Agent will query indexed policy manuals using Qdrant vector search and synthesize a professional response.
+                  Type a question or click one of the suggestions above. The AI will search the official policy manuals and explain what applies to you.
                 </p>
               </div>
             </div>
@@ -133,7 +153,7 @@ export default function PoliciesPage() {
                 <div className="p-4 space-y-3">
                   <h3 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-[var(--color-brand-400)]" />
-                    AI Synthesized Policy Answer
+                    What the rules say
                   </h3>
                   <div className="p-4 rounded-lg bg-[var(--color-surface-3)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap">
                     {answer}
@@ -157,11 +177,8 @@ export default function PoliciesPage() {
                       <div className="space-y-2 text-xs">
                         <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2 mb-2">
                           <span className="font-semibold text-[var(--color-brand-400)]">
-                            Source: {chunk.payload?.source || "Policy Document"}
+                            {chunk.payload?.source || "Policy Document"}
                           </span>
-                          <Badge severity="neutral">
-                            Score: {(chunk.score || 0).toFixed(3)}
-                          </Badge>
                         </div>
                         <p className="text-[var(--color-text-secondary)] italic leading-relaxed text-[11px] whitespace-pre-wrap">
                           &quot;{chunk.payload?.text}&quot;

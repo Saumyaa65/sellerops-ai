@@ -3,21 +3,17 @@ Investigation Agent — performs root cause analysis on detected issues.
 Uses Groq/Llama 3.3 to reason about patterns in seller data.
 """
 
+import json
 from agents.base_agent import BaseAgent
 from agents.state import AgentState
 from services.groq_service import groq_service
+from config.settings import get_settings
 from utils.logger import logger
 
-_SYSTEM_PROMPT = """You are SellerOps AI Investigation Agent — an expert in e-commerce seller operations 
-for Indian marketplaces (Meesho, Amazon, Flipkart).
+settings = get_settings()
 
-When given a list of detected operational issues and seller data, you:
-1. Identify the most likely root cause
-2. Determine contributing factors
-3. Assess business impact
-4. Suggest immediate next steps
-
-Be concise, specific, and action-oriented. Format your output as structured JSON."""
+_SYSTEM_PROMPT = """You are SellerOps AI. Analyze marketplace issues and identify root causes. 
+Respond ONLY with a valid JSON object matching the requested schema. Be extremely concise."""
 
 
 class InvestigationAgent(BaseAgent):
@@ -42,25 +38,99 @@ class InvestigationAgent(BaseAgent):
             {"role": "system", "content": _SYSTEM_PROMPT},
             {
                 "role": "user",
-                "content": f"""Analyze the following operational issues detected for this seller:
-
+                "content": f"""Analyze these issues:
 {issues_summary}
 
-Additional context:
-- Marketplace: {state.get('input_data', {}).get('marketplace', 'Meesho')}
-- Seller tier: {state.get('input_data', {}).get('seller_tier', 'Bronze')}
+Marketplace: {state.get('input_data', {}).get('marketplace', 'Meesho')}
+Seller tier: {state.get('input_data', {}).get('seller_tier', 'Bronze')}
 
-Provide a structured root cause analysis with:
-1. primary_cause
-2. contributing_factors (list)
-3. business_impact
-4. immediate_actions (list of 3-5 steps)
-5. confidence_score (0-1)
-""",
+Output JSON with keys:
+- primary_cause: A string summarizing the main root cause.
+- contributing_factors: A list of strings outlining other factors.
+- business_impact: An object containing:
+    - description: A string summarizing the business risk.
+    - estimated_impact: A string indicating the severity: "Low", "Medium", "High", or "Critical".
+- immediate_actions: A list of strings outlining actions to take.
+- confidence_score: A float between 0 and 1.""",
             },
         ]
 
-        raw_analysis = await groq_service.chat(messages, temperature=0.3)
+        raw_analysis = await groq_service.chat(
+            messages,
+            temperature=0.3,
+            model=settings.groq_model_light,
+        )
+
+        # Normalize the raw LLM response so the schema is 100% consistent across all scenarios
+        normalized_data = {
+            "primary_cause": "Unknown operational issue.",
+            "contributing_factors": [],
+            "business_impact": {
+                "description": "High return rates or operational flags present a suspension risk.",
+                "estimated_impact": "High"
+            },
+            "immediate_actions": [],
+            "confidence_score": 0.8
+        }
+        
+        try:
+            clean_json = raw_analysis.strip()
+            if clean_json.startswith("```"):
+                lines = clean_json.split("\n")
+                if lines[0].startswith("```json") or lines[0].startswith("```"):
+                    clean_json = "\n".join(lines[1:-1]).strip()
+            
+            parsed = json.loads(clean_json)
+            
+            # Handle nested list issues structure if outputted
+            if "issues" in parsed and isinstance(parsed["issues"], list) and len(parsed["issues"]) > 0:
+                parsed = parsed["issues"][0]
+                
+            # Normalize primary_cause
+            if "primary_cause" in parsed:
+                pc = parsed["primary_cause"]
+                if isinstance(pc, list):
+                    normalized_data["primary_cause"] = ", ".join(str(x) for x in pc)
+                elif isinstance(pc, dict):
+                    normalized_data["primary_cause"] = pc.get("description", str(pc))
+                else:
+                    normalized_data["primary_cause"] = str(pc)
+                    
+            # Normalize contributing_factors
+            if "contributing_factors" in parsed and isinstance(parsed["contributing_factors"], list):
+                normalized_data["contributing_factors"] = [str(x) for x in parsed["contributing_factors"]]
+                
+            # Normalize business_impact
+            if "business_impact" in parsed:
+                bi = parsed["business_impact"]
+                if isinstance(bi, dict):
+                    normalized_data["business_impact"]["description"] = str(bi.get("description", bi.get("text", str(bi))))
+                    normalized_data["business_impact"]["estimated_impact"] = str(bi.get("estimated_impact", bi.get("severity", bi.get("impact", "High"))))
+                elif isinstance(bi, list):
+                    normalized_data["business_impact"]["description"] = ", ".join(str(x) for x in bi)
+                else:
+                    normalized_data["business_impact"]["description"] = str(bi)
+                    
+            # Normalize immediate_actions
+            if "immediate_actions" in parsed:
+                ia = parsed["immediate_actions"]
+                if isinstance(ia, list):
+                    normalized_data["immediate_actions"] = [str(x) for x in ia]
+                elif isinstance(ia, str):
+                    normalized_data["immediate_actions"] = [x.strip() for x in ia.split("\n") if x.strip()]
+                    
+            # Normalize confidence_score
+            if "confidence_score" in parsed:
+                try:
+                    normalized_data["confidence_score"] = float(parsed["confidence_score"])
+                except ValueError:
+                    pass
+                    
+            raw_analysis = json.dumps(normalized_data, indent=2)
+        except Exception as e:
+            logger.warning(f"Failed to normalize investigation JSON response: {e}. Raw response: {raw_analysis[:200]}...")
+            # Fall back to structured JSON even on failure to guarantee frontend contract
+            raw_analysis = json.dumps(normalized_data, indent=2)
 
         await self.emit_step(run_id, "Root cause analysis complete", {"analysis_length": len(raw_analysis)})
 
@@ -68,3 +138,4 @@ Provide a structured root cause analysis with:
             **state,
             "investigation_result": {"raw": raw_analysis, "issues_analyzed": len(issues)},
         }  # type: ignore[return-value]
+

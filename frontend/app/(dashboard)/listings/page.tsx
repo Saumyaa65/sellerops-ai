@@ -170,8 +170,8 @@ export default function ListingsPage() {
     return (
       <>
         <TopBar
-          title="Listing Health"
-          description="AI-powered catalog validation & safety scanner"
+          title="My Products"
+          description="Check listing quality and fix issues before the marketplace flags them"
         />
         <div className="flex items-center justify-center min-h-[400px] flex-col gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-400)]" />
@@ -184,8 +184,8 @@ export default function ListingsPage() {
   return (
     <>
       <TopBar
-        title="Listing Health"
-        description="Verify listing quality standards and run autonomous audits before policy compliance reviews"
+        title="My Products"
+        description="Check listing quality and fix issues before the marketplace flags them"
         actions={
           <Button
             variant="gradient"
@@ -199,43 +199,23 @@ export default function ListingsPage() {
             ) : (
               <Scan className="h-3.5 w-3.5" />
             )}
-            {scanning ? "Scanning Listings..." : "Scan Catalog (Prevention)"}
+            {scanning ? "Checking Products..." : "Check All Products"}
           </Button>
         }
       />
       
       <div className="p-6 space-y-6">
-        {/* Listings Stats Strip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="flex items-center gap-4 p-4">
-            <div className="h-10 w-10 rounded-xl bg-[var(--color-brand-500)]/10 flex items-center justify-center text-[var(--color-brand-400)]">
-              <Package className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs text-[var(--color-text-muted)]">Tracked Catalog Listings</p>
-              <p className="text-xl font-extrabold mt-0.5 tabular-nums">{totalCount}</p>
-            </div>
-          </Card>
-          
-          <Card className="flex items-center gap-4 p-4 border-[var(--color-error)]/25">
-            <div className="h-10 w-10 rounded-xl bg-[var(--color-error)]/10 flex items-center justify-center text-[var(--color-error)]">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs text-[var(--color-text-muted)]">Issues / Flagged Listings</p>
-              <p className="text-xl font-extrabold mt-0.5 text-[var(--color-error)] tabular-nums">{issuesCount}</p>
-            </div>
-          </Card>
-
-          <Card className="flex items-center gap-4 p-4 border-[var(--color-success)]/25">
-            <div className="h-10 w-10 rounded-xl bg-[var(--color-success)]/10 flex items-center justify-center text-[var(--color-success)]">
-              <CheckCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs text-[var(--color-text-muted)]">Verified Clean Listings</p>
-              <p className="text-xl font-extrabold mt-0.5 text-[var(--color-success)] tabular-nums">{healthyCount}</p>
-            </div>
-          </Card>
+        {/* Single-line summary instead of 3 stat cards */}
+        <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)] px-1 flex-wrap">
+          <span className="font-semibold text-[var(--color-text-primary)] text-sm">
+            {totalCount} products tracked
+          </span>
+          {issuesCount > 0 && (
+            <span className="text-[var(--color-error)] font-medium">· {issuesCount} need attention</span>
+          )}
+          {healthyCount > 0 && (
+            <span className="text-[var(--color-success)] font-medium">· {healthyCount} healthy</span>
+          )}
         </div>
 
         {/* Tab & Filter bar */}
@@ -243,8 +223,8 @@ export default function ListingsPage() {
           {/* Tabs */}
           <div className="flex bg-[var(--color-surface-3)] p-1 rounded-lg border border-[var(--color-border)] w-full md:w-auto">
             {[
-              { id: "all", label: "All Listings" },
-              { id: "issues", label: "Flawed / Flags" },
+              { id: "all", label: "All" },
+              { id: "issues", label: "Needs Attention" },
               { id: "healthy", label: "Healthy" },
               { id: "draft", label: "Drafts" },
             ].map(tab => (
@@ -356,17 +336,17 @@ export default function ListingsPage() {
                         {!isChecked && listing.status !== "suspended" ? (
                           <span className="text-xs text-[var(--color-text-muted)] flex items-center gap-1.5 font-medium">
                             <StatusDot status="pending" />
-                            Awaiting validation
+                            Not checked yet
                           </span>
                         ) : hasIssues ? (
                           <span className="text-xs text-[var(--color-error)] font-semibold flex items-center gap-1.5">
                             <AlertTriangle className="h-4 w-4 text-[var(--color-error)] shrink-0" />
-                            Alert Flag Active
+                            ⚠ Needs Attention
                           </span>
                         ) : (
                           <span className="text-xs text-[var(--color-success)] font-semibold flex items-center gap-1.5">
                             <CheckCircle className="h-4 w-4 text-[var(--color-success)] shrink-0" />
-                            Passed Checks
+                            ✓ Looks Good
                           </span>
                         )}
                       </div>
@@ -375,7 +355,7 @@ export default function ListingsPage() {
                     {/* Scanner Issue List */}
                     {isChecked && issues.length > 0 && (
                       <div className="mt-4 pt-3 border-t border-[var(--color-border)] space-y-2">
-                        <p className="text-xs font-semibold text-[var(--color-text-secondary)]">Validation Errors:</p>
+                        <p className="text-xs font-semibold text-[var(--color-text-secondary)]">Issues Found:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {issues.map((issue, idx) => (
                             <div 

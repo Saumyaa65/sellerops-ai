@@ -4,25 +4,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Bot,
   Package,
   Search,
   ShoppingCart,
-  Wallet,
   FileText,
   ChevronLeft,
   Zap,
+  FlaskConical,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/useUIStore";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Command Center", icon: LayoutDashboard },
-  { href: "/investigations", label: "Investigations", icon: Search },
-  { href: "/listings", label: "Listings", icon: Package },
-  { href: "/operations", label: "Operations", icon: ShoppingCart },
-  { href: "/scenarios", label: "Demo Scenarios", icon: Zap },
-  { href: "/policies", label: "Policy Library", icon: FileText },
+  { href: "/", label: "My Store", icon: LayoutDashboard },
+  { href: "/investigations", label: "AI Diagnosis", icon: Search },
+  { href: "/listings", label: "My Products", icon: Package },
+  { href: "/operations", label: "Orders & Payments", icon: ShoppingCart },
+  { href: "/scenarios", label: "Try a Situation", icon: FlaskConical },
+  { href: "/policies", label: "Marketplace Rules", icon: BookOpen },
 ];
 
 export function Sidebar() {

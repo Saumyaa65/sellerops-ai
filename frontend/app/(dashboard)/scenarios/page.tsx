@@ -84,8 +84,8 @@ export default function ScenariosPage() {
   return (
     <>
       <TopBar
-        title="Demo Scenarios"
-        description="Trigger any of the 22 pre-configured seller incidents to test the end-to-end agent workflow"
+        title="Try a Situation"
+        description="Pick one of these real seller situations and watch the AI diagnose it end-to-end"
       />
 
       <div className="p-6 space-y-6">
@@ -156,71 +156,43 @@ export default function ScenariosPage() {
                   key={scenario.scenario_id}
                   className="hover:border-[var(--color-brand-500)]/30 transition-all duration-200 flex flex-col justify-between group"
                 >
-                  <div className="p-5 space-y-4">
-                    {/* Header */}
+                  <div className="p-5 space-y-3">
+                    {/* Header — name + severity, no technical ID */}
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span className="text-[10px] font-mono font-bold text-[var(--color-text-muted)] uppercase bg-[var(--color-surface-3)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">
-                          {scenario.scenario_id}
-                        </span>
-                        <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] transition-colors mt-1.5 leading-snug">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] transition-colors leading-snug">
                           {scenario.name}
                         </h3>
                       </div>
                       <Badge severity={severity as any}>{severity}</Badge>
                     </div>
 
-                    {/* Meta */}
-                    <div className="flex items-center gap-2.5 text-[10px] text-[var(--color-text-muted)]">
+                    {/* Marketplace pill only */}
+                    <div className="flex items-center gap-2 text-[10px] text-[var(--color-text-muted)]">
                       <span className="capitalize font-semibold text-[var(--color-text-secondary)] bg-[var(--color-surface-3)] px-2 py-0.5 rounded-full">
                         {scenario.trigger_data.marketplace}
                       </span>
-                      {scenario.trigger_data.seller_tier && (
-                        <span>Tier: {scenario.trigger_data.seller_tier}</span>
-                      )}
                     </div>
 
-                    {/* Desc */}
+                    {/* Description */}
                     <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed line-clamp-3">
                       {scenario.description}
                     </p>
-
-                    {/* Expected Issues */}
-                    <div className="space-y-1.5">
-                      <span className="text-[9px] uppercase tracking-wider text-[var(--color-text-muted)] font-bold flex items-center gap-1">
-                        <Layers className="h-3 w-3" /> Expected Issue Node Checks:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {scenario.expected_issues.map((issue) => (
-                          <span
-                            key={issue}
-                            className="text-[9px] font-mono px-1.5 py-0.5 bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] rounded border border-[var(--color-border)]"
-                          >
-                            {issue.replace(/_/g, " ")}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Context Summary */}
-                    <div className="p-2.5 rounded bg-[var(--color-surface-3)]/60 border border-[var(--color-border)] text-[11px] leading-relaxed text-[var(--color-text-muted)] italic line-clamp-2">
-                      &quot;{scenario.context}&quot;
-                    </div>
                   </div>
 
-                  {/* Launch Trigger Button */}
+                  {/* Launch Button */}
                   <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-surface-3)]/20 rounded-b-xl">
                     <button
                       onClick={() => handleLaunch(scenario)}
                       disabled={launchingId !== null}
-                      className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[var(--color-surface-3)] hover:bg-[var(--color-surface-4)] text-xs font-semibold rounded-lg border border-[var(--color-border)] transition-colors text-[var(--color-text-primary)] hover:border-[var(--color-brand-500)]/40 cursor-pointer disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] text-xs font-semibold rounded-lg text-white hover:opacity-90 transition-all shadow-[var(--shadow-glow)] cursor-pointer disabled:opacity-50"
                     >
                       {isLaunching ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--color-brand-400)]" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Play className="h-3 w-3 text-[var(--color-brand-400)] shrink-0" />
+                        <Play className="h-3 w-3 shrink-0" />
                       )}
-                      {isLaunching ? "Running Analysis..." : "Execute AI Run"}
+                      {isLaunching ? "Running Analysis..." : "Diagnose This"}
                     </button>
                   </div>
                 </Card>

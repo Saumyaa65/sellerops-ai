@@ -7,16 +7,8 @@ from agents.base_agent import BaseAgent
 from agents.state import AgentState
 from services.groq_service import groq_service
 
-_SYSTEM_PROMPT = """You are SellerOps AI Execution Agent — an expert in drafting professional 
-seller communications for Indian marketplaces (Meesho, Amazon, Flipkart).
-
-You write:
-- Appeal letters to marketplace teams
-- Responses to negative customer reviews
-- Policy violation dispute letters
-
-Tone: Professional, factual, polite, and concise.
-Language: Clear English suitable for marketplace support teams."""
+_SYSTEM_PROMPT = """You are SellerOps AI. Write a professional, concise, polite, and factual appeal letter. 
+Tone: Professional and compliant."""
 
 
 class ExecutionAgent(BaseAgent):
@@ -32,28 +24,23 @@ class ExecutionAgent(BaseAgent):
         marketplace = state.get("input_data", {}).get("marketplace", "Meesho")
 
         primary_issue = issues[0] if issues else {"type": "general_issue", "message": "Operational issue detected"}
-        plan_summary = "\n".join(action_plan[:5]) if action_plan else "Review and resolve detected issues."
+        plan_summary = "\n".join(action_plan[:3]) if action_plan else "Review and resolve issues."
 
         messages = [
             {"role": "system", "content": _SYSTEM_PROMPT},
             {
                 "role": "user",
-                "content": f"""Write a professional appeal letter to {marketplace} support team for:
+                "content": f"""Draft appeal to {marketplace} team:
 
 Issue: {primary_issue['type'].replace('_', ' ').title()}
-Description: {primary_issue['message']}
+Details: {primary_issue['message']}
 
-Our action plan:
+Corrective Action Plan:
 {plan_summary}
 
-The letter should:
-1. Acknowledge the issue
-2. Explain the root cause briefly
-3. Describe the corrective actions taken
-4. Request reinstatement/resolution
-5. Express commitment to compliance
-
-Keep it under 300 words.""",
+Requirements:
+- Under 250 words
+- Acknowledge issue, explain root cause briefly, list corrective actions taken, and request reinstatement.""",
             },
         ]
 
