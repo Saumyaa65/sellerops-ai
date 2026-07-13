@@ -1,0 +1,206 @@
+[
+  {
+    "chat_id": "CHAT-001",
+    "order_id": "ORD-2024-0002",
+    "customer_id": "CUST-1002",
+    "product_id": "LST002",
+    "date": "2024-11-08T10:30:00Z",
+    "status": "resolved",
+    "category": "size_issue",
+    "messages": [
+      {"sender": "customer", "time": "10:30", "text": "Hello, I received my salwar suit but the size is completely wrong. I ordered Medium but got something that fits like an Extra Small."},
+      {"sender": "seller", "time": "10:45", "text": "Hello! We're sorry to hear that. Can you please share a photo of the product label and your measurement so we can verify?"},
+      {"sender": "customer", "time": "11:00", "text": "Here is the photo. The label says 'M' but the measurements are clearly XS. My waist is 32 inches and this fits 26 inches maximum."},
+      {"sender": "seller", "time": "11:15", "text": "We sincerely apologize. This is a quality control issue. We will initiate a return pickup immediately and process a full refund within 5 business days."},
+      {"sender": "customer", "time": "11:20", "text": "Thank you. Please make sure this doesn't happen to others. You need a proper size chart."},
+      {"sender": "seller", "time": "11:25", "text": "Noted. We are updating our size charts and implementing stricter QC. Return pickup has been scheduled for tomorrow."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-002",
+    "order_id": "ORD-2024-0007",
+    "customer_id": "CUST-1007",
+    "product_id": "LST006",
+    "date": "2024-11-12T14:00:00Z",
+    "status": "resolved",
+    "category": "defective_product",
+    "messages": [
+      {"sender": "customer", "time": "14:00", "text": "The right earbud is completely dead. No sound at all. Bought this 3 days ago."},
+      {"sender": "seller", "time": "14:10", "text": "We are very sorry to hear this. Have you tried resetting the earbuds by holding the button for 10 seconds?"},
+      {"sender": "customer", "time": "14:15", "text": "Yes tried everything. The right earbud LED doesn't even blink. It's completely non-functional."},
+      {"sender": "seller", "time": "14:20", "text": "Understood. This sounds like a manufacturing defect. We'll arrange an immediate replacement at no cost. Do you prefer a replacement or full refund?"},
+      {"sender": "customer", "time": "14:25", "text": "Full refund please. I've lost confidence in this product."},
+      {"sender": "seller", "time": "14:30", "text": "Absolutely. Return pickup arranged for tomorrow. Refund will be processed in 5-7 business days. We're very sorry for the inconvenience."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-003",
+    "order_id": "ORD-2024-0043",
+    "customer_id": "CUST-1040",
+    "product_id": "LST001",
+    "date": "2024-12-09T09:00:00Z",
+    "status": "escalated",
+    "category": "fraud_suspected",
+    "messages": [
+      {"sender": "customer", "time": "09:00", "text": "I want to return this kurta. It's not good quality."},
+      {"sender": "seller", "time": "09:15", "text": "Hello! We notice this is your 4th return with us in the last month. Can you share a photo of the specific issue?"},
+      {"sender": "customer", "time": "09:20", "text": "Why does it matter how many returns I do? It's my right to return. Just process the return."},
+      {"sender": "seller", "time": "09:30", "text": "We understand. However, policy requires photo evidence for returns. Please share a photo of the defect."},
+      {"sender": "customer", "time": "09:35", "text": "I don't have a photo. Just initiate the return or I'll give you 1 star."},
+      {"sender": "seller", "time": "09:45", "text": "We'll escalate this to Meesho support. Without evidence we cannot confirm a defect. Your review should reflect the actual product experience, not return disputes."},
+      {"sender": "customer", "time": "09:50", "text": "Fine. Escalate. I know how to deal with sellers like you."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-004",
+    "order_id": "ORD-2024-0014",
+    "customer_id": "CUST-1013",
+    "product_id": "LST015",
+    "date": "2024-11-12T11:00:00Z",
+    "status": "resolved",
+    "category": "cancellation",
+    "messages": [
+      {"sender": "customer", "time": "11:00", "text": "My order was cancelled. When will I get my refund?"},
+      {"sender": "seller", "time": "11:15", "text": "Hello! We sincerely apologize. The item went out of stock unexpectedly after your order was placed. Refund will be credited in 3-5 business days."},
+      {"sender": "customer", "time": "11:20", "text": "This is unacceptable. I needed it urgently. Can you expedite the refund?"},
+      {"sender": "seller", "time": "11:25", "text": "We've flagged it for priority processing. Should reflect in 2-3 days. We're very sorry for the disappointment."},
+      {"sender": "customer", "time": "11:30", "text": "Okay. Please keep your inventory updated so this doesn't happen again."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-005",
+    "order_id": "ORD-2024-0078",
+    "customer_id": "CUST-1073",
+    "product_id": "LST039",
+    "date": "2024-12-22T09:00:00Z",
+    "status": "resolved",
+    "category": "late_delivery",
+    "messages": [
+      {"sender": "customer", "time": "09:00", "text": "My saree was supposed to arrive by December 20th for my daughter's wedding on December 22nd. It's still not delivered!"},
+      {"sender": "seller", "time": "09:10", "text": "We sincerely apologize for this delay. The festive season has caused unprecedented logistics delays. Let me check the tracking now."},
+      {"sender": "customer", "time": "09:15", "text": "This is a wedding saree! My daughter's wedding is TODAY. This is completely ruined."},
+      {"sender": "seller", "time": "09:20", "text": "We are deeply sorry. We have escalated this to the courier for emergency delivery. The tracking shows it's out for delivery now — estimated 2 hours."},
+      {"sender": "customer", "time": "09:25", "text": "If it doesn't arrive in 2 hours I want a full refund and compensation."},
+      {"sender": "seller", "time": "09:30", "text": "Completely understood. I've personally called the delivery agent and it will reach you within 90 minutes. If not, we'll process immediate refund + 500 rupees voucher."},
+      {"sender": "customer", "time": "13:00", "text": "It arrived! Beautiful saree. But please fix your logistics for festivals. Very stressful experience."},
+      {"sender": "seller", "time": "13:10", "text": "So glad it arrived! We apologize for the stress. Your feedback is very important to us. Wishing your daughter a beautiful wedding!"}
+    ]
+  },
+  {
+    "chat_id": "CHAT-006",
+    "order_id": "ORD-2024-0100",
+    "customer_id": "CUST-1095",
+    "product_id": "LST011",
+    "date": "2025-01-07T11:00:00Z",
+    "status": "escalated",
+    "category": "fraud",
+    "messages": [
+      {"sender": "customer", "time": "11:00", "text": "I want to return this smartwatch. It was defective."},
+      {"sender": "seller", "time": "11:15", "text": "Hello. Can you describe the defect? We'd like to help resolve this."},
+      {"sender": "customer", "time": "11:20", "text": "Screen not working. Just initiate the return."},
+      {"sender": "seller", "time": "11:30", "text": "We notice our system flagged your return — the returned package last time contained an empty box. We need to verify before processing this return."},
+      {"sender": "customer", "time": "11:35", "text": "That's an accusation! How dare you! I'll report you to consumer forum."},
+      {"sender": "seller", "time": "11:45", "text": "We have escalated this case to Meesho's fraud investigation team with all documentation. Your case is under review."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-007",
+    "order_id": "ORD-2024-0024",
+    "customer_id": "CUST-1022",
+    "product_id": "LST031",
+    "date": "2024-11-25T14:00:00Z",
+    "status": "resolved",
+    "category": "positive",
+    "messages": [
+      {"sender": "customer", "time": "14:00", "text": "Just received my bedsheet set. It's absolutely beautiful. The colors are exactly as shown and the fabric is so soft!"},
+      {"sender": "seller", "time": "14:15", "text": "Thank you so much for your kind words! We're delighted you love it. Do share a photo on your review if you'd like!"},
+      {"sender": "customer", "time": "14:20", "text": "Will definitely! Already thinking of ordering more for my other rooms. Do you have more prints?"},
+      {"sender": "seller", "time": "14:25", "text": "Yes! We have 20+ prints available. Check our store page. As a loyal customer, we can offer you 10% off on your next order."},
+      {"sender": "customer", "time": "14:30", "text": "Amazing! Thank you so much! Will definitely order again."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-008",
+    "order_id": "ORD-2024-0076",
+    "customer_id": "CUST-1071",
+    "product_id": "LST018",
+    "date": "2024-12-26T10:00:00Z",
+    "status": "resolved",
+    "category": "damaged_delivery",
+    "messages": [
+      {"sender": "customer", "time": "10:00", "text": "2 mugs in my 6-piece set arrived broken. The packaging was very poor — just thin bubble wrap."},
+      {"sender": "seller", "time": "10:15", "text": "We're very sorry! Please share photos of the broken mugs and the packaging so we can document this."},
+      {"sender": "customer", "time": "10:20", "text": "[Photo attached] Here are the broken mugs. The box was crushed on one side clearly."},
+      {"sender": "seller", "time": "10:30", "text": "Thank you for the photos. This is clearly a logistics damage issue. We'll send 2 replacement mugs immediately at no charge. No need to return the broken ones."},
+      {"sender": "customer", "time": "10:35", "text": "That's very generous! Thank you. When will replacements arrive?"},
+      {"sender": "seller", "time": "10:40", "text": "Within 3-4 business days. We've also improved our packaging for mugs — now using double-wall boxes. Your feedback helped us improve!"}
+    ]
+  },
+  {
+    "chat_id": "CHAT-009",
+    "order_id": null,
+    "customer_id": "CUST-4001",
+    "product_id": "LST016",
+    "date": "2025-01-10T09:00:00Z",
+    "status": "flagged",
+    "category": "abusive_customer",
+    "messages": [
+      {"sender": "customer", "time": "09:00", "text": "Your product is garbage and you're a fraud seller! I'll post everywhere to destroy your business!"},
+      {"sender": "seller", "time": "09:15", "text": "Hello, we're sorry you had a bad experience. Can you please describe the issue with the product so we can resolve it?"},
+      {"sender": "customer", "time": "09:18", "text": "I don't need to describe anything! You know what you sold! Take your trash back or I'll get you suspended!"},
+      {"sender": "seller", "time": "09:25", "text": "We want to help resolve this constructively. Please share your order ID so we can look into this for you."},
+      {"sender": "customer", "time": "09:27", "text": "I didn't even order from you directly! But your product gave my cousin a reaction!"},
+      {"sender": "seller", "time": "09:35", "text": "We understand your concern. For health-related issues, please contact Meesho support directly. Without an order ID we cannot process any claim."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-010",
+    "order_id": "ORD-2024-0094",
+    "customer_id": "CUST-1089",
+    "product_id": "LST050",
+    "date": "2025-01-04T11:00:00Z",
+    "status": "escalated",
+    "category": "safety_complaint",
+    "messages": [
+      {"sender": "customer", "time": "11:00", "text": "This neck massager gave me electric shocks! My neck is red and painful! This product is dangerous!"},
+      {"sender": "seller", "time": "11:15", "text": "We're very concerned to hear this. Please stop using the device immediately. Are you okay? Do you need medical assistance?"},
+      {"sender": "customer", "time": "11:20", "text": "I'm okay now but this should not happen. I set it to level 5 and it was intense electric shocks."},
+      {"sender": "seller", "time": "11:30", "text": "Levels above 8 are only for trained professionals. However, level 5 should be safe. This may be a faulty unit. We're initiating immediate recall of this batch."},
+      {"sender": "customer", "time": "11:35", "text": "You should warn users more clearly! I want a full refund and compensation for distress caused."},
+      {"sender": "seller", "time": "11:45", "text": "Absolutely. Full refund processed immediately. We're also offering ₹500 compensation and have flagged this batch for quality review. Thank you for keeping us informed — this helps prevent harm to others."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-011",
+    "order_id": "ORD-2024-0058",
+    "customer_id": "CUST-1054",
+    "product_id": "LST001",
+    "date": "2024-12-16T09:00:00Z",
+    "status": "resolved",
+    "category": "late_delivery",
+    "messages": [
+      {"sender": "customer", "time": "09:00", "text": "My kurta was supposed to arrive December 15th but still not delivered. ETA?"},
+      {"sender": "seller", "time": "09:10", "text": "Hello! Tracking shows a weather-related delay at the transit hub. Current ETA is December 18th. Very sorry for the inconvenience."},
+      {"sender": "customer", "time": "09:15", "text": "Okay. Can I get a partial refund since it's late?"},
+      {"sender": "seller", "time": "09:25", "text": "We'll apply a 10% discount on your next order as goodwill compensation. The delay was due to severe weather which was beyond our control."},
+      {"sender": "customer", "time": "09:30", "text": "Alright, that's fair. Hope the weather clears."}
+    ]
+  },
+  {
+    "chat_id": "CHAT-012",
+    "order_id": "ORD-2024-0045",
+    "customer_id": "CUST-1002",
+    "product_id": "LST012",
+    "date": "2024-12-10T09:00:00Z",
+    "status": "flagged",
+    "category": "repeat_abuse",
+    "messages": [
+      {"sender": "customer", "time": "09:00", "text": "Want to return these 3 kurtis. Too transparent."},
+      {"sender": "seller", "time": "09:15", "text": "Hello! This is your 4th order and 4th return with us. We notice a pattern. Can you share photos of the issue?"},
+      {"sender": "customer", "time": "09:20", "text": "The fabric was transparent which wasn't mentioned in the listing. It's a valid complaint."},
+      {"sender": "seller", "time": "09:30", "text": "We understand. However, our records show previous returns for 'size issue', 'wrong product', and 'ordered mistake'. Multiple return reasons suggest possible return policy abuse."},
+      {"sender": "customer", "time": "09:35", "text": "Are you accusing me of something? I'll report you!"},
+      {"sender": "seller", "time": "09:45", "text": "We have escalated this account pattern to Meesho's buyer trust team for review. We'll process return if Meesho approves after investigation."}
+    ]
+  }
+]

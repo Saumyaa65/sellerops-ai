@@ -1,0 +1,504 @@
+[
+  {
+    "id": "LST001", "name": "Men's Printed Cotton Kurta - Royal Blue",
+    "category": "clothing", "sku": "KRT-BLU-M-001",
+    "price": 499, "mrp": 899,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Premium quality men's printed cotton kurta. Ideal for festive occasions and casual wear. Comfortable fit with breathable cotton fabric. Available in sizes S, M, L, XL, XXL. Machine washable. Festive embroidered border detailing.",
+    "size_chart": true, "stock": 142, "marketplace": "meesho",
+    "status": "active", "rating": 4.2, "total_reviews": 87,
+    "violations": []
+  },
+  {
+    "id": "LST002", "name": "Women's Embroidered Salwar Suit",
+    "category": "clothing", "sku": "SLW-EMB-W-002",
+    "price": 749, "mrp": 1299,
+    "images": ["img1.jpg"],
+    "description": "Elegant embroidered salwar suit.",
+    "size_chart": false, "stock": 56, "marketplace": "meesho",
+    "status": "active", "rating": 3.8, "total_reviews": 23,
+    "violations": ["low_image_count","missing_size_chart","thin_description"]
+  },
+  {
+    "id": "LST003", "name": "Stainless Steel Water Bottle 1L",
+    "category": "kitchen", "sku": "BTL-SS-1L-003",
+    "price": 0, "mrp": 599,
+    "images": [],
+    "description": "Durable stainless steel insulated water bottle. Keeps water cold for 24 hours and hot for 12 hours. BPA-free cap. Dishwasher safe. Leak-proof design. Ideal for gym, office and outdoor use.",
+    "size_chart": false, "stock": 200, "marketplace": "meesho",
+    "status": "draft", "rating": 0, "total_reviews": 0,
+    "violations": ["missing_images","invalid_price"]
+  },
+  {
+    "id": "LST004", "name": "Digital Kitchen Food Weighing Scale",
+    "category": "kitchen", "sku": "SCL-DGT-K-004",
+    "price": 349, "mrp": 599,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "High precision digital kitchen scale. Measures in grams, kilograms, ounces and pounds. Maximum capacity 5kg. Tare function for accurate measurements. LCD backlit display. Auto-off feature to save battery.",
+    "size_chart": false, "stock": 89, "marketplace": "amazon",
+    "status": "active", "rating": 4.5, "total_reviews": 312,
+    "violations": []
+  },
+  {
+    "id": "LST005", "name": "Kids Running Shoes - Red",
+    "category": "footwear", "sku": "SHO-KID-RED-005",
+    "price": 1299, "mrp": 1299,
+    "images": ["img1.jpg","img2.jpg"],
+    "description": "Lightweight and comfortable running shoes for kids.",
+    "size_chart": false, "stock": 34, "marketplace": "flipkart",
+    "status": "active", "rating": 4.1, "total_reviews": 156,
+    "violations": ["missing_size_chart","low_image_count","thin_description"]
+  },
+  {
+    "id": "LST006", "name": "Wireless Bluetooth Earbuds TWS",
+    "category": "electronics", "sku": "EBD-BT-TWS-006",
+    "price": 1599, "mrp": 999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg","img5.jpg"],
+    "description": "True wireless stereo earbuds with active noise cancellation, 30-hour battery life, and IPX5 water resistance. Bluetooth 5.3. Touch controls. Compatible with iOS and Android.",
+    "size_chart": false, "stock": 67, "marketplace": "amazon",
+    "status": "active", "rating": 4.3, "total_reviews": 489,
+    "violations": ["price_above_mrp"]
+  },
+  {
+    "id": "LST007", "name": "Women's Floral Printed Maxi Dress",
+    "category": "clothing", "sku": "DRS-FLR-W-007",
+    "price": 899, "mrp": 1499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Beautiful floral printed maxi dress for women. Made from lightweight crepe fabric. Comfortable all-day wear. Ideal for summer outings, beach vacation and casual parties. Available in S, M, L, XL sizes. Cold wash recommended.",
+    "size_chart": true, "stock": 78, "marketplace": "meesho",
+    "status": "active", "rating": 4.4, "total_reviews": 203,
+    "violations": []
+  },
+  {
+    "id": "LST008", "name": "Men's Formal Slim Fit Trousers - Black",
+    "category": "clothing", "sku": "TRS-FRM-M-008",
+    "price": 699, "mrp": 1199,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Men's slim fit formal trousers. Premium polyester-viscose blend. Wrinkle resistant. Suitable for office and formal occasions.",
+    "size_chart": false, "stock": 112, "marketplace": "meesho",
+    "status": "active", "rating": 3.9, "total_reviews": 67,
+    "violations": ["missing_size_chart"]
+  },
+  {
+    "id": "LST009", "name": "Non-Stick Cookware Set 5-Piece",
+    "category": "kitchen", "sku": "CKW-NST-5P-009",
+    "price": 1899, "mrp": 2999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "5-piece non-stick cookware set. Includes 1 fry pan, 2 sauce pans, 1 casserole and 1 wok. Induction compatible. PFOA-free coating. Tempered glass lids. Suitable for all cooktops. Dishwasher safe. 2-year manufacturer warranty.",
+    "size_chart": false, "stock": 45, "marketplace": "amazon",
+    "status": "active", "rating": 4.6, "total_reviews": 178,
+    "violations": []
+  },
+  {
+    "id": "LST010", "name": "Men's Sports Running Shoes - White",
+    "category": "footwear", "sku": "SHO-SPT-M-010",
+    "price": 1599, "mrp": 2499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "High performance men's sports running shoes with advanced cushioning technology. Breathable mesh upper. Rubber outsole for excellent grip. EVA midsole for comfort. Sizes UK6-UK11 available. Ideal for jogging, gym and outdoor sports.",
+    "size_chart": true, "stock": 234, "marketplace": "amazon",
+    "status": "active", "rating": 4.7, "total_reviews": 892,
+    "violations": []
+  },
+  {
+    "id": "LST011", "name": "Smart Watch Fitness Tracker - Black",
+    "category": "electronics", "sku": "SWT-FIT-BLK-011",
+    "price": 2499, "mrp": 3999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Feature-packed smartwatch with heart rate monitor, SpO2 sensor, 7-day battery, 100+ sports modes, water resistance IP68, sleep tracking and call notifications. 1.7 inch AMOLED display. Compatible with iOS 9+ and Android 5+.",
+    "size_chart": false, "stock": 56, "marketplace": "flipkart",
+    "status": "active", "rating": 4.2, "total_reviews": 445,
+    "violations": []
+  },
+  {
+    "id": "LST012", "name": "Women's Ethnic Printed Kurti",
+    "category": "clothing", "sku": "KRT-ETH-W-012",
+    "price": 299, "mrp": 599,
+    "images": ["img1.jpg","img2.jpg"],
+    "description": "Ethnic printed cotton kurti for women.",
+    "size_chart": false, "stock": 320, "marketplace": "meesho",
+    "status": "active", "rating": 3.5, "total_reviews": 145,
+    "violations": ["low_image_count","missing_size_chart","thin_description"]
+  },
+  {
+    "id": "LST013", "name": "BEST QUALITY LOWEST PRICE kurta kurta kurta shirt ethnic wear festival party",
+    "category": "clothing", "sku": "KRT-KWD-STF-013",
+    "price": 399, "mrp": 799,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "kurta kurta kurta best kurta cheap kurta festive kurta ethnic kurta meesho kurta party kurta casual kurta comfortable kurta cotton kurta printed kurta men kurta women kurta",
+    "size_chart": true, "stock": 88, "marketplace": "meesho",
+    "status": "active", "rating": 2.1, "total_reviews": 34,
+    "violations": ["keyword_stuffing","misleading_title","thin_description"]
+  },
+  {
+    "id": "LST014", "name": "Yoga Mat Anti-Slip 6mm - Purple",
+    "category": "sports", "sku": "YGM-PRP-6MM-014",
+    "price": 799, "mrp": 1299,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Premium 6mm thick anti-slip yoga mat. Made from eco-friendly TPE material. Ideal for yoga, pilates and stretching exercises. Includes carry strap. Moisture resistant. Easy to clean. Dimensions: 183cm x 61cm.",
+    "size_chart": false, "stock": 167, "marketplace": "flipkart",
+    "status": "active", "rating": 4.3, "total_reviews": 289,
+    "violations": []
+  },
+  {
+    "id": "LST015", "name": "Portable Bluetooth Speaker - Waterproof",
+    "category": "electronics", "sku": "SPK-BT-WPF-015",
+    "price": 1299, "mrp": 1999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Compact portable Bluetooth speaker with 360-degree sound. IPX7 waterproof rating. 12-hour battery life. Built-in microphone for hands-free calls. Connects to two devices simultaneously. Bluetooth 5.0.",
+    "size_chart": false, "stock": 89, "marketplace": "amazon",
+    "status": "active", "rating": 4.1, "total_reviews": 334,
+    "violations": []
+  },
+  {
+    "id": "LST016", "name": "Ayurvedic Weight Loss Capsules - 60 Capsules",
+    "category": "health", "sku": "AYR-WLS-CAP-016",
+    "price": 999, "mrp": 1499,
+    "images": ["img1.jpg","img2.jpg"],
+    "description": "100% natural Ayurvedic formula. Guaranteed weight loss in 7 days. No side effects. Lose 10kg in a month.",
+    "size_chart": false, "stock": 450, "marketplace": "meesho",
+    "status": "active", "rating": 2.8, "total_reviews": 22,
+    "violations": ["restricted_product","misleading_claims","policy_violation"]
+  },
+  {
+    "id": "LST017", "name": "Men's Casual Printed T-Shirt",
+    "category": "clothing", "sku": "TSH-CAS-M-017",
+    "price": 249, "mrp": 499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Casual printed round neck t-shirt for men. 100% cotton. Half sleeve. Available in multiple colors and sizes S to XXL. Machine washable. Soft and comfortable fabric perfect for daily wear.",
+    "size_chart": true, "stock": 890, "marketplace": "meesho",
+    "status": "active", "rating": 4.0, "total_reviews": 567,
+    "violations": []
+  },
+  {
+    "id": "LST018", "name": "Ceramic Coffee Mug Set - 6 Pieces",
+    "category": "kitchen", "sku": "MUG-CRM-6P-018",
+    "price": 599, "mrp": 899,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Set of 6 ceramic coffee mugs. 300ml capacity each. Microwave and dishwasher safe. Beautiful floral prints. Lead-free glaze. Ideal for coffee, tea, hot chocolate. Gift-worthy packaging.",
+    "size_chart": false, "stock": 134, "marketplace": "amazon",
+    "status": "active", "rating": 4.4, "total_reviews": 198,
+    "violations": []
+  },
+  {
+    "id": "LST019", "name": "Women's High Heels Sandals",
+    "category": "footwear", "sku": "SND-HHL-W-019",
+    "price": 899, "mrp": 1499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Stylish high heels sandals for women. 3-inch block heel. Faux leather upper. Cushioned footbed for comfort. Available in UK 3-7. Ideal for parties and formal occasions.",
+    "size_chart": false, "stock": 56, "marketplace": "meesho",
+    "status": "active", "rating": 3.7, "total_reviews": 89,
+    "violations": ["missing_size_chart"]
+  },
+  {
+    "id": "LST020", "name": "Laptop Bag 15.6 inch - Dark Grey",
+    "category": "bags", "sku": "BAG-LAP-156-020",
+    "price": 1299, "mrp": 2099,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Professional laptop bag fits up to 15.6 inch laptops. Water resistant nylon material. Multiple compartments. Padded shoulder strap. USB charging port. Includes anti-theft pocket at back. Ideal for office and college.",
+    "size_chart": false, "stock": 78, "marketplace": "flipkart",
+    "status": "active", "rating": 4.5, "total_reviews": 423,
+    "violations": []
+  },
+  {
+    "id": "LST021", "name": "Kids Cotton Frock - Pink",
+    "category": "clothing", "sku": "FRK-KID-PNK-021",
+    "price": 349, "mrp": 599,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Cute cotton frock for girls. Soft breathable fabric. Sleeveless design with frills. Machine washable. For ages 2-8 years.",
+    "size_chart": false, "stock": 234, "marketplace": "meesho",
+    "status": "active", "rating": 4.2, "total_reviews": 312,
+    "violations": ["missing_size_chart"]
+  },
+  {
+    "id": "LST022", "name": "Air Fryer 3.5L - Digital",
+    "category": "kitchen", "sku": "AFR-DGT-35L-022",
+    "price": 4999, "mrp": 7999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "3.5L digital air fryer with 8 preset cooking modes. 1500W rapid hot air circulation technology. Non-stick basket. Touchscreen control panel. Temperature range 80-200°C. Timer up to 60 minutes. Easy to clean. 1 year warranty.",
+    "size_chart": false, "stock": 34, "marketplace": "amazon",
+    "status": "active", "rating": 4.6, "total_reviews": 678,
+    "violations": []
+  },
+  {
+    "id": "LST023", "name": "Copper Bottom Brass Idol Ganesh - 6 inch",
+    "category": "home_decor", "sku": "IDL-GNS-BRS-023",
+    "price": 1499, "mrp": 2499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Handcrafted brass Ganesha idol with copper base finish. Height 6 inches. Traditional Indian craftsmanship. Suitable for home temple, office desk and gifting. Antique finish. Each piece is unique.",
+    "size_chart": false, "stock": 45, "marketplace": "meesho",
+    "status": "active", "rating": 4.8, "total_reviews": 234,
+    "violations": []
+  },
+  {
+    "id": "LST024", "name": "Men's Leather Wallet - Brown",
+    "category": "accessories", "sku": "WLT-LTH-M-024",
+    "price": 799, "mrp": 1299,
+    "images": [],
+    "description": "Genuine leather bifold wallet for men. 8 card slots. 2 currency compartments. ID window. RFID blocking technology. Slim design. Available in brown and black.",
+    "size_chart": false, "stock": 156, "marketplace": "amazon",
+    "status": "draft", "rating": 0, "total_reviews": 0,
+    "violations": ["missing_images"]
+  },
+  {
+    "id": "LST025", "name": "Electric Kettle 1.5L Stainless Steel",
+    "category": "kitchen", "sku": "KTL-ELC-15L-025",
+    "price": 1199, "mrp": 1999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "1500W electric kettle with stainless steel body. 1.5L capacity. Auto shut-off when water boils. 360-degree cordless base. Boil-dry protection. LED indicator. Cool touch handle. BPA-free interior.",
+    "size_chart": false, "stock": 89, "marketplace": "flipkart",
+    "status": "active", "rating": 4.3, "total_reviews": 567,
+    "violations": []
+  },
+  {
+    "id": "LST026", "name": "Women's Chiffon Dupatta - Multicolor",
+    "category": "clothing", "sku": "DPT-CHF-W-026",
+    "price": 149, "mrp": 299,
+    "images": ["img1.jpg"],
+    "description": "Chiffon dupatta.",
+    "size_chart": false, "stock": 1200, "marketplace": "meesho",
+    "status": "active", "rating": 3.2, "total_reviews": 45,
+    "violations": ["low_image_count","thin_description"]
+  },
+  {
+    "id": "LST027", "name": "Duplicate Listing - Men's Printed Cotton Kurta Blue",
+    "category": "clothing", "sku": "KRT-BLU-M-001-DUP",
+    "price": 499, "mrp": 899,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Premium quality men's printed cotton kurta. Ideal for festive occasions and casual wear. Comfortable fit with breathable cotton fabric. Available in sizes S, M, L, XL, XXL.",
+    "size_chart": true, "stock": 142, "marketplace": "meesho",
+    "status": "active", "rating": 0, "total_reviews": 0,
+    "violations": ["duplicate_listing"]
+  },
+  {
+    "id": "LST028", "name": "Pressure Cooker 5L Aluminum",
+    "category": "kitchen", "sku": "PCK-ALM-5L-028",
+    "price": 1599, "mrp": 2599,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "5 liter aluminum pressure cooker with safety valve and gasket. ISI marked. Suitable for all cooktops including induction. Ergonomic handles. Easy lock and release system. 2 whistle settings.",
+    "size_chart": false, "stock": 67, "marketplace": "amazon",
+    "status": "active", "rating": 4.4, "total_reviews": 289,
+    "violations": []
+  },
+  {
+    "id": "LST029", "name": "Women's Printed Anarkali Suit - Red",
+    "category": "clothing", "sku": "ANK-PRT-W-029",
+    "price": 1199, "mrp": 1999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Gorgeous printed anarkali suit for women. Georgette fabric with beautiful embroidery on neckline. Comes with matching dupatta and palazzo pants. Perfect for festivals, weddings and parties. Dry clean recommended.",
+    "size_chart": true, "stock": 34, "marketplace": "meesho",
+    "status": "active", "rating": 4.5, "total_reviews": 178,
+    "violations": []
+  },
+  {
+    "id": "LST030", "name": "Counterfeit iPhone Charger 20W",
+    "category": "electronics", "sku": "CHR-IPH-20W-030",
+    "price": 199, "mrp": 399,
+    "images": ["img1.jpg","img2.jpg"],
+    "description": "Original Apple iPhone 20W charger. Genuine Apple product. Fast charging. Compatible with all iPhones. MFi certified.",
+    "size_chart": false, "stock": 500, "marketplace": "flipkart",
+    "status": "active", "rating": 2.3, "total_reviews": 45,
+    "violations": ["counterfeit_suspected","misleading_claims","restricted_product"]
+  },
+  {
+    "id": "LST031", "name": "Bedsheet Set - King Size Printed",
+    "category": "home_decor", "sku": "BDS-KNG-PRT-031",
+    "price": 799, "mrp": 1499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "King size bedsheet set with 2 pillow covers. 100% cotton. 200 thread count. Machine washable. Shrink and fade resistant. Beautiful geometric prints. Available in multiple color options.",
+    "size_chart": false, "stock": 234, "marketplace": "meesho",
+    "status": "active", "rating": 4.1, "total_reviews": 456,
+    "violations": []
+  },
+  {
+    "id": "LST032", "name": "Men's Running Shorts - Quick Dry",
+    "category": "clothing", "sku": "SRT-RUN-M-032",
+    "price": 349, "mrp": 599,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Lightweight quick-dry men's running shorts. Built-in compression liner. Reflective strips. Side zip pocket. Elastic waistband with drawstring. Moisture wicking fabric. Available in S, M, L, XL.",
+    "size_chart": true, "stock": 345, "marketplace": "flipkart",
+    "status": "active", "rating": 4.3, "total_reviews": 234,
+    "violations": []
+  },
+  {
+    "id": "LST033", "name": "Handmade Wooden Photo Frame - 5x7",
+    "category": "home_decor", "sku": "FRM-WD-5X7-033",
+    "price": 499, "mrp": 799,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Handcrafted solid wood photo frame. 5x7 inch size. Antique finish. Wall hanging or table top stand. Fits standard 5x7 photo prints. Beautiful gifting option. Each frame is uniquely crafted.",
+    "size_chart": false, "stock": 89, "marketplace": "amazon",
+    "status": "active", "rating": 4.6, "total_reviews": 167,
+    "violations": []
+  },
+  {
+    "id": "LST034", "name": "Baby Romper Set - Pack of 5",
+    "category": "clothing", "sku": "RMP-BBY-5P-034",
+    "price": 799, "mrp": 1299,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Pack of 5 baby rompers. 100% organic cotton. Snap button closures. Soft and gentle on baby skin. Available in 3-6 months, 6-9 months, 9-12 months sizes.",
+    "size_chart": false, "stock": 456, "marketplace": "meesho",
+    "status": "active", "rating": 4.7, "total_reviews": 389,
+    "violations": ["missing_size_chart"]
+  },
+  {
+    "id": "LST035", "name": "Zero Price - Trial Item",
+    "category": "electronics", "sku": "TRL-ZRO-PRC-035",
+    "price": 0, "mrp": 100,
+    "images": ["img1.jpg"],
+    "description": "Test listing created by accident. Should not be visible.",
+    "size_chart": false, "stock": 1, "marketplace": "meesho",
+    "status": "draft", "rating": 0, "total_reviews": 0,
+    "violations": ["invalid_price","missing_images","thin_description","draft_listing"]
+  },
+  {
+    "id": "LST036", "name": "Heavy Duty Steel Dumbbell Set - 10kg Pair",
+    "category": "sports", "sku": "DBL-STL-10K-036",
+    "price": 2499, "mrp": 3999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "10kg pair of hexagonal steel dumbbells. Non-roll design. Chrome handle with knurling grip. Rubber coating on ends. Ideal for home gym. Rust resistant. Tested to 500kg load. Weight marked on each dumbbell.",
+    "size_chart": false, "stock": 78, "marketplace": "flipkart",
+    "status": "active", "rating": 4.5, "total_reviews": 267,
+    "violations": []
+  },
+  {
+    "id": "LST037", "name": "Men's Formal Shirt - White Plain",
+    "category": "clothing", "sku": "SHT-FRM-M-037",
+    "price": 599, "mrp": 999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Classic white formal shirt for men. 60% cotton 40% polyester blend. Regular fit collar. Button-down front. Full sleeves. Available sizes S-XXL. Easy to iron. Suitable for office, interviews and formal events.",
+    "size_chart": true, "stock": 567, "marketplace": "meesho",
+    "status": "active", "rating": 4.2, "total_reviews": 678,
+    "violations": []
+  },
+  {
+    "id": "LST038", "name": "Ceramic Plant Pots - Set of 3",
+    "category": "home_decor", "sku": "POT-CRM-3P-038",
+    "price": 699, "mrp": 1199,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Set of 3 ceramic plant pots in graduated sizes. Drainage holes at bottom. Matte finish. Suitable for indoor and outdoor use. 8cm, 12cm, 16cm diameter. Modern minimalist design. Ideal for succulents, cacti and herbs.",
+    "size_chart": false, "stock": 123, "marketplace": "amazon",
+    "status": "active", "rating": 4.4, "total_reviews": 234,
+    "violations": []
+  },
+  {
+    "id": "LST039", "name": "Saree - Silk Banarasi Wedding Red",
+    "category": "clothing", "sku": "SAR-SLK-BNR-039",
+    "price": 5999, "mrp": 9999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Authentic Banarasi silk saree with intricate gold zari work. Rich border design. Comes with unstitched blouse piece. 6.3 meters length. Dry clean only. Perfect for weddings and grand occasions.",
+    "size_chart": false, "stock": 12, "marketplace": "meesho",
+    "status": "active", "rating": 4.9, "total_reviews": 89,
+    "violations": []
+  },
+  {
+    "id": "LST040", "name": "Invisible Glass Screen Protector iPhone 15",
+    "category": "electronics", "sku": "SCR-IPH15-TMP-040",
+    "price": 399, "mrp": 699,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "9H hardness tempered glass screen protector for iPhone 15. Anti-fingerprint coating. 99% transparency. Case-friendly edges. Self-healing technology. Includes installation kit. Pack of 2.",
+    "size_chart": false, "stock": 890, "marketplace": "amazon",
+    "status": "active", "rating": 4.3, "total_reviews": 1245,
+    "violations": []
+  },
+  {
+    "id": "LST041", "name": "Wrong Category - Women's Handbag listed under Electronics",
+    "category": "electronics", "sku": "HBG-WMN-ELC-041",
+    "price": 1299, "mrp": 2199,
+    "images": ["img1.jpg","img2.jpg","img3.jpg"],
+    "description": "Stylish PU leather handbag for women. Multiple pockets. Adjustable shoulder strap. Available in black, brown, red. Zipper closure.",
+    "size_chart": false, "stock": 67, "marketplace": "flipkart",
+    "status": "active", "rating": 3.6, "total_reviews": 123,
+    "violations": ["wrong_category"]
+  },
+  {
+    "id": "LST042", "name": "Herbal Immunity Booster Syrup - 200ml",
+    "category": "health", "sku": "IMM-HRB-SYP-042",
+    "price": 299, "mrp": 499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Scientifically proven formula with Tulsi, Ashwagandha and Giloy. Boosts immunity in 3 days. No preservatives. FDA approved. Suitable for all ages including children above 5 years.",
+    "size_chart": false, "stock": 345, "marketplace": "meesho",
+    "status": "active", "rating": 3.4, "total_reviews": 67,
+    "violations": ["misleading_claims","restricted_health_product"]
+  },
+  {
+    "id": "LST043", "name": "Inactive - Men's Polo T-Shirt",
+    "category": "clothing", "sku": "TSH-PLO-M-043",
+    "price": 449, "mrp": 799,
+    "images": ["img1.jpg","img2.jpg"],
+    "description": "Classic polo t-shirt for men. Soft pique fabric. Ribbed collar and cuffs.",
+    "size_chart": false, "stock": 0, "marketplace": "meesho",
+    "status": "inactive", "rating": 4.0, "total_reviews": 56,
+    "violations": ["out_of_stock","inactive_listing"]
+  },
+  {
+    "id": "LST044", "name": "Steel Tiffin Box 3-Tier",
+    "category": "kitchen", "sku": "TFF-STL-3TR-044",
+    "price": 799, "mrp": 1299,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "3-tier stainless steel tiffin box. Leak-proof lids. Insulated carrier bag included. Dishwasher safe. BPA-free. Total capacity 3.5 liters. Ideal for office and school. Comes with spoon.",
+    "size_chart": false, "stock": 234, "marketplace": "amazon",
+    "status": "active", "rating": 4.5, "total_reviews": 445,
+    "violations": []
+  },
+  {
+    "id": "LST045", "name": "Women's Sports Bra - High Support",
+    "category": "clothing", "sku": "BRA-SPT-W-045",
+    "price": 499, "mrp": 899,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "High impact sports bra with underwire support. Moisture wicking fabric. Wide adjustable straps. Removable cups. Available in sizes 32B to 40DD. Ideal for running, gym, yoga and high intensity workouts.",
+    "size_chart": true, "stock": 178, "marketplace": "flipkart",
+    "status": "active", "rating": 4.4, "total_reviews": 234,
+    "violations": []
+  },
+  {
+    "id": "LST046", "name": "Priceless Antique - MRP Set to 1",
+    "category": "home_decor", "sku": "ANT-ZRO-MRP-046",
+    "price": 999, "mrp": 1,
+    "images": ["img1.jpg","img2.jpg"],
+    "description": "Antique artifact listed with wrong MRP. Selling price exceeds MRP. This is a test of the price above MRP violation.",
+    "size_chart": false, "stock": 5, "marketplace": "meesho",
+    "status": "active", "rating": 0, "total_reviews": 0,
+    "violations": ["price_above_mrp"]
+  },
+  {
+    "id": "LST047", "name": "Kids Cartoon Bedsheet - Single",
+    "category": "home_decor", "sku": "BDS-KID-CRT-047",
+    "price": 449, "mrp": 799,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Cartoon character printed single bedsheet. 100% cotton. Vibrant colors. Soft and gentle for kids. Machine washable. Includes 1 pillow cover. Available in multiple cartoon themes.",
+    "size_chart": false, "stock": 567, "marketplace": "meesho",
+    "status": "active", "rating": 4.3, "total_reviews": 678,
+    "violations": []
+  },
+  {
+    "id": "LST048", "name": "Wireless Gaming Mouse - 2400 DPI",
+    "category": "electronics", "sku": "MOS-WLS-GAM-048",
+    "price": 1799, "mrp": 2999,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "Ergonomic wireless gaming mouse. 2400 DPI adjustable sensitivity. 7 programmable buttons. RGB backlighting with 16.8 million colors. 2.4GHz wireless or USB-C wired. 50-hour battery. Compatible with Windows, Mac and Linux.",
+    "size_chart": false, "stock": 89, "marketplace": "flipkart",
+    "status": "active", "rating": 4.5, "total_reviews": 389,
+    "violations": []
+  },
+  {
+    "id": "LST049", "name": "OCR MISMATCH - Kurta with Wrong Size Info",
+    "category": "clothing", "sku": "KRT-OCR-MSM-049",
+    "price": 599, "mrp": 999,
+    "images": ["img1_with_text.jpg","img2.jpg","img3.jpg"],
+    "description": "Men's cotton kurta. Available in S, M, L, XL, XXL. Size chart attached.",
+    "size_chart": true, "stock": 45, "marketplace": "meesho",
+    "status": "active", "rating": 2.9, "total_reviews": 18,
+    "violations": ["ocr_mismatch"],
+    "ocr_detected_text": "Size: Only L Available",
+    "description_size_info": "S, M, L, XL, XXL available"
+  },
+  {
+    "id": "LST050", "name": "Neck Massager Electric Pulse",
+    "category": "health", "sku": "MSG-NKE-PLS-050",
+    "price": 1999, "mrp": 3499,
+    "images": ["img1.jpg","img2.jpg","img3.jpg","img4.jpg"],
+    "description": "EMS pulse neck massager with 6 modes and 15 intensity levels. USB charging. Auto shut-off after 15 minutes. Lightweight design. Relief from neck pain and stiffness. FDA cleared. Suitable for all neck sizes.",
+    "size_chart": false, "stock": 123, "marketplace": "amazon",
+    "status": "active", "rating": 4.2, "total_reviews": 345,
+    "violations": []
+  }
+]

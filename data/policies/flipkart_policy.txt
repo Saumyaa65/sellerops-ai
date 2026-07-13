@@ -1,0 +1,76 @@
+FLIPKART SELLER HUB POLICY DOCUMENT
+Version: 2024.12
+
+=============================================================
+1. SELLER PERFORMANCE STANDARDS
+=============================================================
+
+1.1 Seller Score
+Flipkart measures seller performance via a composite Seller Score (0-100).
+Scores below 60 result in listing suppression.
+Scores below 40 result in account suspension.
+
+1.2 Return Rate Standards
+Acceptable return rate: below 8% overall.
+Category-specific thresholds apply for electronics (5%) and fashion (12%).
+
+1.3 Ratings
+Minimum acceptable product rating: 3.5 stars.
+Sellers with average ratings below 3.0 will receive a performance notice.
+
+=============================================================
+2. LISTING POLICIES
+=============================================================
+
+2.1 Catalog Quality
+All product listings must have accurate catalog data.
+Incorrect category mapping may result in listing rejection.
+
+2.2 Image Standards
+Minimum 3 images per listing. Main image must be on white background.
+Fashion and footwear require 5+ images including front, back, and detail shots.
+
+2.3 Apparel Compliance
+Size charts mandatory for all clothing and footwear.
+Charts must include both Indian sizes and centimeter measurements.
+
+=============================================================
+3. PAYMENTS AND SETTLEMENTS
+=============================================================
+
+3.1 Payment Cycle
+Flipkart settles payments every 7 days.
+Payment reflects orders confirmed as delivered.
+
+3.2 Deductions
+Platform fee: 3-22% depending on category and fulfillment type.
+Returns: Reverse logistics cost deducted from seller account.
+
+3.3 Payment Disputes
+Disputes must be raised within 45 days of settlement.
+Use Seller Hub > Payments > Raise Dispute workflow.
+
+=============================================================
+4. RETURNS AND REFUNDS
+=============================================================
+
+4.1 Return Window
+Standard return window: 10 days from delivery.
+Electronics: 7 days.
+Fashion: 30 days.
+
+4.2 Seller Protection
+Sellers are protected from returns due to buyer change of mind, 
+provided the product was accurately described and correctly delivered.
+
+=============================================================
+5. APPEALS PROCESS
+=============================================================
+
+Account suspensions can be appealed via Seller Hub.
+Appeal must include:
+- Acknowledgment of issue
+- Corrective action plan
+- Supporting evidence (photos, invoices, tracking)
+
+Review time: 5-10 business days.

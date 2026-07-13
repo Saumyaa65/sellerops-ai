@@ -1,0 +1,80 @@
+{
+  "seller_id": "SELLER-IND-001",
+  "seller_name": "Rohan Enterprises",
+  "seller_tier": "Bronze",
+  "marketplace": "meesho",
+  "seller_rating": 3.2,
+  "total_orders": 150,
+  "total_returns": 62,
+  "return_rate": 0.413,
+  "active_listings": 44,
+  "inactive_listings": 3,
+  "draft_listings": 3,
+  "total_revenue_30d": 87450.00,
+  "total_payouts_30d": 71200.00,
+  "pending_payouts": 14250.00,
+  "account_health": "at_risk",
+  "cancellation_rate": 0.013,
+  "late_shipment_rate": 0.047,
+  "on_time_delivery_rate": 0.879,
+  "fraud_flags": 3,
+  "violations": [
+    {
+      "type": "high_return_rate",
+      "description": "Return rate 41.3% significantly exceeds 15% threshold",
+      "date": "2025-02-20",
+      "status": "open",
+      "severity": "critical"
+    },
+    {
+      "type": "low_seller_rating",
+      "description": "Seller rating 3.2 below acceptable 4.0 threshold",
+      "date": "2025-02-18",
+      "status": "open",
+      "severity": "high"
+    },
+    {
+      "type": "payout_disputes",
+      "description": "4 payout cycles currently under dispute",
+      "date": "2025-02-15",
+      "status": "open",
+      "severity": "high"
+    },
+    {
+      "type": "listing_violations",
+      "description": "12 listings flagged for policy violations",
+      "date": "2025-02-10",
+      "status": "open",
+      "severity": "medium"
+    },
+    {
+      "type": "keyword_stuffing",
+      "description": "LST013 flagged for keyword stuffing in title",
+      "date": "2025-01-28",
+      "status": "open",
+      "severity": "medium"
+    },
+    {
+      "type": "counterfeit_suspicion",
+      "description": "LST030 flagged as potential counterfeit Apple product",
+      "date": "2025-01-15",
+      "status": "under_review",
+      "severity": "critical"
+    }
+  ],
+  "top_categories": [
+    {"category": "clothing", "orders": 67, "revenue": 34200.00},
+    {"category": "electronics", "orders": 32, "revenue": 28900.00},
+    {"category": "kitchen", "orders": 28, "revenue": 15600.00},
+    {"category": "footwear", "orders": 15, "revenue": 6800.00},
+    {"category": "home_decor", "orders": 8, "revenue": 1950.00}
+  ],
+  "performance_trend": {
+    "return_rate_7d": 0.48,
+    "return_rate_30d": 0.413,
+    "return_rate_90d": 0.31,
+    "rating_trend": "declining",
+    "revenue_trend": "stable"
+  },
+  "last_updated": "2025-03-12T00:00:00Z"
+}

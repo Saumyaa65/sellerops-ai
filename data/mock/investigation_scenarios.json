@@ -1,0 +1,200 @@
+[
+  {
+    "scenario_id": "SCN-001",
+    "name": "Critical High Return Rate — Apparel",
+    "description": "Return rate exceeds 41% driven by missing size charts and quality issues on clothing listings. Account at suspension risk.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "high_return_rate"},
+    "expected_issues": ["high_return_rate", "missing_size_chart", "low_seller_rating"],
+    "expected_severity": "critical",
+    "context": "Seller has 62 returns out of 150 orders. Primary cause: apparel listings LST002, LST005, LST012 lack size charts. Customers receive wrong sizes, triggering returns."
+  },
+  {
+    "scenario_id": "SCN-002",
+    "name": "Seller Rating Decline — Multiple Product Complaints",
+    "description": "Seller rating dropped from 4.2 to 3.2 over 3 months due to consistent quality complaints across product lines.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "rating_drop"},
+    "expected_issues": ["low_seller_rating", "product_quality_issues", "description_mismatch"],
+    "expected_severity": "high",
+    "context": "Rating decline driven by 1-star reviews on LST006, LST011, LST012. Customers report product not matching listing description."
+  },
+  {
+    "scenario_id": "SCN-003",
+    "name": "Account Suspension Risk — Combined Violations",
+    "description": "Account at imminent suspension risk due to rating (3.2), return rate (41%), and open policy violations.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "suspension_risk"},
+    "expected_issues": ["low_seller_rating", "high_return_rate", "policy_violations", "payout_anomalies"],
+    "expected_severity": "critical",
+    "context": "All three suspension triggers are active: rating below 3.5, return rate above 25%, and counterfeit product listing."
+  },
+  {
+    "scenario_id": "SCN-004",
+    "name": "Price Above MRP Violation",
+    "description": "Multiple listings with selling price exceeding MRP. LST006 priced at ₹1,599 against MRP of ₹999.",
+    "trigger_data": {"marketplace": "amazon", "seller_tier": "Bronze", "scenario_type": "pricing_violation"},
+    "expected_issues": ["price_above_mrp", "listing_suppression_risk"],
+    "expected_severity": "high",
+    "context": "LST006 earbuds, LST046 artifact both priced above MRP. Amazon flagged LST006 for immediate suppression."
+  },
+  {
+    "scenario_id": "SCN-005",
+    "name": "Counterfeit Product Suspicion",
+    "description": "LST030 claims to sell genuine Apple iPhone charger at ₹199 — far below Apple's retail price. Flagged as counterfeit.",
+    "trigger_data": {"marketplace": "flipkart", "seller_tier": "Bronze", "scenario_type": "counterfeit"},
+    "expected_issues": ["counterfeit_suspected", "restricted_product", "misleading_claims"],
+    "expected_severity": "critical",
+    "context": "Customer reviews confirm product is not genuine Apple. Packaging looks fake. Price anomaly (₹199 vs ₹2000+ retail) triggered algorithm flag."
+  },
+  {
+    "scenario_id": "SCN-006",
+    "name": "Abnormal Refund Spike — Electronics",
+    "description": "Bluetooth earbuds (LST006) account for 8 returns in 60 days. Return rate for this SKU is 62%.",
+    "trigger_data": {"marketplace": "amazon", "seller_tier": "Bronze", "scenario_type": "refund_spike"},
+    "expected_issues": ["high_sku_return_rate", "product_quality_issue", "misleading_listing"],
+    "expected_severity": "high",
+    "context": "LST006 returns cite: dead earbud, battery not as advertised, ANC not working, sound quality poor. Root cause: supplier batch defect."
+  },
+  {
+    "scenario_id": "SCN-007",
+    "name": "Late Shipment Spike — Festival Season",
+    "description": "4 orders delayed during December festival season. Late shipment rate spiked to 4.7%.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "late_shipments"},
+    "expected_issues": ["late_shipment_rate", "logistics_delays"],
+    "expected_severity": "medium",
+    "context": "December festival season caused courier delays. Orders ORD-2024-0058, ORD-2024-0078, ORD-2024-0085, ORD-2025-0122 all delayed 4-10 days."
+  },
+  {
+    "scenario_id": "SCN-008",
+    "name": "Listing Suppression — Missing Size Charts",
+    "description": "8 apparel and footwear listings suppressed by Meesho algorithm for missing mandatory size charts.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "listing_suppression"},
+    "expected_issues": ["missing_size_chart", "listing_suppression"],
+    "expected_severity": "medium",
+    "context": "LST002, LST005, LST008, LST012, LST019, LST021, LST034, LST045 all lack size charts. Platform guidelines mandate size charts for all clothing and footwear."
+  },
+  {
+    "scenario_id": "SCN-009",
+    "name": "Payment Deduction Dispute",
+    "description": "4 payout cycles show unexplained deductions totaling ₹7,815 above expected amounts.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "payment_dispute"},
+    "expected_issues": ["payout_anomalies", "gst_mismatch", "incorrect_deductions"],
+    "expected_severity": "high",
+    "context": "PAY-2024-003: duplicate return deduction ₹1,810. PAY-2024-005: 50% penalty ₹2,660. PAY-2024-007: GST mismatch ₹1,250. PAY-2025-002: late shipping penalty ₹980."
+  },
+  {
+    "scenario_id": "SCN-010",
+    "name": "High Cancellation Rate — Out of Stock",
+    "description": "Seller-initiated cancellation rate at 1.3% due to inventory miscounts and out-of-stock situations.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "high_cancellation"},
+    "expected_issues": ["cancellation_rate", "inventory_management"],
+    "expected_severity": "medium",
+    "context": "ORD-2024-0014 and ORD-2025-0149 cancelled by seller. LST043 is completely out of stock. Inventory sync issues causing overselling."
+  },
+  {
+    "scenario_id": "SCN-011",
+    "name": "Repeat Customer Complaints — LST012",
+    "description": "Women's Ethnic Printed Kurti (LST012) has 11 returns from different customers with consistent quality complaints.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "repeat_complaints"},
+    "expected_issues": ["product_quality_issues", "thin_description", "missing_size_chart"],
+    "expected_severity": "high",
+    "context": "LST012 return reasons: wrong size (3), transparency (2), color wrong (2), poor stitching (2), threads hanging (2). Clear product quality and description issues."
+  },
+  {
+    "scenario_id": "SCN-012",
+    "name": "Policy Violation — Restricted Health Products",
+    "description": "LST016 and LST042 contain health products with unverified medical claims requiring regulatory approval.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "policy_violation"},
+    "expected_issues": ["restricted_product", "misleading_claims", "regulatory_compliance"],
+    "expected_severity": "critical",
+    "context": "LST016 claims 'guaranteed weight loss in 7 days'. LST042 claims 'scientifically proven' without citations. Both require CDSCO certification per health product policy."
+  },
+  {
+    "scenario_id": "SCN-013",
+    "name": "GST Compliance Failure",
+    "description": "GST applied at wrong rate on fashion items resulting in ₹1,250 excess deduction.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "gst_mismatch"},
+    "expected_issues": ["gst_mismatch", "incorrect_deductions"],
+    "expected_severity": "high",
+    "context": "Fashion items taxable at 5% GST but system applied 18% GST in December settlement. HSN code mapping error in seller's product catalog."
+  },
+  {
+    "scenario_id": "SCN-014",
+    "name": "Fraud Detection — Return Abuse by CUST-1040",
+    "description": "Customer CUST-1040 has initiated 8 returns in 3 months with inconsistent and implausible return reasons.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "fraud_detection"},
+    "expected_issues": ["fraud_suspected", "return_abuse", "financial_loss"],
+    "expected_severity": "critical",
+    "context": "CUST-1040 returned: Kurta (fake return claim), Sandals (claimed fraud), 1 Kurta (repeat abuse - 8th return). Pattern matches buyer fraud playbook — return different product or empty box."
+  },
+  {
+    "scenario_id": "SCN-015",
+    "name": "Image Quality Issue — Multiple Listings",
+    "description": "7 listings have insufficient images below the minimum 3-image threshold. 2 listings have zero images.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "image_quality"},
+    "expected_issues": ["missing_images", "low_image_count", "listing_suppression_risk"],
+    "expected_severity": "medium",
+    "context": "LST003 and LST024 have zero images. LST002, LST005, LST012, LST026, LST035 have fewer than 3 images. Images required minimum 1000x1000px per Meesho policy."
+  },
+  {
+    "scenario_id": "SCN-016",
+    "name": "Category Mismatch — LST041",
+    "description": "LST041 (Women's Handbag) incorrectly listed under Electronics category causing misrouted search traffic.",
+    "trigger_data": {"marketplace": "flipkart", "seller_tier": "Bronze", "scenario_type": "category_mismatch"},
+    "expected_issues": ["wrong_category", "reduced_visibility", "search_penalty"],
+    "expected_severity": "low",
+    "context": "Handbag listed under Electronics receives 90% fewer relevant impressions. Category mismatch also violates marketplace listing rules."
+  },
+  {
+    "scenario_id": "SCN-017",
+    "name": "Keyword Stuffing — SEO Violation",
+    "description": "LST013 title contains 12+ repetitions of the word 'kurta' in an attempt to game search algorithms.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "keyword_stuffing"},
+    "expected_issues": ["keyword_stuffing", "misleading_title", "listing_suppression_risk"],
+    "expected_severity": "medium",
+    "context": "LST013 title: 'BEST QUALITY LOWEST PRICE kurta kurta kurta shirt ethnic wear festival party'. Meesho algorithm flagged for keyword abuse."
+  },
+  {
+    "scenario_id": "SCN-018",
+    "name": "OCR Mismatch — Size Information Conflict",
+    "description": "LST049 product images contain text contradicting the listing description — image says 'Only L Available' but listing says 'S, M, L, XL, XXL'.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "ocr_mismatch"},
+    "expected_issues": ["ocr_mismatch", "misleading_information"],
+    "expected_severity": "medium",
+    "context": "Vision model detected embedded text in product image. Conflict between image text and listing attributes triggers automatic audit."
+  },
+  {
+    "scenario_id": "SCN-019",
+    "name": "Late Payout Settlement",
+    "description": "PAY-2025-006 has been pending for over 25 days without settlement — significantly beyond the 7-day expected cycle.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "late_settlement"},
+    "expected_issues": ["late_payout", "cashflow_impact", "payout_anomalies"],
+    "expected_severity": "high",
+    "context": "Account performance review triggered payout hold. ₹14,250 in total pending payouts affecting seller's working capital."
+  },
+  {
+    "scenario_id": "SCN-020",
+    "name": "Safety Complaint — Neck Massager",
+    "description": "LST050 received a complaint about unsafe electric shocks during operation. Product may be dangerous.",
+    "trigger_data": {"marketplace": "amazon", "seller_tier": "Bronze", "scenario_type": "safety_complaint"},
+    "expected_issues": ["safety_violation", "product_recall_risk", "regulatory_action"],
+    "expected_severity": "critical",
+    "context": "Customer reported electric shocks at level 5 which should be safe. Possible electrical fault in specific production batch. FDA-cleared device should not cause injury at recommended settings."
+  },
+  {
+    "scenario_id": "SCN-021",
+    "name": "RTO Spike — Cash on Delivery Orders",
+    "description": "2 orders returned to seller due to delivery failure — customers unavailable or refused delivery.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "rto_spike"},
+    "expected_issues": ["rto_rate", "cod_risk", "inventory_return"],
+    "expected_severity": "low",
+    "context": "ORD-2024-0023 (3 delivery attempts, no answer) and ORD-2025-0127 (customer refused delivery) both returned to sender. COD orders have higher RTO risk."
+  },
+  {
+    "scenario_id": "SCN-022",
+    "name": "Duplicate Listing Detection",
+    "description": "LST027 is an exact duplicate of LST001 with same SKU, description and images. Violates unique listing policy.",
+    "trigger_data": {"marketplace": "meesho", "seller_tier": "Bronze", "scenario_type": "duplicate_listing"},
+    "expected_issues": ["duplicate_listing", "sku_conflict"],
+    "expected_severity": "medium",
+    "context": "LST027 uses SKU 'KRT-BLU-M-001-DUP' which conflicts with LST001 SKU. Duplicate listings split review scores and confuse buyers."
+  }
+]

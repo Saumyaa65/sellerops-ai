@@ -1,0 +1,422 @@
+MEESHO SELLER POLICY DOCUMENT
+Version: 2025.01
+Effective Date: January 1, 2025
+Last Revised: January 15, 2025
+
+=============================================================
+1. ACCOUNT HEALTH AND PERFORMANCE STANDARDS
+=============================================================
+
+1.1 Seller Rating
+All sellers must maintain a minimum seller rating of 4.0 out of 5.0 at all times.
+Seller ratings are calculated as the rolling 90-day average of customer feedback scores.
+
+Rating thresholds and consequences:
+- Rating 4.0 and above: Standard operating status
+- Rating 3.5 to 3.9: Performance Improvement Notice issued. Seller must submit corrective action plan within 7 days.
+- Rating 3.0 to 3.4: Elevated review. New listing approval may be paused. Existing listings may face reduced visibility.
+- Rating below 3.0 for 30+ consecutive days: Account suspension proceedings initiated.
+
+Ratings are influenced by: product quality, description accuracy, packaging quality, shipping speed, and customer service response time.
+
+1.2 Return Rate Policy
+The maximum acceptable return rate is 10% for all product categories.
+Return rate is calculated as: (Seller-Responsible Returns / Total Delivered Orders) x 100
+
+Return rate thresholds:
+- 0% to 10%: Acceptable range. No action required.
+- 10.1% to 15%: Monitoring status. Seller receives automated alert.
+- 15.1% to 20%: Performance review. Category restrictions may apply.
+- 20.1% to 25%: Listing suppression for high-return products. Mandatory corrective action required.
+- Above 25% for 30+ days: Account suspension risk. Immediate investigation triggered.
+
+Note: Only seller-responsible returns affect your return rate. Buyer-responsible returns (buyer changed mind, ordered by mistake) are excluded from calculation.
+
+Seller-responsible return reasons that affect return rate:
+- Product not as described
+- Wrong product delivered
+- Defective product
+- Poor quality / manufacturing defect
+- Size mismatch when size chart was not provided
+- Damaged product (seller packaging issue)
+- Missing accessories or components
+- Incorrect color delivered
+
+Buyer-responsible return reasons (do not affect return rate):
+- Buyer changed mind
+- Ordered by mistake
+- Found better price elsewhere
+- No longer needed
+- Gift purchase cancellation
+
+1.3 Order Cancellation Rate
+Seller-initiated cancellation rate must remain below 2.5% of total orders in any 30-day period.
+
+Consequences of high cancellation rate:
+- 2.5% to 3.9%: Warning notice
+- 4% to 5.9%: Deduction of ₹50 per cancelled order beyond threshold
+- Above 6%: Temporary listing suspension
+
+Acceptable reasons for seller-initiated cancellation:
+- Genuine stock exhaustion (must be reflected in inventory immediately)
+- Product found damaged before dispatch
+- Logistics partner unavailable in buyer's pincode
+
+Unacceptable reasons (may result in penalty):
+- Price error (use Meesho repricing tool instead)
+- Change of mind
+- Inability to fulfill orders taken in advance
+
+1.4 Late Shipment Rate
+All orders must be dispatched within the seller's stated handling time (maximum 2 business days).
+Late shipment rate must remain below 3%.
+
+Penalties for late shipment:
+- 3% to 5%: Warning. Seller's search ranking reduced.
+- 5% to 8%: ₹25 per order penalty applied for orders shipped late.
+- Above 8%: Account placed on probation. Bulk listings may be temporarily suppressed.
+
+Force majeure exceptions apply for natural disasters, government-declared shutdowns, and verified courier disruptions.
+
+=============================================================
+2. LISTING QUALITY STANDARDS
+=============================================================
+
+2.1 Product Images
+Each listing must contain a minimum of 4 high-quality product images:
+- Main image: White or solid light background. Product centered. Minimum 1000x1000 pixels. No watermarks, logos, borders, or promotional text.
+- Angle shots: Minimum 2 additional views showing different angles of the product.
+- Detail shots: At least 1 close-up showing texture, material, or important product details.
+- Lifestyle image (recommended): Product in use or in context.
+
+Additional requirements:
+- No promotional text, stickers, or badges overlaid on product images
+- Images must not contain competitor branding
+- All images must accurately represent the actual product being sold
+- Image-to-product accuracy is monitored. Mismatches detected by AI vision analysis will trigger listing review.
+
+Products with fewer than 3 images will be automatically suppressed until corrected.
+Products with zero images cannot be published.
+
+2.2 Product Title Guidelines
+Product titles must:
+- Be between 20 and 150 characters
+- Accurately describe the product
+- Include brand name (if applicable), product type, key attribute, and variant
+- Not contain all capitals except for brand acronyms
+- Not repeat keywords more than twice (keyword stuffing is prohibited)
+- Not contain promotional phrases such as "Best Price", "Guaranteed", "No. 1 Seller"
+- Not contain competitor names
+
+2.3 Product Description Standards
+Product descriptions must:
+- Be a minimum of 100 words
+- Accurately describe product features, specifications, materials, and dimensions
+- Not contain misleading claims or exaggerated statements
+- Not use medical or health claims without appropriate certifications
+- Not contain HTML or special characters (except hyphens and bullet points)
+- Include care instructions for textiles and consumables
+
+Descriptions shorter than 50 words will receive automatic "Thin Content" warning.
+Descriptions shorter than 100 words will be flagged for improvement.
+
+2.4 Size Charts (Apparel, Footwear, and Accessories)
+All clothing, footwear, and accessories listings must include a complete, accurate size chart.
+
+Size charts must:
+- Follow Indian standard sizing (S, M, L, XL, XXL for clothing; numeric UK sizes for footwear)
+- Include measurements in centimeters (chest, waist, hip, length for clothing)
+- Be updated if product sizing changes between batches
+- Match the actual product being sold (verified via periodic quality audits)
+
+Failure to include a size chart for applicable categories will:
+- Result in automatic "Size Chart Missing" flag on listing
+- Reduce listing visibility by 40% in search rankings
+- Lead to all size-related returns being categorized as seller-responsible
+
+2.5 Pricing Policy
+- Selling price must not exceed the printed MRP (Maximum Retail Price)
+- Selling price must be greater than ₹0
+- Prices must be consistent across all marketplace channels (no artificial price inflation)
+- Flash sales and discounts must be pre-approved via Meesho Campaign Manager
+- Bundled product pricing must reflect fair composite value
+
+Price violations:
+- Price exceeding MRP: Immediate listing suppression. Must be corrected before reinstatement.
+- Zero or negative price: Draft status enforced.
+- Artificial price inflation (inflating MRP before discount): 30-day listing suspension and warning.
+
+2.6 Prohibited and Restricted Products
+The following products are strictly prohibited on Meesho:
+- Counterfeit or fake branded products
+- Products infringing intellectual property rights
+- Adult content
+- Weapons, explosives, or related accessories
+- Drugs, controlled substances, or narcotics
+- Products making unverified medical claims (e.g., guaranteed cure, weight loss)
+- Government-regulated items without proper licenses
+- Stolen goods or goods without proof of purchase
+
+Health and wellness products require additional documentation:
+- Ayurvedic products: AYUSH license number must be provided
+- Dietary supplements: FSSAI license required
+- Medical devices: CDSCO clearance certificate mandatory
+- Weight loss or fat burning products: Must not make unverifiable claims
+
+Any seller found listing prohibited products will face immediate account suspension.
+
+=============================================================
+3. PAYOUT AND SETTLEMENT POLICIES
+=============================================================
+
+3.1 Settlement Cycle
+Meesho processes seller payouts on a weekly basis, every Thursday.
+Settlements cover all orders marked as "Delivered" status for 7 or more days prior to the settlement cut-off date.
+
+Payout timeline:
+- Order delivered on Day 0
+- Settlement eligible from Day 7
+- Payout processed next Thursday
+- Amount credited to registered bank account within 1-2 business days
+
+3.2 Payout Deduction Categories
+Standard deductions from gross sales include:
+
+a) Platform Fees (Commission):
+Category-wise commission rates:
+- Apparel (clothing): 10-12%
+- Footwear: 12%
+- Electronics: 6-8%
+- Home and Kitchen: 8-10%
+- Health and Beauty: 10-15%
+- Sports and Fitness: 8-10%
+
+b) Return Shipping Charges:
+- ₹30-80 per return depending on weight and zone
+- Only charged for seller-responsible returns
+
+c) Penalty Deductions:
+- Late shipment penalty: ₹25 per affected order
+- Cancellation penalty: ₹50 per cancelled order beyond threshold
+- Policy violation penalty: ₹500-5,000 depending on severity
+
+d) GST Deductions:
+- GST is deducted on commission amounts only, not on full order value
+- GST rates follow product HSN codes
+- Fashion/apparel: 5% GST
+- Electronics: 18% GST
+- Food and health supplements: 5% or 12% GST
+
+3.3 Disputing Payout Deductions
+Sellers may dispute payout deductions within 30 days of settlement date.
+
+Dispute process:
+1. Navigate to Seller Panel > Payments > Dispute Center
+2. Select the specific settlement cycle
+3. Choose the type of dispute (incorrect deduction, missing payment, incorrect rate)
+4. Upload supporting documents: order invoices, delivery confirmation, original product photos
+5. Submit dispute form
+6. Meesho settlement team will review within 7-15 business days
+7. If dispute upheld, amount credited in next settlement cycle
+
+Dispute eligibility:
+- Disputes filed after 30 days of settlement will not be accepted
+- Disputes without supporting documentation may be rejected
+- Repeated frivolous disputes may result in dispute privilege suspension
+
+3.4 Seller Tier Incentives
+Meesho operates a tiered seller program with benefits:
+- Bronze Tier (new sellers, <1000 orders): Standard commission rates
+- Silver Tier (1000-5000 orders, rating 4.0+): 1% commission reduction, priority support
+- Gold Tier (5000+ orders, rating 4.2+): 2% commission reduction, dedicated account manager, early access to campaigns
+- Platinum Tier (invitation only, top 1% sellers): Maximum benefits, custom commission structure
+
+=============================================================
+4. RETURN HANDLING POLICY
+=============================================================
+
+4.1 Return Windows
+Category-specific return windows from date of delivery:
+- Clothing and Footwear: 7 days
+- Electronics and Appliances: 10 days
+- Home and Kitchen: 7 days
+- Sports and Fitness: 7 days
+- Health Products: Non-returnable (except defective)
+- Perishables: Non-returnable
+
+Extended return windows apply during special sale events (Meesho Maha Sale, Festival Sales).
+
+4.2 Return Pickup Process
+When a buyer initiates a return:
+1. Seller receives return notification via email and Seller Panel
+2. Seller has 24 hours to approve or escalate the return
+3. If approved, courier is dispatched for pickup within 48 hours
+4. Product undergoes quality check upon receipt at Meesho warehouse
+5. If product passes QC, refund is processed to buyer
+6. Return shipping cost charged to seller (if seller-responsible)
+
+4.3 Appeal Process for Returns
+Sellers may appeal returns categorized as seller-responsible within 14 days of return completion.
+
+Appeal requirements:
+- High-resolution photos of original product before dispatch
+- Courier pickup proof showing correct product was collected
+- Any other evidence establishing buyer fault
+- Written explanation of why return should be reclassified
+
+Appeals are reviewed within 10 business days. Maximum 3 appeals per month per seller account.
+
+4.4 Quality Check Failure
+If a returned product fails quality inspection:
+- Product is quarantined and not returned to seller inventory
+- Refund may still be processed to buyer depending on Meesho's judgment
+- Seller may face additional penalty if product was demonstrably defective before dispatch
+
+=============================================================
+5. ACCOUNT SUSPENSION AND REINSTATEMENT
+=============================================================
+
+5.1 Grounds for Account Suspension
+Immediate suspension (no warning):
+- Selling counterfeit or IP-infringing products
+- Fraudulent activity including fake order generation
+- Providing false documents during seller onboarding
+- Threatening or harassing buyers or Meesho staff
+- Attempting to circumvent platform policies
+
+Graduated suspension (after warnings):
+- Seller rating below 3.0 for 30+ consecutive days
+- Return rate above 25% for 30+ consecutive days
+- Order cancellation rate above 8% for 30+ days
+- Three or more policy violations within 6 months
+- Non-compliance with mandatory listing standards after 2 warnings
+
+5.2 Suspension Process
+When an account is suspended:
+- All active listings are immediately paused
+- Pending payouts are held until suspension is resolved
+- New order acceptance is disabled
+- Seller Panel access is restricted to Appeals section only
+
+5.3 Reinstatement Process
+To appeal a suspension:
+1. Access Seller Panel > Account > Appeals
+2. Review the specific suspension reason
+3. Prepare a comprehensive Appeal Package:
+   a. Written acknowledgment of the violation
+   b. Root cause analysis (what caused the violation)
+   c. Corrective actions already taken
+   d. Evidence of corrections (photos, documentation)
+   e. Commitment to future compliance with timeline
+4. Submit appeal (Meesho reviews within 5-7 business days)
+5. If approved: Account reinstated with 90-day monitoring period
+6. If rejected: Seller may submit revised appeal after 30 days
+
+Appeal package quality directly impacts reinstatement success. Generic appeals without specific actions are typically rejected.
+
+5.4 Monitoring Period Post-Reinstatement
+Reinstated accounts are subject to 90-day enhanced monitoring:
+- Weekly performance review
+- Any new violation during monitoring period results in permanent account closure
+- Seller must maintain all metrics above threshold during monitoring
+
+=============================================================
+6. SHIPPING AND LOGISTICS POLICY
+=============================================================
+
+6.1 Handling Time
+- Standard handling time: 1-2 business days from order confirmation
+- Extended handling time (special categories, custom orders): Maximum 3 business days
+- Sellers must update handling time in Seller Panel if capabilities change
+
+6.2 Approved Shipping Partners
+Meesho has tie-ups with the following courier partners:
+- Delhivery
+- Blue Dart
+- DTDC
+- Ekart Logistics
+- XpressBees
+- Shadowfax
+
+Sellers using non-approved couriers must provide tracking numbers and take full responsibility for delivery.
+
+6.3 Packaging Standards
+All packages must be:
+- Securely sealed to prevent tampering
+- Appropriately sized to prevent product damage
+- Labeled with complete shipping label (provided by Meesho)
+- Bubble-wrapped or foam-padded for fragile items
+- Not reuse competitor packaging without covering branding
+
+Meesho conducts random packaging audits. Poor packaging that leads to damage is seller's responsibility.
+
+=============================================================
+7. CUSTOMER COMMUNICATION POLICY
+=============================================================
+
+7.1 Response Time Requirements
+- Sellers must respond to all customer queries within 24 hours
+- During festival sales: 12-hour response time required
+- Emergency safety complaints: 2-hour response mandatory
+
+7.2 Communication Guidelines
+Sellers must:
+- Maintain professional and courteous communication at all times
+- Provide accurate information about products and shipping
+- Not request customers to cancel orders to avoid returns
+- Not share personal contact information (phone, email, WhatsApp)
+- Not offer transactions outside Meesho platform
+
+Sellers must not:
+- Use abusive, threatening, or discriminatory language
+- Manipulate buyers with false urgency
+- Offer bribes or incentives for positive reviews
+- Contact buyers after order completion for marketing purposes
+
+7.3 Review Solicitation Policy
+Sellers may not:
+- Offer discounts, free products, or cash in exchange for reviews
+- Ask buyers to change negative reviews
+- Use third-party review manipulation services
+- Generate fake reviews through paid accounts
+
+Violations of review policy result in immediate listing removal and potential account suspension.
+
+=============================================================
+8. INTELLECTUAL PROPERTY POLICY
+=============================================================
+
+8.1 Brand Authenticity
+Sellers listing branded products must:
+- Be authorized resellers of the brand
+- Maintain authorization certificate
+- Provide proof of purchase from authorized distributor
+- Not modify original branded packaging
+
+8.2 Copyright and Trademark
+All product images, descriptions, and content must be original or properly licensed.
+Sellers must not:
+- Copy product descriptions from competitor listings
+- Use brand logos without authorization
+- List products under false brand claims
+
+8.3 Counterfeit Policy
+Selling counterfeit products is a zero-tolerance violation.
+Any evidence of counterfeit products results in:
+- Immediate account suspension
+- Legal notice under applicable IP laws
+- Permanent account ban (no appeal possible)
+
+=============================================================
+9. DATA AND PRIVACY POLICY
+=============================================================
+
+9.1 Buyer Data Protection
+Sellers receive limited buyer information for order fulfillment only.
+Sellers must not:
+- Store buyer personal information beyond order completion
+- Use buyer data for marketing
+- Share buyer information with third parties
+- Access buyer data outside of order fulfillment context
+
+Violations of buyer data privacy may result in legal action under PDPB (Personal Data Protection Bill) India.
