@@ -30,6 +30,7 @@ class PreventionAgent(BaseAgent):
                 })
 
         await self.emit_step(run_id, f"Prevention scan complete — {len(issues)} listings with issues", {"count": len(issues)})
+        await self.emit(run_id, "completed", "Prevention scan complete", {"count": len(issues)})
 
         return {
             **state,
@@ -47,6 +48,19 @@ class PreventionAgent(BaseAgent):
             issues.append({"type": "missing_images", "severity": "error", "message": "No product images uploaded"})
         elif len(images) < 3:
             issues.append({"type": "low_image_count", "severity": "warning", "message": f"Only {len(images)} image(s) — recommend at least 3"})
+
+        # Simulated AI Image Analysis Guidelines (using deterministic SKU hash rules)
+        sku = listing.get("sku", "")
+        sku_hash = sum(ord(c) for c in sku) if sku else 0
+        if len(images) > 0:
+            if sku_hash % 3 == 0:
+                issues.append({"type": "blurry_image", "severity": "warning", "message": "Hero image appears blurry. Marketplace recommends replacing it before publishing."})
+            if sku_hash % 4 == 0:
+                issues.append({"type": "watermark_detected", "severity": "error", "message": "Watermark/logo detected in product image. Platform rules prohibit custom logos."})
+            if sku_hash % 5 == 0:
+                issues.append({"type": "missing_white_background", "severity": "warning", "message": "Missing pure white background. Guidelines require white background for main image."})
+            if sku_hash % 7 == 0:
+                issues.append({"type": "guideline_violation", "severity": "warning", "message": "Product occupies less than 85% of image frame. Adjust frame margin."})
 
         # Price checks
         price = listing.get("price", 0)

@@ -55,6 +55,15 @@ interface SellerMetrics {
   last_updated: string;
 }
 
+interface OperationalCase {
+  id: string;
+  title: string;
+  description: string;
+  severity: "critical" | "high" | "medium" | "low";
+  evidence: string[];
+  scenarioId: string;
+}
+
 // Human-readable severity label
 function severityLabel(sev: string) {
   switch (sev?.toLowerCase()) {
@@ -91,6 +100,7 @@ export default function CommandCenterPage() {
   const [payoutAnomalyCount, setPayoutAnomalyCount] = useState(0);
   const [openTickets, setOpenTickets] = useState<SupportTicket[]>([]);
   const [recentRuns, setRecentRuns] = useState<any[]>([]);
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
 
   // AI Activity collapsed by default
   const [isActivityExpanded, setIsActivityExpanded] = useState(false);
@@ -215,6 +225,146 @@ export default function CommandCenterPage() {
     healthBg = "bg-[var(--color-warning)]/8 border-[var(--color-warning)]/20";
   }
 
+  // Consolidate related issues into operational cases
+  const cases: OperationalCase[] = [];
+
+  // Group 1: High Return Rate & Performance Warning
+  const hasHighReturn = metrics.violations?.some(v => v.type === "high_return_rate");
+  const returnTicket = openTickets.find(t => t.ticket_id === "TKT-001" || t.ticket_id === "TKT-006" || t.subject.toLowerCase().includes("return"));
+  if (hasHighReturn || returnTicket) {
+    const evidenceList: string[] = [];
+    if (hasHighReturn) {
+      const v = metrics.violations?.find(v => v.type === "high_return_rate");
+      if (v) evidenceList.push(v.description);
+    }
+    if (returnTicket) {
+      evidenceList.push(`Ticket ${returnTicket.ticket_id}: ${returnTicket.subject}`);
+    }
+    cases.push({
+      id: "case-return-rate",
+      title: "High Return Rate & Performance Warning",
+      description: "Customer return rate has exceeded the threshold. Correlated with buyer disputes and performance alerts.",
+      severity: "critical",
+      evidence: evidenceList,
+      scenarioId: "SCN-001"
+    });
+  }
+
+  // Group 2: Counterfeit Brand Suspicion & Suppression Ticket
+  const hasCounterfeit = metrics.violations?.some(v => v.type === "counterfeit_suspicion");
+  const counterfeitTicket = openTickets.find(t => t.ticket_id === "TKT-002" || t.subject.toLowerCase().includes("counterfeit"));
+  if (hasCounterfeit || counterfeitTicket) {
+    const evidenceList: string[] = [];
+    if (hasCounterfeit) {
+      const v = metrics.violations?.find(v => v.type === "counterfeit_suspicion");
+      if (v) evidenceList.push(v.description);
+    }
+    if (counterfeitTicket) {
+      evidenceList.push(`Ticket ${counterfeitTicket.ticket_id}: ${counterfeitTicket.subject}`);
+    }
+    cases.push({
+      id: "case-counterfeit",
+      title: "Counterfeit Brand Suspicion & Suppression Alert",
+      description: "Listing temporarily suppressed due to Apple brand counterfeit flags. Action required to prevent account lock.",
+      severity: "critical",
+      evidence: evidenceList,
+      scenarioId: "SCN-002"
+    });
+  }
+
+  // Group 3: Payout disputes and discrepancies
+  const hasPayoutDispute = metrics.violations?.some(v => v.type === "payout_disputes");
+  const payoutTicket = openTickets.find(t => t.ticket_id === "TKT-003" || t.subject.toLowerCase().includes("payout") || t.subject.toLowerCase().includes("payment"));
+  if (hasPayoutDispute || payoutAnomalyCount > 0 || payoutTicket) {
+    const evidenceList: string[] = [];
+    if (payoutAnomalyCount > 0) {
+      evidenceList.push(`${payoutAnomalyCount} payout settlements do not match expected earnings`);
+    }
+    if (payoutTicket) {
+      evidenceList.push(`Ticket ${payoutTicket.ticket_id}: ${payoutTicket.subject}`);
+    }
+    cases.push({
+      id: "case-payout",
+      title: "Settlement Discrepancies & Payout Disputes",
+      description: "Expected settlements differ from bank payout disbursement values. Correlated with active payment support cases.",
+      severity: "high",
+      evidence: evidenceList,
+      scenarioId: "SCN-009"
+    });
+  }
+
+  // Group 4: Low Seller Rating & Account Suspension Warning
+  const hasLowRating = metrics.violations?.some(v => v.type === "low_seller_rating");
+  const suspensionTicket = openTickets.find(t => t.ticket_id === "TKT-004" || t.subject.toLowerCase().includes("suspension"));
+  if (hasLowRating || suspensionTicket) {
+    const evidenceList: string[] = [];
+    if (hasLowRating) {
+      const v = metrics.violations?.find(v => v.type === "low_seller_rating");
+      if (v) evidenceList.push(v.description);
+    }
+    if (suspensionTicket) {
+      evidenceList.push(`Ticket ${suspensionTicket.ticket_id}: ${suspensionTicket.subject}`);
+    }
+    cases.push({
+      id: "case-suspension",
+      title: "Account Suspension Warning & Low Rating",
+      description: "Account health is compromised by a declining seller rating (3.2). Suspension appeal ticket is active.",
+      severity: "critical",
+      evidence: evidenceList,
+      scenarioId: "SCN-003"
+    });
+  }
+
+  // Group 5: Other violations (listing_violations, keyword_stuffing)
+  const otherViolations = metrics.violations?.filter(v => v.type === "listing_violations" || v.type === "keyword_stuffing");
+  if (otherViolations && otherViolations.length > 0) {
+    otherViolations.forEach(v => {
+      cases.push({
+        id: `case-violation-${v.type}`,
+        title: violationTitle(v.type),
+        description: v.description,
+        severity: v.severity as any,
+        evidence: [`Flagged in catalog check on ${v.date}`],
+        scenarioId: mapViolationToScenario(v.type)
+      });
+    });
+  }
+
+  // Group 6: All other support tickets
+  openTickets.forEach(t => {
+    if (
+      t.ticket_id !== "TKT-001" &&
+      t.ticket_id !== "TKT-002" &&
+      t.ticket_id !== "TKT-003" &&
+      t.ticket_id !== "TKT-004" &&
+      t.ticket_id !== "TKT-006"
+    ) {
+      cases.push({
+        id: `case-ticket-${t.ticket_id}`,
+        title: t.subject,
+        description: t.description || "Marketplace ticket requiring review.",
+        severity: t.priority === "critical" ? "critical" : t.priority === "high" ? "high" : t.priority === "medium" ? "medium" : "low",
+        evidence: [`Ticket ${t.ticket_id} (${t.marketplace}) is in status ${t.status}`],
+        scenarioId: "SCN-003"
+      });
+    }
+  });
+
+  // Sort: Critical -> High -> Medium -> Low
+  const severityRank: Record<string, number> = {
+    critical: 0,
+    high: 1,
+    medium: 2,
+    low: 3,
+  };
+  const sortedCases = [...cases].sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+
+  // Filter by severity
+  const filteredCases = sortedCases.filter(c => {
+    if (severityFilter === "all") return true;
+    return c.severity === severityFilter;
+  });
+
   return (
     <>
       <TopBar
@@ -247,10 +397,9 @@ export default function CommandCenterPage() {
           
           <div className="border-t border-[var(--color-border)]/20 pt-3 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="space-y-1">
-              <span className="text-[10px] text-[var(--color-text-muted)] font-medium">Critical Issues</span>
-              <p className="font-semibold text-[var(--color-text-primary)] flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[var(--color-error)] animate-ping" />
-                {violationCount} policy violations detected
+              <span className="text-[10px] text-[var(--color-text-muted)] font-medium">Active Issues</span>
+              <p className="font-semibold text-[var(--color-text-primary)]">
+                {totalProblems} open issues
               </p>
             </div>
             <div className="space-y-1">
@@ -268,6 +417,85 @@ export default function CommandCenterPage() {
             </div>
           </div>
         </div>
+
+        {/* ─── Operational Alerts Panel ─── */}
+        {sortedCases.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)]/50 pb-2">
+              <h2 className="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-bold flex items-center gap-1.5 px-1">
+                <span className="h-2 w-2 rounded-full bg-[var(--color-error)] shrink-0" />
+                Issues Requiring Attention
+              </h2>
+              
+              <div className="flex gap-1.5 bg-[var(--color-surface-3)] p-0.5 rounded-lg border border-[var(--color-border)]/50 text-[10px] font-semibold">
+                {["all", "critical", "high", "medium"].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setSeverityFilter(filter)}
+                    className={`px-2 py-1 rounded transition-colors cursor-pointer capitalize ${
+                      severityFilter === filter
+                        ? "bg-[var(--color-surface-1)] text-[var(--color-brand-300)] animate-fade-in"
+                        : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {filteredCases.length === 0 ? (
+              <div className="p-8 text-center text-xs text-[var(--color-text-muted)] border border-[var(--color-border)]/50 rounded-xl bg-[var(--color-surface-2)]">
+                No active issues match the selected filter.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {filteredCases.map((c) => (
+                  <div
+                    key={c.id}
+                    className="p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] flex flex-col justify-between gap-2.5 transition-all hover:border-[var(--color-border-hover)]"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-sm font-bold text-[var(--color-text-primary)] leading-tight">{c.title}</h3>
+                        <span className={`text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded shrink-0 ${
+                          c.severity === "critical"
+                            ? "bg-[var(--color-error)]/10 text-[var(--color-error)] border border-[var(--color-error)]/25"
+                            : c.severity === "high"
+                            ? "bg-[var(--color-warning)]/10 text-[var(--color-warning)] border border-[var(--color-warning)]/25"
+                            : "bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border border-[var(--color-border)]"
+                        }`}>
+                          {c.severity}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">{c.description}</p>
+                      
+                      {/* Supporting Evidence Checklist */}
+                      {c.evidence.length > 0 && (
+                        <div className="mt-2 text-[10px] text-[var(--color-text-muted)] bg-[var(--color-surface-3)]/60 px-2 py-1.5 rounded border border-[var(--color-border)]/40">
+                          <span className="font-semibold block mb-0.5 text-[9px] uppercase tracking-wider">Supporting Evidence</span>
+                          <ul className="list-disc pl-3.5 space-y-0.5">
+                            {c.evidence.map((ev, idx) => (
+                              <li key={idx} className="leading-snug">{ev}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <button
+                      onClick={() => handleLaunchInvestigation(c.scenarioId)}
+                      className="flex items-center gap-1 text-xs font-semibold text-[var(--color-brand-400)] hover:text-[var(--color-brand-300)] transition-colors self-start mt-1 cursor-pointer"
+                    >
+                      Investigate
+                      <ArrowRight className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ─── Store Stats Pills (collapsed by default) ─── */}
         <div>
@@ -309,167 +537,7 @@ export default function CommandCenterPage() {
           )}
         </div>
 
-        {/* ─── Problems Found (unified list) ─── */}
-        <Card>
-          <CardHeader className="flex justify-between items-center border-b border-[var(--color-border)] pb-3">
-            <div>
-              <CardTitle>Problems Found</CardTitle>
-              <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                Click any problem to investigate and get a recovery plan
-              </p>
-            </div>
-            <Badge variant={totalProblems > 0 ? "error" : "success"}>
-              {totalProblems} open
-            </Badge>
-          </CardHeader>
 
-          <div className="divide-y divide-[var(--color-border)]">
-            {/* Violations */}
-            {/* Violations */}
-            {metrics.violations && metrics.violations.map((violation, idx) => {
-              const isHigh = violation.severity === "critical" || violation.severity === "high";
-              const scenarioId = mapViolationToScenario(violation.type);
-              return (
-                <div
-                  key={`v-${idx}`}
-                  onClick={() => {
-                    setSelectedIssue({
-                      title: violationTitle(violation.type),
-                      description: violation.description,
-                      date: violation.date,
-                      severity: violation.severity,
-                      type: violation.type,
-                      scenarioId: scenarioId,
-                    });
-                    setIsDrawerOpen(true);
-                  }}
-                  className="py-3 px-4 flex items-center justify-between gap-3 hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <StatusDot status={isHigh ? "failed" : "completed"} pulse={isHigh} />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] transition-colors truncate">
-                        {violationTitle(violation.type)}
-                      </p>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{violation.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-[var(--color-text-muted)]">{severityLabel(violation.severity)}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLaunchInvestigation(scenarioId);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] hover:opacity-90 text-[11px] font-semibold text-white rounded-lg transition-all shadow-[var(--shadow-glow)] cursor-pointer"
-                    >
-                      <Bot className="h-3.5 w-3.5" />
-                      Fix with AI
-                    </button>
-                    <ArrowRight className="h-4 w-4 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Payout discrepancy */}
-            {payoutAnomalyCount > 0 && (
-              <div
-                onClick={() => {
-                  setSelectedIssue({
-                    title: "Payment Discrepancy",
-                    description: `${payoutAnomalyCount} payments don't match the expected amounts from the marketplace.`,
-                    date: "December 2024",
-                    severity: "high",
-                    type: "payout_discrepancy",
-                    scenarioId: "SCN-009",
-                  });
-                  setIsDrawerOpen(true);
-                }}
-                className="py-3 px-4 flex items-center justify-between gap-3 hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer group"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <StatusDot status="failed" pulse />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] transition-colors truncate">
-                      Payment Discrepancy
-                    </p>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">
-                      {payoutAnomalyCount} payment cycles don't match your expected earnings.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs text-[var(--color-text-muted)]">🟠 High Priority</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLaunchInvestigation("SCN-009");
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] hover:opacity-90 text-[11px] font-semibold text-white rounded-lg transition-all shadow-[var(--shadow-glow)] cursor-pointer"
-                  >
-                    <Bot className="h-3.5 w-3.5" />
-                    Fix with AI
-                  </button>
-                  <ArrowRight className="h-4 w-4 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-            )}
-
-            {/* Open Support Tickets as problems */}
-            {openTickets.map((t) => (
-              <div
-                key={t.ticket_id}
-                onClick={() => {
-                  setSelectedIssue({
-                    title: t.subject,
-                    description: t.description,
-                    date: t.created_date || "Recently",
-                    severity: t.priority === "critical" ? "critical" : t.priority === "high" ? "high" : "medium",
-                    type: "marketplace_ticket",
-                    scenarioId: "SCN-003",
-                  });
-                  setIsDrawerOpen(true);
-                }}
-                className="py-3 px-4 flex items-center justify-between gap-3 hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer group"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <StatusDot status={t.priority === "critical" || t.priority === "high" ? "failed" : "pending"} pulse={t.priority === "critical"} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] transition-colors truncate">
-                      {t.subject}
-                    </p>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">
-                      {t.marketplace.toUpperCase()} · Marketplace ticket
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs text-[var(--color-text-muted)]">{severityLabel(t.priority)}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLaunchInvestigation("SCN-003");
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] hover:opacity-90 text-[11px] font-semibold text-white rounded-lg transition-all shadow-[var(--shadow-glow)] cursor-pointer"
-                  >
-                    <Bot className="h-3.5 w-3.5" />
-                    Fix with AI
-                  </button>
-                  <ArrowRight className="h-4 w-4 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-            ))}
-
-            {totalProblems === 0 && (
-              <div className="py-12 text-center flex flex-col items-center justify-center">
-                <ShieldAlert className="h-8 w-8 text-[var(--color-success)] mb-2" />
-                <p className="text-sm font-medium text-[var(--color-text-primary)]">Everything looks good</p>
-                <p className="text-xs text-[var(--color-text-muted)] mt-1">No problems or payment issues found.</p>
-              </div>
-            )}
-          </div>
-        </Card>
 
         {/* ─── AI Activity (collapsed by default) ─── */}
         <Card className="overflow-hidden">

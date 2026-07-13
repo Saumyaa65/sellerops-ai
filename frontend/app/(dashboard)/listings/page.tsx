@@ -28,6 +28,7 @@ import {
   X,
   Bot,
   Filter,
+  Check,
 } from "lucide-react";
 
 export default function ListingsPage() {
@@ -49,6 +50,139 @@ export default function ListingsPage() {
   const [drawerChats, setDrawerChats] = useState<CustomerChat[]>([]);
   const [drawerTickets, setDrawerTickets] = useState<SupportTicket[]>([]);
   const [loadingDrawerData, setLoadingDrawerData] = useState(false);
+
+  // Demo Upload Listing drawer states
+  const [isUploadDrawerOpen, setIsUploadDrawerOpen] = useState(false);
+  const [uploadProgressStep, setUploadProgressStep] = useState<number | null>(null);
+  const [progressMessages] = useState([
+    "Uploading metadata payload to staging registry...",
+    "Executing rule-based AI Prevention checks...",
+    "Analyzing listing images using guideline model...",
+    "Computing audit health index...",
+    "Verification complete!"
+  ]);
+  const [newProductForm, setNewProductForm] = useState({
+    name: "",
+    category: "clothing",
+    price: "",
+    mrp: "",
+    description: "",
+    imageCount: "1",
+    sizeChart: "no"
+  });
+
+  const getListingHealth = (listing: Listing) => {
+    const issues = scanResults[listing.id] || [];
+    const isChecked = scanResults[listing.id] !== undefined;
+    if (!isChecked && listing.status !== "suspended") return { score: 100, isChecked };
+    
+    let score = 100;
+    if (listing.status === "suspended") score -= 30;
+    else if (listing.status === "under_review") score -= 15;
+    
+    issues.forEach(issue => {
+      if (issue.severity === "error") score -= 15;
+      else if (issue.severity === "warning") score -= 7;
+      else score -= 3;
+    });
+    
+    return {
+      score: Math.max(score, 0),
+      isChecked
+    };
+  };
+
+  const averageHealthScore = listings.length > 0
+    ? Math.round(listings.reduce((acc, l) => acc + getListingHealth(l).score, 0) / listings.length)
+    : 100;
+
+  const handleDemoUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProductForm.name || !newProductForm.price) {
+      toast.error("Please fill in the Product Name and Price");
+      return;
+    }
+
+    setIsUploadDrawerOpen(false);
+    setScanning(true);
+    setUploadProgressStep(0);
+
+    for (let step = 0; step < progressMessages.length; step++) {
+      await new Promise(resolve => setTimeout(resolve, 600));
+      setUploadProgressStep(step);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 400));
+    setUploadProgressStep(null);
+    setScanning(false);
+
+    const tempId = `LST-NEW-${Date.now().toString().slice(-4)}`;
+    const priceNum = parseFloat(newProductForm.price) || 0;
+    const mrpNum = parseFloat(newProductForm.mrp) || 0;
+    const imageCountNum = parseInt(newProductForm.imageCount) || 0;
+    
+    const newListingObj: Listing = {
+      id: tempId,
+      name: newProductForm.name,
+      category: newProductForm.category as any,
+      sku: `${newProductForm.name.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-4)}`,
+      price: priceNum,
+      mrp: mrpNum,
+      images: imageCountNum > 0 ? ["https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=200&auto=format&fit=crop&q=60"] : [],
+      description: newProductForm.description,
+      size_chart: newProductForm.sizeChart === "yes",
+      stock: 120,
+      marketplace: "meesho",
+      status: "draft",
+      rating: 0,
+      total_reviews: 0,
+    };
+
+    const mockIssues: ListingIssue[] = [];
+    if (imageCountNum === 0) {
+      mockIssues.push({ type: "missing_images", severity: "error", message: "No product images uploaded" });
+    } else if (imageCountNum < 3) {
+      mockIssues.push({ type: "low_image_count", severity: "warning", message: `Only ${imageCountNum} image(s) — recommend at least 3` });
+    }
+
+    if (priceNum <= 0) {
+      mockIssues.push({ type: "invalid_price", severity: "error", message: "Selling price must be greater than 0" });
+    }
+    if (mrpNum > 0 && priceNum > mrpNum) {
+      mockIssues.push({ type: "price_above_mrp", severity: "error", message: "Selling price exceeds MRP" });
+    }
+
+    if ((newProductForm.category === "clothing" || newProductForm.category === "footwear") && newProductForm.sizeChart === "no") {
+      mockIssues.push({ type: "missing_size_chart", severity: "warning", message: "Size chart required for apparel/footwear" });
+    }
+
+    if (newProductForm.description.length < 50) {
+      mockIssues.push({ type: "thin_description", severity: "warning", message: "Product description is too short" });
+    }
+
+    if (imageCountNum > 0) {
+      if (newProductForm.name.length % 3 === 0) {
+        mockIssues.push({ type: "blurry_image", severity: "warning", message: "Hero image appears blurry. Marketplace recommends replacing it before publishing." });
+      }
+      if (newProductForm.name.length % 4 === 0) {
+        mockIssues.push({ type: "watermark_detected", severity: "error", message: "Watermark/logo detected in product image. Platform rules prohibit custom logos." });
+      }
+      if (newProductForm.name.length % 5 === 0) {
+        mockIssues.push({ type: "missing_white_background", severity: "warning", message: "Missing pure white background. Guidelines require white background for main image." });
+      }
+      if (newProductForm.name.length % 7 === 0) {
+        mockIssues.push({ type: "guideline_violation", severity: "warning", message: "Product occupies less than 85% of image frame. Adjust frame margin." });
+      }
+    }
+
+    setListings(prev => [newListingObj, ...prev]);
+    setScanResults(prev => ({
+      ...prev,
+      [tempId]: mockIssues
+    }));
+    setHasScanned(true);
+    toast.success("Listing created and verified by AI Prevention Agent!");
+  };
 
   useEffect(() => {
     async function loadListings() {
@@ -187,35 +321,70 @@ export default function ListingsPage() {
         title="My Products"
         description="Check listing quality and fix issues before the marketplace flags them"
         actions={
-          <Button
-            variant="gradient"
-            size="sm"
-            id="scan-listings-btn"
-            onClick={handleScanListings}
-            disabled={scanning}
-          >
-            {scanning ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Scan className="h-3.5 w-3.5" />
-            )}
-            {scanning ? "Checking Products..." : "Check All Products"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              id="upload-listings-btn"
+              onClick={() => setIsUploadDrawerOpen(true)}
+              disabled={scanning}
+            >
+              <Bot className="h-3.5 w-3.5 shrink-0 mr-1 text-[var(--color-brand-400)]" />
+              Demo Upload Product
+            </Button>
+            <Button
+              variant="gradient"
+              size="sm"
+              id="scan-listings-btn"
+              onClick={handleScanListings}
+              disabled={scanning}
+            >
+              {scanning ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Scan className="h-3.5 w-3.5" />
+              )}
+              {scanning ? "Checking Products..." : "Check All Products"}
+            </Button>
+          </div>
         }
       />
       
       <div className="p-6 space-y-6">
-        {/* Single-line summary instead of 3 stat cards */}
-        <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)] px-1 flex-wrap">
-          <span className="font-semibold text-[var(--color-text-primary)] text-sm">
-            {totalCount} products tracked
-          </span>
-          {issuesCount > 0 && (
-            <span className="text-[var(--color-error)] font-medium">· {issuesCount} need attention</span>
-          )}
-          {healthyCount > 0 && (
-            <span className="text-[var(--color-success)] font-medium">· {healthyCount} healthy</span>
-          )}
+        {/* ─── AI Prevention Agent Status Card ─── */}
+        <div className="rounded-xl border border-[var(--color-brand-500)]/20 bg-[var(--color-brand-500)]/5 p-5 space-y-3 shadow-[0_0_12px_rgba(99,102,241,0.02)]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-bold">👀 AI Prevention Agent</span>
+              <h2 className="text-base font-bold text-[var(--color-text-primary)] mt-0.5">
+                {hasScanned ? `${averageHealthScore}/100 Healthy` : "Prevention Status: Pending Scan"}
+              </h2>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-[var(--color-text-muted)] bg-[var(--color-surface-3)] px-2.5 py-1 rounded border border-[var(--color-border)]">
+                {totalCount} products tracked
+              </span>
+              {issuesCount > 0 && (
+                <span className="text-xs text-[var(--color-error)] bg-[var(--color-error)]/10 px-2.5 py-1 rounded border border-[var(--color-error)]/20 font-semibold">
+                  {issuesCount} need attention
+                </span>
+              )}
+              {healthyCount > 0 && (
+                <span className="text-xs text-[var(--color-success)] bg-[var(--color-success)]/10 px-2.5 py-1 rounded border border-[var(--color-success)]/20 font-semibold">
+                  {healthyCount} healthy
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="border-t border-[var(--color-border)]/20 pt-3 flex flex-col sm:flex-row justify-between gap-2 text-xs text-[var(--color-text-muted)] leading-relaxed">
+            <p>
+              "The Prevention Agent checks listings before they become operational problems."
+            </p>
+            <p className="font-semibold text-[var(--color-brand-400)]">
+              Scan listings pre-live to maintain high health score & prevent platform suppressions.
+            </p>
+          </div>
         </div>
 
         {/* Tab & Filter bar */}
@@ -354,25 +523,22 @@ export default function ListingsPage() {
 
                     {/* Scanner Issue List */}
                     {isChecked && issues.length > 0 && (
-                      <div className="mt-4 pt-3 border-t border-[var(--color-border)] space-y-2">
-                        <p className="text-xs font-semibold text-[var(--color-text-secondary)]">Issues Found:</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {issues.map((issue, idx) => (
-                            <div 
-                              key={idx} 
-                              className="p-2 rounded bg-[var(--color-surface-1)] border border-[var(--color-border)] flex items-start gap-2"
-                            >
-                              <AlertTriangle className={`h-4 w-4 shrink-0 mt-0.5 ${issue.severity === "error" ? "text-[var(--color-error)]" : "text-[var(--color-warning)]"}`} />
-                              <div>
-                                <p className="text-xs font-medium text-[var(--color-text-primary)]">
+                      <div className="mt-4 pt-3 border-t border-[var(--color-border)]/50 space-y-2">
+                        <div className="space-y-1.5 text-xs">
+                          {issues.map((issue, idx) => {
+                            const isError = issue.severity === "error";
+                            return (
+                              <div key={idx} className="flex items-start gap-2 text-[var(--color-text-secondary)]">
+                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current" style={{ color: isError ? "var(--color-error)" : "var(--color-warning)" }} />
+                                <p className="leading-relaxed">
+                                  <strong className={isError ? "text-[var(--color-error)]" : "text-[var(--color-warning)]"}>
+                                    {isError ? "Critical: " : "Warning: "}
+                                  </strong>
                                   {issue.message}
                                 </p>
-                                <p className="text-[10px] text-[var(--color-text-muted)]">
-                                  Severity: <span className="capitalize">{issue.severity}</span>
-                                </p>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
@@ -533,6 +699,187 @@ export default function ListingsPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Slide-over upload drawer */}
+      {isUploadDrawerOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 overflow-hidden">
+            <div onClick={() => setIsUploadDrawerOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+              <div className="pointer-events-auto w-screen max-w-md">
+                <form 
+                  onSubmit={handleDemoUpload}
+                  className="flex h-full flex-col bg-[var(--color-surface-2)] border-l border-[var(--color-border)] shadow-2xl"
+                >
+                  {/* Header */}
+                  <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between">
+                    <div>
+                      <h2 className="text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-1.5">
+                        <Bot className="h-4.5 w-4.5 text-[var(--color-brand-400)] shrink-0" />
+                        👀 AI Prevention Agent · Demo Upload
+                      </h2>
+                      <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
+                        Validate custom listings through the AI Prevention Agent
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => setIsUploadDrawerOpen(false)} className="rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-3)] transition-colors">
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="flex-1 p-6 space-y-4 overflow-y-auto text-xs">
+                    <div className="space-y-1">
+                      <label className="font-semibold text-[var(--color-text-secondary)]">Product Name</label>
+                      <input 
+                        type="text"
+                        value={newProductForm.name}
+                        onChange={e => setNewProductForm(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                        placeholder="e.g. Cotton Polo Shirt"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-semibold text-[var(--color-text-secondary)]">Category</label>
+                      <select 
+                        value={newProductForm.category}
+                        onChange={e => setNewProductForm(prev => ({ ...prev, category: e.target.value }))}
+                        className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                      >
+                        <option value="clothing">Clothing & Apparel</option>
+                        <option value="footwear">Footwear</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="kitchen">Kitchen & Home</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="font-semibold text-[var(--color-text-secondary)]">Price (₹)</label>
+                        <input 
+                          type="number"
+                          value={newProductForm.price}
+                          onChange={e => setNewProductForm(prev => ({ ...prev, price: e.target.value }))}
+                          className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                          placeholder="e.g. 599"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="font-semibold text-[var(--color-text-secondary)]">MRP (₹)</label>
+                        <input 
+                          type="number"
+                          value={newProductForm.mrp}
+                          onChange={e => setNewProductForm(prev => ({ ...prev, mrp: e.target.value }))}
+                          className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                          placeholder="e.g. 999"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-semibold text-[var(--color-text-secondary)]">Description</label>
+                      <textarea 
+                        value={newProductForm.description}
+                        onChange={e => setNewProductForm(prev => ({ ...prev, description: e.target.value }))}
+                        rows={3}
+                        className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                        placeholder="Detailed listing description..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="font-semibold text-[var(--color-text-secondary)]">Number of Images</label>
+                        <select 
+                          value={newProductForm.imageCount}
+                          onChange={e => setNewProductForm(prev => ({ ...prev, imageCount: e.target.value }))}
+                          className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                        >
+                          <option value="0">0 Images</option>
+                          <option value="1">1 Image</option>
+                          <option value="2">2 Images</option>
+                          <option value="3">3+ Images</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="font-semibold text-[var(--color-text-secondary)]">Has Size Chart?</label>
+                        <select 
+                          value={newProductForm.sizeChart}
+                          onChange={e => setNewProductForm(prev => ({ ...prev, sizeChart: e.target.value }))}
+                          className="w-full bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-brand-400)] transition-colors"
+                        >
+                          <option value="no">No</option>
+                          <option value="yes">Yes</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-[var(--color-brand-500)]/5 border border-[var(--color-brand-500)]/15 rounded-lg text-[10px] text-[var(--color-text-muted)] leading-relaxed">
+                      "Prevention Agent checks descriptions, pricing margins, and mock hero images deterministic filters before staging to prevent operational suspensions."
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-surface-3)]/30 flex gap-3">
+                    <button 
+                      type="button" 
+                      onClick={() => setIsUploadDrawerOpen(false)}
+                      className="flex-1 py-2 px-3 bg-[var(--color-surface-3)] hover:bg-[var(--color-surface-4)] text-xs font-semibold text-[var(--color-text-primary)] rounded-lg border border-[var(--color-border)] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      className="flex-1 py-2 px-3 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] text-xs font-semibold text-white rounded-lg hover:opacity-90 transition-all shadow-[var(--shadow-glow)] cursor-pointer"
+                    >
+                      Validate & Upload
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progressive loading step overlay */}
+      {uploadProgressStep !== null && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-6 text-xs">
+          <div className="max-w-md w-full p-6 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-2xl space-y-4 text-center shadow-2xl">
+            <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-400)] mx-auto" />
+            <div className="space-y-1.5">
+              <h3 className="text-sm font-bold text-[var(--color-text-primary)]">👀 Scanning Listing Draft</h3>
+              <p className="text-xs text-[var(--color-text-secondary)] font-medium">AI Prevention Agent pipeline active</p>
+            </div>
+            
+            <div className="space-y-2.5 text-left bg-[var(--color-surface-3)] p-4 rounded-xl border border-[var(--color-border)]">
+              {progressMessages.map((msg, idx) => {
+                const isActive = idx === uploadProgressStep;
+                const isDone = idx < uploadProgressStep;
+                return (
+                  <div key={idx} className="flex items-center gap-2.5">
+                    <div className={`h-4.5 w-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                      isDone 
+                        ? "bg-[var(--color-success)] text-white" 
+                        : isActive 
+                        ? "bg-[var(--color-brand-500)] text-white animate-pulse" 
+                        : "bg-[var(--color-surface-4)] text-[var(--color-text-muted)] border border-[var(--color-border)]"
+                    }`}>
+                      {isDone ? "✓" : idx + 1}
+                    </div>
+                    <span className={isActive ? "font-semibold text-[var(--color-brand-300)]" : isDone ? "text-[var(--color-text-secondary)]" : "text-[var(--color-text-muted)] opacity-50"}>
+                      {msg}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

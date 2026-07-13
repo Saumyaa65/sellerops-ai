@@ -25,6 +25,7 @@ import {
   Clipboard,
   Check,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   History,
   FileSearch,
@@ -118,6 +119,7 @@ function InvestigationsContent() {
 
   // Copy state
   const [isCopied, setIsCopied] = useState(false);
+  const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
 
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -514,78 +516,9 @@ function InvestigationsContent() {
         }
       />
 
-      <div className="p-6 grid grid-cols-1 xl:grid-cols-4 gap-6">
+      <div className="p-6 grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {/* Left Column (Width: 1/4) - History + Quick Demo links */}
-        <div className="xl:col-span-1 space-y-6">
-          {/* History List */}
-          <div>
-            <h2 className="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-bold mb-3 flex items-center gap-1.5">
-              <History className="h-3.5 w-3.5" />
-              Past Cases
-            </h2>
-            
-            <Card className="max-h-[38vh] overflow-y-auto divide-y divide-[var(--color-border)]">
-              {loadingHistory ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-[var(--color-brand-400)]" />
-                </div>
-              ) : runs.length === 0 ? (
-                <div className="text-center py-8 text-xs text-[var(--color-text-muted)]">
-                  No investigations run yet
-                </div>
-              ) : (
-                runs.map((r) => {
-                  const isSelected = selectedRun?.run_id === r.run_id || activeRunId === r.run_id;
-                  const dateStr = new Date(r.created_at).toLocaleDateString();
-                  const actionPlan = r.output?.action_plan || [];
-                  const resolutionSummary = actionPlan.length > 0 
-                    ? actionPlan[0].replace(/^\d+[\.\s]*-?\s*/, "").split(":")[0] 
-                    : "Investigation complete";
-                  const issueName = r.output?.input_data?.scenario_id 
-                    ? scenarios.find(s => s.scenario_id === r.output.input_data.scenario_id)?.name || "Preset Run"
-                    : "General Store Audit";
-                  
-                  return (
-                    <div
-                      key={r.run_id}
-                      onClick={() => handleSelectPastRun(r)}
-                      className={`p-3 transition-all cursor-pointer flex items-center justify-between gap-3 text-xs ${
-                        isSelected 
-                          ? "bg-[var(--color-brand-500)]/10 text-[var(--color-brand-300)] font-medium border-l-2 border-[var(--color-brand-500)]" 
-                          : "hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)]"
-                      }`}
-                    >
-                      <div className="space-y-0.5 min-w-0 flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold capitalize text-[var(--color-text-primary)] truncate">
-                            {issueName}
-                          </p>
-                          <span className="text-[9px] text-[var(--color-text-muted)] shrink-0">{dateStr}</span>
-                        </div>
-                        <p className="text-[10px] text-[var(--color-text-muted)] truncate mt-0.5">
-                          {resolutionSummary}
-                        </p>
-                        <div className="flex items-center gap-1.5 mt-1 text-[9px] text-[var(--color-text-muted)] uppercase">
-                          <span className="bg-[var(--color-surface-3)] px-1.5 py-0.5 rounded text-[10px]">
-                            {r.output?.input_data?.marketplace || "MEESHO"}
-                          </span>
-                          <span className="text-[var(--color-brand-400)] font-semibold">
-                            Used for AI Learning
-                          </span>
-                        </div>
-                      </div>
-                      <div className="shrink-0 flex items-center">
-                        <Badge severity={r.status === "completed" ? "low" : r.status === "failed" ? "high" : "medium" as any}>
-                          {r.status === "completed" ? "Resolved" : r.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </Card>
-          </div>
-
+        <div className="lg:col-span-1 xl:col-span-1 space-y-6">
           {/* Quick Demo Scenarios Grid */}
           <div>
             <h2 className="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-bold mb-3 flex items-center gap-1.5">
@@ -597,7 +530,7 @@ function InvestigationsContent() {
                 <div
                   key={sc.scenario_id}
                   onClick={() => handleLaunchScenario(sc)}
-                  className="p-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:border-[var(--color-brand-500)]/30 transition-all cursor-pointer text-xs flex justify-between items-start gap-2 group"
+                  className="p-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:border-[var(--color-brand-500)]/30 transition-all cursor-pointer text-xs flex justify-between items-start gap-2 group animate-fade-in"
                 >
                   <div className="space-y-1 flex-1 min-w-0">
                     <span className="font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-300)] block truncate">
@@ -616,10 +549,75 @@ function InvestigationsContent() {
               View all 22 scenarios <ArrowRight className="h-3 w-3" />
             </button>
           </div>
+
+          {/* Collapsible History List */}
+          <div>
+            <button
+              onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+              className="w-full flex items-center justify-between text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-bold mb-2.5 cursor-pointer hover:text-[var(--color-text-primary)] transition-colors"
+            >
+              <span className="flex items-center gap-1.5">
+                <History className="h-3.5 w-3.5" />
+                Past Cases {runs.length > 0 ? `(${runs.length})` : ""}
+              </span>
+              {isHistoryExpanded ? <ChevronDown className="h-3.5 w-3.5 text-[var(--color-text-muted)]" /> : <ChevronRight className="h-3.5 w-3.5 text-[var(--color-text-muted)]" />}
+            </button>
+            
+            {isHistoryExpanded && (
+              <Card className="max-h-[30vh] overflow-y-auto divide-y divide-[var(--color-border)] transition-all animate-slide-down">
+                {loadingHistory ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-4 w-4 animate-spin text-[var(--color-brand-400)]" />
+                  </div>
+                ) : runs.length === 0 ? (
+                  <div className="text-center py-6 text-xs text-[var(--color-text-muted)]">
+                    No investigations run yet
+                  </div>
+                ) : (
+                  runs.map((r) => {
+                    const isSelected = selectedRun?.run_id === r.run_id || activeRunId === r.run_id;
+                    const dateStr = new Date(r.created_at).toLocaleDateString();
+                    const issueName = r.output?.input_data?.scenario_id 
+                      ? scenarios.find(s => s.scenario_id === r.output.input_data.scenario_id)?.name || "Preset Run"
+                      : "General Store Audit";
+                    
+                    return (
+                      <div
+                        key={r.run_id}
+                        onClick={() => handleSelectPastRun(r)}
+                        className={`p-2 transition-all cursor-pointer flex items-center justify-between gap-2 text-xs ${
+                          isSelected 
+                            ? "bg-[var(--color-brand-500)]/10 text-[var(--color-brand-300)] font-medium border-l-2 border-[var(--color-brand-500)]" 
+                            : "hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)]"
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <p className="font-semibold capitalize text-[var(--color-text-primary)] truncate text-[11px]">
+                            {issueName}
+                          </p>
+                          <div className="flex items-center gap-1.5 text-[9px] text-[var(--color-text-muted)]">
+                            <span className="bg-[var(--color-surface-3)] px-1 rounded uppercase font-bold text-[8px]">
+                              {r.output?.input_data?.marketplace || "MEESHO"}
+                            </span>
+                            <span>{dateStr}</span>
+                          </div>
+                        </div>
+                        <div className="shrink-0 scale-75 origin-right">
+                          <Badge severity={r.status === "completed" ? "low" : r.status === "failed" ? "high" : "medium" as any}>
+                            {r.status === "completed" ? "Resolved" : r.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </Card>
+            )}
+          </div>
         </div>
 
         {/* Center Column (Width: 2/4) - Pipeline Visualizer + Output Report */}
-        <div className="xl:col-span-2 space-y-6">
+        <div className="lg:col-span-2 xl:col-span-2 space-y-6">
           {/* Active SSE Pipeline Node Animation */}
           {showActivePanel && activeStatus !== "idle" && (
             <Card className="border-[var(--color-brand-500)]/30 bg-[var(--color-brand-500)]/5">
@@ -733,7 +731,7 @@ function InvestigationsContent() {
                 <div className="p-4 space-y-4 text-xs">
                   {/* Root Cause block */}
                   <div className="space-y-2">
-                    <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1 flex items-center gap-1">
+                    <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1 flex items-center gap-1.5">
                       What Happened
                     </h3>
                     
@@ -787,7 +785,7 @@ function InvestigationsContent() {
                   {displayData.resolutionPlan.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1">
-                        What To Do
+                        Resolution Plan
                       </h3>
                       <div className="grid grid-cols-1 gap-2">
                         {displayData.resolutionPlan.map((step, idx) => {
@@ -871,7 +869,7 @@ function InvestigationsContent() {
                   <CardHeader className="flex justify-between items-center border-b border-[var(--color-border)] pb-3 bg-[var(--color-surface-3)]/45">
                     <CardTitle className="text-md flex items-center gap-2">
                       <FileText className="h-5 w-5 text-[var(--color-brand-400)]" />
-                      Your Appeal Letter
+                      Appeal Letter
                     </CardTitle>
                   </CardHeader>
                   <div className="p-5 bg-[var(--color-surface-1)] space-y-3">
@@ -903,13 +901,13 @@ function InvestigationsContent() {
         </div>
 
         {/* Right column removed — evidence and policy now appear as collapsible sections below the report in center column */}
-        <div className="xl:col-span-1 space-y-4">
+        <div className="lg:col-span-3 xl:col-span-1 space-y-4">
           {displayData ? (
             <>
               {/* Collapsible: Evidence used */}
               <details className="group">
                 <summary className="cursor-pointer list-none flex items-center justify-between p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors text-xs font-medium text-[var(--color-text-secondary)]">
-                  <span className="flex items-center gap-2"><FileSearch className="h-3.5 w-3.5 text-[var(--color-brand-400)]" />See evidence used ({displayData.supportingEvidence?.length || 0} items)</span>
+                  <span className="flex items-center gap-2"><FileSearch className="h-3.5 w-3.5 text-[var(--color-brand-400)]" />Supporting Evidence ({displayData.supportingEvidence?.length || 0} items)</span>
                   <ChevronDown className="h-3.5 w-3.5 group-open:rotate-180 transition-transform" />
                 </summary>
                 <div className="mt-2 space-y-2">
@@ -936,7 +934,7 @@ function InvestigationsContent() {
               {/* Collapsible: Marketplace rules checked */}
               <details className="group">
                 <summary className="cursor-pointer list-none flex items-center justify-between p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors text-xs font-medium text-[var(--color-text-secondary)]">
-                  <span className="flex items-center gap-2"><Sparkles className="h-3.5 w-3.5 text-[var(--color-brand-400)]" />See marketplace rules checked ({displayData.retrievedPolicies?.length || 0} rules)</span>
+                  <span className="flex items-center gap-2"><Sparkles className="h-3.5 w-3.5 text-[var(--color-brand-400)]" />Marketplace Rules Checked ({displayData.retrievedPolicies?.length || 0} rules)</span>
                   <ChevronDown className="h-3.5 w-3.5 group-open:rotate-180 transition-transform" />
                 </summary>
                 <div className="mt-2 space-y-2">
@@ -964,7 +962,7 @@ function InvestigationsContent() {
                     <Check className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-[var(--color-success)]">Case Saved</h4>
+                    <h4 className="font-semibold text-[var(--color-success)]">Case Saved to AI Memory</h4>
                     <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
                       The AI has saved this case to memory so it can learn from it in future diagnoses.
                     </p>
