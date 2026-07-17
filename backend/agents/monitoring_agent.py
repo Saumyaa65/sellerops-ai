@@ -115,6 +115,7 @@ class MonitoringAgent(BaseAgent):
                         issue_title=issue_title,
                         description=description,
                         business_impact=business_impact,
+                        seller_id=seller_id,
                         scenario_id=sc_id,
                         appeal_available=True
                     )
