@@ -10,7 +10,6 @@ import { agentService } from "@/services/agentService";
 import { TopBar } from "@/components/layout/TopBar";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { StatusDot } from "@/components/ui/StatusDot";
 import { toast } from "sonner";
 import {
   TrendingDown,
@@ -26,6 +25,7 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronRight,
+  TrendingUp as TrendingUpIcon,
 } from "lucide-react";
 
 interface SellerMetrics {
@@ -64,16 +64,6 @@ interface OperationalCase {
   scenarioId: string;
 }
 
-// Human-readable severity label
-function severityLabel(sev: string) {
-  switch (sev?.toLowerCase()) {
-    case "critical": return "🔴 Critical";
-    case "high": return "🟠 High Priority";
-    case "medium": return "🟡 Attention Needed";
-    default: return "🟢 Normal";
-  }
-}
-
 // Map violation types to scenario IDs for demo routing
 const mapViolationToScenario = (type: string): string => {
   const t = type.toLowerCase();
@@ -104,8 +94,6 @@ export default function CommandCenterPage() {
 
   // AI Activity collapsed by default
   const [isActivityExpanded, setIsActivityExpanded] = useState(false);
-  // Store performance stats collapsed by default
-  const [isStatsExpanded, setIsStatsExpanded] = useState(false);
 
   // Drawer state
   const [selectedIssue, setSelectedIssue] = useState<any | null>(null);
@@ -162,11 +150,11 @@ export default function CommandCenterPage() {
       <>
         <TopBar
           title="My Store"
-          description="Rohan Enterprises · SellerOps AI is watching your account"
+          description="Overview · AI Operations Desk"
         />
         <div className="flex items-center justify-center min-h-[400px] flex-col gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-400)]" />
-          <p className="text-sm text-[var(--color-text-muted)]">Loading your store overview...</p>
+          <Loader2 className="h-6 w-6 animate-spin text-indigo-400" />
+          <p className="text-xs text-slate-500">Loading store analytics...</p>
         </div>
       </>
     );
@@ -177,18 +165,18 @@ export default function CommandCenterPage() {
       <>
         <TopBar
           title="My Store"
-          description="Rohan Enterprises · SellerOps AI is watching your account"
+          description="Overview · AI Operations Desk"
         />
         <div className="p-6">
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-12 flex flex-col items-center gap-4 text-center">
-            <AlertTriangle className="h-8 w-8 text-[var(--color-text-muted)]" />
+          <div className="rounded-xl border border-slate-800 bg-slate-900/20 p-12 flex flex-col items-center gap-4 text-center">
+            <AlertTriangle className="h-8 w-8 text-slate-600" />
             <div>
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">No store metrics available.</p>
-              <p className="text-xs text-[var(--color-text-muted)] mt-1">{error || "Data load failed"}</p>
+              <p className="text-sm font-semibold text-slate-200">No store metrics available.</p>
+              <p className="text-xs text-slate-500 mt-1">{error || "Data load failed"}</p>
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[var(--color-surface-3)] hover:bg-[var(--color-surface-4)] text-xs rounded border border-[var(--color-border)] transition-colors text-[var(--color-text-primary)] cursor-pointer"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-850 text-xs rounded-lg border border-slate-800 transition-colors text-slate-200 cursor-pointer"
             >
               Try Again
             </button>
@@ -204,25 +192,14 @@ export default function CommandCenterPage() {
 
   // Build the health headline
   let healthHeadline = "";
-  let healthColor = "text-[var(--color-success)]";
-  let healthBg = "bg-[var(--color-success)]/8 border-[var(--color-success)]/20";
+  let healthBg = "bg-slate-900/20 border-slate-800/80";
 
   if (totalProblems === 0) {
-    healthHeadline = "Your store looks healthy. No problems found.";
-    healthColor = "text-[var(--color-success)]";
-    healthBg = "bg-[var(--color-success)]/8 border-[var(--color-success)]/20";
+    healthHeadline = "Your store status is operational. No issues detected.";
   } else if (totalProblems === 1) {
-    healthHeadline = "Your store has 1 problem that needs attention.";
-    healthColor = "text-[var(--color-warning)]";
-    healthBg = "bg-[var(--color-warning)]/8 border-[var(--color-warning)]/20";
-  } else if (violationCount > 0 || payoutAnomalyCount > 0) {
-    healthHeadline = `Your store needs attention. ${totalProblems} problem${totalProblems > 1 ? "s" : ""} found.`;
-    healthColor = "text-[var(--color-error)]";
-    healthBg = "bg-[var(--color-error)]/8 border-[var(--color-error)]/20";
+    healthHeadline = "Store alert: 1 issue requires review.";
   } else {
-    healthHeadline = `${totalProblems} marketplace ticket${totalProblems > 1 ? "s" : ""} open. Review when possible.`;
-    healthColor = "text-[var(--color-warning)]";
-    healthBg = "bg-[var(--color-warning)]/8 border-[var(--color-warning)]/20";
+    healthHeadline = `Store alert: ${totalProblems} active operational issues detected.`;
   }
 
   // Consolidate related issues into operational cases
@@ -242,8 +219,8 @@ export default function CommandCenterPage() {
     }
     cases.push({
       id: "case-return-rate",
-      title: "High Return Rate & Performance Warning",
-      description: "Customer return rate has exceeded the threshold. Correlated with buyer disputes and performance alerts.",
+      title: "High Return Rate Warning",
+      description: "Customer return rate has exceeded the 15% threshold. Size charts mismatch or QC issues suspected.",
       severity: "critical",
       evidence: evidenceList,
       scenarioId: "SCN-001"
@@ -264,8 +241,8 @@ export default function CommandCenterPage() {
     }
     cases.push({
       id: "case-counterfeit",
-      title: "Counterfeit Brand Suspicion & Suppression Alert",
-      description: "Listing temporarily suppressed due to Apple brand counterfeit flags. Action required to prevent account lock.",
+      title: "Brand Authenticity Appeal",
+      description: "Listing suppressed due to generic vs brand catalog flags. Requires authorization docs appeal.",
       severity: "critical",
       evidence: evidenceList,
       scenarioId: "SCN-002"
@@ -285,8 +262,8 @@ export default function CommandCenterPage() {
     }
     cases.push({
       id: "case-payout",
-      title: "Settlement Discrepancies & Payout Disputes",
-      description: "Expected settlements differ from bank payout disbursement values. Correlated with active payment support cases.",
+      title: "Payout Settlement Mismatch",
+      description: "Discrepancy detected between disbursed settlements and expected rates. Penalty audit needed.",
       severity: "high",
       evidence: evidenceList,
       scenarioId: "SCN-009"
@@ -307,8 +284,8 @@ export default function CommandCenterPage() {
     }
     cases.push({
       id: "case-suspension",
-      title: "Account Suspension Warning & Low Rating",
-      description: "Account health is compromised by a declining seller rating (3.2). Suspension appeal ticket is active.",
+      title: "Account Health Suspension Risk",
+      description: "Overall rating dropped to 3.2. Suspension warning active. Customer service rating audit recommended.",
       severity: "critical",
       evidence: evidenceList,
       scenarioId: "SCN-003"
@@ -324,7 +301,7 @@ export default function CommandCenterPage() {
         title: violationTitle(v.type),
         description: v.description,
         severity: v.severity as any,
-        evidence: [`Flagged in catalog check on ${v.date}`],
+        evidence: [`Flagged in catalog audit on ${v.date}`],
         scenarioId: mapViolationToScenario(v.type)
       });
     });
@@ -368,74 +345,85 @@ export default function CommandCenterPage() {
   return (
     <>
       <TopBar
-        title="My Store"
-        description={`Rohan Enterprises · ${metrics.marketplace.toUpperCase()} ${metrics.seller_tier} Tier`}
+        title="Command Center"
+        description={`${metrics.seller_name} · ${metrics.marketplace.toUpperCase()} Workspace`}
       />
 
-      <div className="p-6 space-y-5">
+      <div className="p-6 space-y-6">
 
-        {/* ─── Store Health Banner ─── */}
-        <div className={`rounded-xl border p-5 space-y-3.5 ${healthBg}`}>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-bold">Store Status</span>
-              <h2 className={`text-lg font-bold leading-snug ${healthColor} mt-0.5`}>
-                {healthHeadline}
-              </h2>
-            </div>
-            {totalProblems > 0 && (
-              <button
-                onClick={() => handleLaunchInvestigation(mapViolationToScenario(metrics.violations?.[0]?.type || "return_rate"))}
-                className="flex items-center gap-2 px-4.5 py-2 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] text-xs font-semibold rounded-lg text-white shadow-[var(--shadow-glow)] hover:opacity-90 transition-all shrink-0 cursor-pointer"
-              >
-                <Bot className="h-4 w-4 animate-pulse" />
-                Resolve All Issues with AI
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            )}
+        {/* ─── Store Performance Stats Block (Unified stats grid) ─── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4.5 rounded-xl border border-slate-900 bg-slate-950 flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">30d Revenue</span>
+            <span className="text-lg font-bold text-slate-100 tabular-nums">₹{metrics.total_revenue_30d.toLocaleString()}</span>
+            <span className="text-[10px] text-slate-500">{metrics.total_orders} processed orders</span>
           </div>
-          
-          <div className="border-t border-[var(--color-border)]/20 pt-3 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div className="space-y-1">
-              <span className="text-[10px] text-[var(--color-text-muted)] font-medium">Active Issues</span>
-              <p className="font-semibold text-[var(--color-text-primary)]">
-                {totalProblems} open issues
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-[10px] text-[var(--color-text-muted)] font-medium">Potential Revenue at Risk</span>
-              <p className="font-semibold text-[var(--color-text-primary)]">
-                ₹{((metrics.total_revenue_30d * 0.15) + metrics.pending_payouts).toLocaleString()} (Estimated Risk)
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-[10px] text-[var(--color-text-muted)] font-medium">Seller Rating Trend</span>
-              <p className="font-semibold text-[var(--color-text-primary)] flex items-center gap-1">
-                ⭐ {metrics.seller_rating.toFixed(1)} / 5.0
-                <span className="text-[10px] text-[var(--color-error)]">(Declining)</span>
-              </p>
-            </div>
+          <div className={`p-4.5 rounded-xl border flex flex-col gap-1 ${returnRate > 0.15 ? "border-rose-950/80 bg-rose-950/5" : "border-slate-900 bg-slate-950"}`}>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Store Return Rate</span>
+            <span className={`text-lg font-bold tabular-nums ${returnRate > 0.15 ? "text-rose-400" : "text-slate-100"}`}>
+              {(returnRate * 100).toFixed(1)}%
+            </span>
+            <span className="text-[10px] text-slate-500">Target threshold: &lt;15%</span>
+          </div>
+          <div className="p-4.5 rounded-xl border border-slate-900 bg-slate-950 flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Active Catalog</span>
+            <span className="text-lg font-bold text-slate-100 tabular-nums">{activeListingsCount}</span>
+            <span className="text-[10px] text-slate-500">active SKU listings</span>
+          </div>
+          <div className={`p-4.5 rounded-xl border flex flex-col gap-1 ${payoutAnomalyCount > 0 ? "border-amber-950/80 bg-amber-950/5" : "border-slate-900 bg-slate-950"}`}>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Pending Payouts</span>
+            <span className="text-lg font-bold text-slate-100 tabular-nums">₹{metrics.pending_payouts.toLocaleString()}</span>
+            <span className="text-[10px] text-slate-500">
+              {payoutAnomalyCount > 0 ? `${payoutAnomalyCount} discrepancies detected` : "Fully reconciled"}
+            </span>
           </div>
         </div>
 
-        {/* ─── Operational Alerts Panel ─── */}
+        {/* ─── Store Health Banner (Clean status alert banner) ─── */}
+        <div className={`rounded-xl border p-4.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${healthBg}`}>
+          <div className="flex items-center gap-3">
+            <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${totalProblems > 0 ? "bg-amber-500/10 text-amber-400" : "bg-emerald-500/10 text-emerald-400"}`}>
+              <AlertTriangle className="h-4.5 w-4.5" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-200 leading-snug">
+                {healthHeadline}
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Potential Revenue at Risk: ₹{((metrics.total_revenue_30d * 0.15) + metrics.pending_payouts).toLocaleString()} · Seller rating: ⭐ {metrics.seller_rating.toFixed(1)}/5.0
+              </p>
+            </div>
+          </div>
+          {totalProblems > 0 && (
+            <button
+              onClick={() => handleLaunchInvestigation(mapViolationToScenario(metrics.violations?.[0]?.type || "return_rate"))}
+              className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold rounded-lg text-white transition-all shrink-0 cursor-pointer shadow-md"
+            >
+              <Bot className="h-3.5 w-3.5" />
+              Resolve with AI
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* ─── Active Operational Alerts Panel ─── */}
         {sortedCases.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)]/50 pb-2">
-              <h2 className="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-bold flex items-center gap-1.5 px-1">
-                <span className="h-2 w-2 rounded-full bg-[var(--color-error)] shrink-0" />
-                Issues Requiring Attention
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4 border-b border-slate-900 pb-2.5">
+              <h2 className="text-xs uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                Active Alerts
               </h2>
               
-              <div className="flex gap-1.5 bg-[var(--color-surface-3)] p-0.5 rounded-lg border border-[var(--color-border)]/50 text-[10px] font-semibold">
+              <div className="flex gap-1.5 bg-slate-900/60 p-0.5 rounded-lg border border-slate-800 text-[10px] font-semibold text-slate-400">
                 {["all", "critical", "high", "medium"].map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setSeverityFilter(filter)}
                     className={`px-2 py-1 rounded transition-colors cursor-pointer capitalize ${
                       severityFilter === filter
-                        ? "bg-[var(--color-surface-1)] text-[var(--color-brand-300)] animate-fade-in"
-                        : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                        ? "bg-slate-800 text-slate-200"
+                        : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
                     {filter}
@@ -445,38 +433,46 @@ export default function CommandCenterPage() {
             </div>
             
             {filteredCases.length === 0 ? (
-              <div className="p-8 text-center text-xs text-[var(--color-text-muted)] border border-[var(--color-border)]/50 rounded-xl bg-[var(--color-surface-2)]">
+              <div className="p-8 text-center text-xs text-slate-500 border border-slate-900 rounded-xl bg-slate-950">
                 No active issues match the selected filter.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredCases.map((c) => (
                   <div
                     key={c.id}
-                    className="p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] flex flex-col justify-between gap-2.5 transition-all hover:border-[var(--color-border-hover)]"
+                    className="p-4 rounded-xl border border-slate-900 bg-slate-950 hover:bg-slate-900/20 transition-all flex flex-col justify-between gap-4 group"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm font-bold text-[var(--color-text-primary)] leading-tight">{c.title}</h3>
-                        <span className={`text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded shrink-0 ${
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-xs font-bold text-slate-200 group-hover:text-indigo-400 transition-colors leading-tight">
+                          {c.title}
+                        </h3>
+                        <span className={`text-[8px] uppercase tracking-wider font-bold px-2 py-0.5 rounded shrink-0 ${
                           c.severity === "critical"
-                            ? "bg-[var(--color-error)]/10 text-[var(--color-error)] border border-[var(--color-error)]/25"
+                            ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                             : c.severity === "high"
-                            ? "bg-[var(--color-warning)]/10 text-[var(--color-warning)] border border-[var(--color-warning)]/25"
-                            : "bg-[var(--color-surface-3)] text-[var(--color-text-secondary)] border border-[var(--color-border)]"
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "bg-slate-800 text-slate-400"
                         }`}>
                           {c.severity}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">{c.description}</p>
+                      
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {c.description}
+                      </p>
                       
                       {/* Supporting Evidence Checklist */}
                       {c.evidence.length > 0 && (
-                        <div className="mt-2 text-[10px] text-[var(--color-text-muted)] bg-[var(--color-surface-3)]/60 px-2 py-1.5 rounded border border-[var(--color-border)]/40">
-                          <span className="font-semibold block mb-0.5 text-[9px] uppercase tracking-wider">Supporting Evidence</span>
-                          <ul className="list-disc pl-3.5 space-y-0.5">
+                        <div className="pt-2">
+                          <span className="text-[9px] uppercase font-bold tracking-wider text-slate-500 block mb-1">Evidence Summary</span>
+                          <ul className="space-y-1">
                             {c.evidence.map((ev, idx) => (
-                              <li key={idx} className="leading-snug">{ev}</li>
+                              <li key={idx} className="text-[10px] text-slate-500 flex items-start gap-1.5 leading-snug">
+                                <span className="mt-1 h-1 w-1 rounded-full bg-slate-700 shrink-0" />
+                                {ev}
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -485,9 +481,9 @@ export default function CommandCenterPage() {
                     
                     <button
                       onClick={() => handleLaunchInvestigation(c.scenarioId)}
-                      className="flex items-center gap-1 text-xs font-semibold text-[var(--color-brand-400)] hover:text-[var(--color-brand-300)] transition-colors self-start mt-1 cursor-pointer"
+                      className="flex items-center gap-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors self-start cursor-pointer border-t border-slate-900/50 pt-2.5 w-full"
                     >
-                      Investigate
+                      Diagnose root cause
                       <ArrowRight className="h-3 w-3" />
                     </button>
                   </div>
@@ -497,89 +493,49 @@ export default function CommandCenterPage() {
           </div>
         )}
 
-        {/* ─── Store Stats Pills (collapsed by default) ─── */}
-        <div>
-          <button
-            onClick={() => setIsStatsExpanded(!isStatsExpanded)}
-            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors mb-3"
-          >
-            {isStatsExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-            {isStatsExpanded ? "Hide store performance numbers" : "Show store performance numbers"}
-          </button>
-
-          {isStatsExpanded && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] flex flex-col gap-1">
-                <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">30d Sales</span>
-                <span className="text-xl font-bold tabular-nums">₹{metrics.total_revenue_30d.toLocaleString()}</span>
-                <span className="text-[10px] text-[var(--color-text-muted)]">{metrics.total_orders} orders</span>
-              </div>
-              <div className={`p-4 rounded-xl border flex flex-col gap-1 ${returnRate > 0.15 ? "border-[var(--color-error)]/30 bg-[var(--color-error)]/5" : "border-[var(--color-border)] bg-[var(--color-surface-2)]"}`}>
-                <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Return Rate</span>
-                <span className={`text-xl font-bold tabular-nums ${returnRate > 0.15 ? "text-[var(--color-error)]" : ""}`}>
-                  {(returnRate * 100).toFixed(1)}%
-                </span>
-                <span className="text-[10px] text-[var(--color-text-muted)]">Target: &lt;15%</span>
-              </div>
-              <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] flex flex-col gap-1">
-                <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Products</span>
-                <span className="text-xl font-bold tabular-nums">{activeListingsCount}</span>
-                <span className="text-[10px] text-[var(--color-text-muted)]">active listings</span>
-              </div>
-              <div className={`p-4 rounded-xl border flex flex-col gap-1 ${payoutAnomalyCount > 0 ? "border-[var(--color-warning)]/30 bg-[var(--color-warning)]/5" : "border-[var(--color-border)] bg-[var(--color-surface-2)]"}`}>
-                <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Pending Payment</span>
-                <span className="text-xl font-bold tabular-nums">₹{metrics.pending_payouts.toLocaleString()}</span>
-                <span className="text-[10px] text-[var(--color-text-muted)]">
-                  {payoutAnomalyCount > 0 ? `${payoutAnomalyCount} discrepancies found` : "No discrepancies"}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-
-
-        {/* ─── AI Activity (collapsed by default) ─── */}
-        <Card className="overflow-hidden">
+        {/* ─── AI Activity (Recent diagnostics - collapsed audit log style) ─── */}
+        <Card className="overflow-hidden border-slate-900 bg-slate-950">
           <div
             onClick={() => setIsActivityExpanded(!isActivityExpanded)}
-            className="p-3 hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer flex items-center justify-between"
+            className="p-3 hover:bg-slate-900/40 transition-colors cursor-pointer flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
-              <Bot className="h-4 w-4 text-[var(--color-brand-400)]" />
-              <span className="text-xs font-semibold text-[var(--color-text-primary)]">Recent AI Diagnoses</span>
+              <Bot className="h-4 w-4 text-indigo-400" />
+              <span className="text-xs font-bold text-slate-300">AI Diagnosis Log</span>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] text-[var(--color-text-muted)]">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-500">
                 {recentRuns.length > 0
-                  ? `Last run: ${recentRuns[0].status}`
-                  : "No recent runs"}
+                  ? `Last operation: ${recentRuns[0].status}`
+                  : "No activity records"}
               </span>
-              {isActivityExpanded ? <ChevronDown className="h-3.5 w-3.5 text-[var(--color-text-muted)]" /> : <ChevronRight className="h-3.5 w-3.5 text-[var(--color-text-muted)]" />}
+              {isActivityExpanded ? <ChevronDown className="h-3.5 w-3.5 text-slate-500" /> : <ChevronRight className="h-3.5 w-3.5 text-slate-500" />}
             </div>
           </div>
 
           {isActivityExpanded && (
-            <div className="border-t border-[var(--color-border)] p-4 space-y-3">
+            <div className="border-t border-slate-900 p-4 space-y-3.5">
               {recentRuns.length === 0 ? (
-                <p className="text-xs text-[var(--color-text-muted)] italic text-center py-4">No AI diagnoses have been run yet.</p>
+                <p className="text-xs text-slate-500 italic text-center py-4">No AI diagnoses records found.</p>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5">
                   {recentRuns.map((run) => (
                     <div
                       key={run.run_id}
                       onClick={(e) => { e.stopPropagation(); router.push(`/investigations?run_id=${run.run_id}`); }}
-                      className="p-2.5 rounded bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:border-[var(--color-brand-500)]/30 transition-all cursor-pointer flex flex-col justify-between gap-1.5"
+                      className="p-3 rounded-lg bg-slate-950 border border-slate-900 hover:border-indigo-500/20 transition-all cursor-pointer flex flex-col justify-between gap-2"
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-bold text-[var(--color-text-secondary)]">
-                          {run.agent_type === "investigation" ? "Full Diagnosis" : "Listing Check"}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 truncate">
+                          {run.agent_type === "investigation" ? "Full Diagnosis" : "Listing Audit"}
                         </span>
-                        <Badge severity={run.status === "completed" ? "low" : run.status === "failed" ? "high" : "medium" as any}>
+                        <span className={`text-[8px] font-semibold px-1.5 py-0.5 rounded ${
+                          run.status === "completed" ? "bg-emerald-500/10 text-emerald-400" : "bg-slate-800 text-slate-400"
+                        }`}>
                           {run.status}
-                        </Badge>
+                        </span>
                       </div>
-                      <p className="text-[9px] text-[var(--color-text-muted)]">{new Date(run.created_at).toLocaleString()}</p>
+                      <p className="text-[9px] text-slate-500 font-mono">{new Date(run.created_at).toLocaleString()}</p>
                     </div>
                   ))}
                 </div>
@@ -599,20 +555,20 @@ export default function CommandCenterPage() {
             />
             <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
               <div className="pointer-events-auto w-screen max-w-md">
-                <div className="flex h-full flex-col overflow-y-scroll bg-[var(--color-surface-2)] border-l border-[var(--color-border)] shadow-2xl">
+                <div className="flex h-full flex-col overflow-y-scroll bg-slate-950 border-l border-slate-900 shadow-2xl">
                   {/* Header */}
-                  <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between">
+                  <div className="p-6 border-b border-slate-900 flex items-center justify-between">
                     <div>
-                      <h2 className="text-md font-bold text-[var(--color-text-primary)]">
+                      <h2 className="text-sm font-bold text-slate-200">
                         {selectedIssue.title}
                       </h2>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                        {severityLabel(selectedIssue.severity)} · Detected {selectedIssue.date}
+                      <p className="text-xs text-slate-500 mt-1">
+                        Detected {selectedIssue.date}
                       </p>
                     </div>
                     <button
                       onClick={() => setIsDrawerOpen(false)}
-                      className="rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-3)] transition-colors"
+                      className="rounded-lg p-1 text-slate-500 hover:bg-slate-900 transition-colors"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -621,21 +577,21 @@ export default function CommandCenterPage() {
                   {/* Body */}
                   <div className="flex-1 p-6 space-y-6">
                     <div className="space-y-2">
-                      <span className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">What happened</span>
-                      <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-3)] p-3 rounded-lg border border-[var(--color-border)]">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Description</span>
+                      <p className="text-xs text-slate-400 leading-relaxed bg-slate-900/40 p-3.5 rounded-lg border border-slate-900">
                         {selectedIssue.description}
                       </p>
                     </div>
 
                     <div className="space-y-3">
-                      <span className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">What to do</span>
-                      <div className="p-4 rounded-lg bg-[var(--color-brand-500)]/5 border border-[var(--color-brand-500)]/10 space-y-3">
-                        <div className="flex gap-2">
-                          <Bot className="h-4 w-4 text-[var(--color-brand-400)] shrink-0 mt-0.5" />
+                      <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">AI Operations Solution</span>
+                      <div className="p-4 rounded-lg bg-indigo-500/5 border border-indigo-500/10 space-y-3.5">
+                        <div className="flex gap-2.5">
+                          <Bot className="h-4.5 w-4.5 text-indigo-400 shrink-0 mt-0.5" />
                           <div className="text-xs">
-                            <p className="font-semibold text-[var(--color-text-primary)]">Run AI Diagnosis</p>
-                            <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
-                              The AI will analyse this issue, check marketplace rules, and write an appeal letter for you.
+                            <p className="font-semibold text-slate-200">Run AI Diagnosis</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5 leading-normal">
+                              Automate platform compliance checks and draft an appeal letter.
                             </p>
                           </div>
                         </div>
@@ -645,7 +601,7 @@ export default function CommandCenterPage() {
                             setIsDrawerOpen(false);
                             handleLaunchInvestigation(selectedIssue.scenarioId);
                           }}
-                          className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-accent-600)] hover:opacity-95 text-xs font-semibold text-white rounded-lg transition-all shadow-[var(--shadow-glow)] cursor-pointer"
+                          className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-755 text-xs font-semibold text-white rounded-lg transition-all shadow-md cursor-pointer"
                         >
                           Start AI Diagnosis
                           <ArrowRight className="h-3.5 w-3.5" />

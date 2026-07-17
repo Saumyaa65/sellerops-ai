@@ -352,37 +352,37 @@ export default function ListingsPage() {
       
       <div className="p-6 space-y-6">
         {/* ─── AI Prevention Agent Status Card ─── */}
-        <div className="rounded-xl border border-[var(--color-brand-500)]/20 bg-[var(--color-brand-500)]/5 p-5 space-y-3 shadow-[0_0_12px_rgba(99,102,241,0.02)]">
+        <div className="rounded-xl border border-slate-900 bg-slate-950 p-5 space-y-3">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-bold">👀 AI Prevention Agent</span>
-              <h2 className="text-base font-bold text-[var(--color-text-primary)] mt-0.5">
-                {hasScanned ? `${averageHealthScore}/100 Healthy` : "Prevention Status: Pending Scan"}
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Prevention Health</span>
+              <h2 className="text-base font-bold text-slate-200 mt-0.5">
+                {hasScanned ? `${averageHealthScore}% Clean Catalog` : "Pending Catalog Scan"}
               </h2>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-[var(--color-text-muted)] bg-[var(--color-surface-3)] px-2.5 py-1 rounded border border-[var(--color-border)]">
-                {totalCount} products tracked
+              <span className="text-xs text-slate-400 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
+                {totalCount} total products
               </span>
               {issuesCount > 0 && (
-                <span className="text-xs text-[var(--color-error)] bg-[var(--color-error)]/10 px-2.5 py-1 rounded border border-[var(--color-error)]/20 font-semibold">
-                  {issuesCount} need attention
+                <span className="text-xs text-rose-400 bg-rose-950/10 px-2.5 py-1 rounded border border-rose-950/30 font-semibold">
+                  {issuesCount} alerts
                 </span>
               )}
               {healthyCount > 0 && (
-                <span className="text-xs text-[var(--color-success)] bg-[var(--color-success)]/10 px-2.5 py-1 rounded border border-[var(--color-success)]/20 font-semibold">
-                  {healthyCount} healthy
+                <span className="text-xs text-emerald-400 bg-emerald-950/10 px-2.5 py-1 rounded border border-emerald-950/30 font-semibold">
+                  {healthyCount} verified
                 </span>
               )}
             </div>
           </div>
           
-          <div className="border-t border-[var(--color-border)]/20 pt-3 flex flex-col sm:flex-row justify-between gap-2 text-xs text-[var(--color-text-muted)] leading-relaxed">
+          <div className="border-t border-slate-900 pt-3 flex flex-col sm:flex-row justify-between gap-2 text-xs text-slate-500 leading-relaxed">
             <p>
-              "The Prevention Agent checks listings before they become operational problems."
+              AI Prevention Agent actively audits descriptions, sizing tables, and brand metadata.
             </p>
-            <p className="font-semibold text-[var(--color-brand-400)]">
-              Scan listings pre-live to maintain high health score & prevent platform suppressions.
+            <p className="font-semibold text-indigo-400">
+              Run active checks to protect live listings from platform suppressions.
             </p>
           </div>
         </div>
@@ -450,18 +450,13 @@ export default function ListingsPage() {
               No matching listings in this category or tab.
             </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-5">
               {filteredListings.map((listing) => {
                 const issues = scanResults[listing.id] || [];
                 const isChecked = hasScanned;
                 const hasIssues = issues.length > 0 || listing.status === "suspended" || listing.status === "under_review";
                 
-                let cardBorderClass = "hover:border-[var(--color-brand-500)]/30 border-[var(--color-border)]";
-                if (isChecked || listing.status === "suspended") {
-                  cardBorderClass = hasIssues 
-                    ? "border-[var(--color-error)]/40 hover:border-[var(--color-error)]/60 bg-[var(--color-error)]/5"
-                    : "border-[var(--color-success)]/40 hover:border-[var(--color-success)]/60";
-                }
+                let cardBorderClass = "border-slate-900 bg-slate-950 hover:border-slate-800 hover:bg-slate-900/10";
 
                 return (
                   <Card
@@ -472,7 +467,7 @@ export default function ListingsPage() {
                     <div className="flex flex-col md:flex-row justify-between gap-4">
                       {/* Product Overview */}
                       <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-surface-3)] border border-[var(--color-border)] overflow-hidden">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 overflow-hidden">
                           {listing.images && listing.images.length > 0 ? (
                             <img 
                               src={listing.images[0]} 
@@ -480,26 +475,26 @@ export default function ListingsPage() {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <ImageIcon className="h-6 w-6 text-[var(--color-text-muted)]" />
+                            <ImageIcon className="h-6 w-6 text-slate-500" />
                           )}
                         </div>
                         
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{listing.name}</h3>
+                            <h3 className="text-sm font-semibold text-slate-200">{listing.name}</h3>
                             <Badge severity={listing.status === "active" ? "low" : listing.status === "suspended" ? "high" : "medium"}>{listing.status}</Badge>
                             <Badge severity="neutral" className="uppercase">{listing.marketplace}</Badge>
                           </div>
                           
-                          <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                            SKU: <span className="font-mono text-[var(--color-text-secondary)]">{listing.sku}</span> · 
-                            Category: <span className="text-[var(--color-text-secondary)]">{listing.category}</span>
+                          <p className="text-xs text-slate-500 mt-1">
+                            SKU: <span className="font-mono text-slate-400">{listing.sku}</span> · 
+                            Category: <span className="text-slate-400 capitalize">{listing.category}</span>
                           </p>
                           
-                          <div className="flex items-center gap-4 mt-2 text-xs text-[var(--color-text-muted)]">
-                            <span>Price: <strong className="text-[var(--color-text-primary)]">₹{listing.price}</strong> <span className="line-through">₹{listing.mrp}</span></span>
-                            <span>Stock: <strong className="text-[var(--color-text-primary)]">{listing.stock}</strong></span>
-                            {listing.rating && <span>Rating: ⭐{listing.rating.toFixed(1)}</span>}
+                          <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                            <span>Price: <strong className="text-slate-300">₹{listing.price}</strong> <span className="line-through text-slate-600 ml-1">₹{listing.mrp}</span></span>
+                            <span>Stock: <strong className="text-slate-300">{listing.stock}</strong></span>
+                            {listing.rating ? <span>Rating: ⭐{listing.rating.toFixed(1)}</span> : null}
                           </div>
                         </div>
                       </div>
@@ -507,19 +502,19 @@ export default function ListingsPage() {
                       {/* Diagnostic Status */}
                       <div className="flex flex-col md:items-end justify-center min-w-[150px]">
                         {!isChecked && listing.status !== "suspended" ? (
-                          <span className="text-xs text-[var(--color-text-muted)] flex items-center gap-1.5 font-medium">
-                            <StatusDot status="pending" />
-                            Not checked yet
+                          <span className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+                            Not checked
                           </span>
                         ) : hasIssues ? (
-                          <span className="text-xs text-[var(--color-error)] font-semibold flex items-center gap-1.5">
-                            <AlertTriangle className="h-4 w-4 text-[var(--color-error)] shrink-0" />
-                            ⚠ Needs Attention
+                          <span className="text-xs text-rose-400 font-semibold flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+                            Alerts flagged
                           </span>
                         ) : (
-                          <span className="text-xs text-[var(--color-success)] font-semibold flex items-center gap-1.5">
-                            <CheckCircle className="h-4 w-4 text-[var(--color-success)] shrink-0" />
-                            ✓ Looks Good
+                          <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            Clean Catalog
                           </span>
                         )}
                       </div>
@@ -527,17 +522,15 @@ export default function ListingsPage() {
 
                     {/* Scanner Issue List */}
                     {isChecked && issues.length > 0 && (
-                      <div className="mt-4 pt-3 border-t border-[var(--color-border)]/50 space-y-2">
-                        <div className="space-y-1.5 text-xs">
+                      <div className="mt-3.5 pt-3 border-t border-slate-900/60 space-y-1.5">
+                        <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500 block">AI Pre-live Recommendations</span>
+                        <div className="space-y-1 text-xs">
                           {issues.map((issue, idx) => {
                             const isError = issue.severity === "error";
                             return (
-                              <div key={idx} className="flex items-start gap-2 text-[var(--color-text-secondary)]">
-                                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current" style={{ color: isError ? "var(--color-error)" : "var(--color-warning)" }} />
+                              <div key={idx} className="flex items-start gap-2 text-slate-400">
+                                <span className={`mt-1.5 h-1 w-1 shrink-0 rounded-full ${isError ? "bg-rose-500" : "bg-amber-500"}`} />
                                 <p className="leading-relaxed">
-                                  <strong className={isError ? "text-[var(--color-error)]" : "text-[var(--color-warning)]"}>
-                                    {isError ? "Critical: " : "Warning: "}
-                                  </strong>
                                   {issue.message}
                                 </p>
                               </div>

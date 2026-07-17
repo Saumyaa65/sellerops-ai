@@ -363,6 +363,7 @@ function InvestigationsContent() {
         });
 
         setActiveStatus("completed");
+        setShowActivePanel(false);
         toast.success("AI operations investigation complete!");
 
         const finalRun = await agentService.getRun(runId);

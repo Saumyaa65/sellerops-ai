@@ -23,23 +23,33 @@ function formatAnswerText(text: string) {
         if (isBullet) {
           trimmed = trimmed.replace(/^[-*]\s+/, "").replace(/^\d+\.\s+/, "");
         }
-        const parts = trimmed.split(/\*\*([^*]+)\*\*/);
+        
+        // Split by ** for bold segments
+        const parts = trimmed.split(/\*\*([^*]+)\*\*/g);
         const renderedLine = parts.map((part, i) => {
           if (i % 2 === 1) {
-            return <strong key={i} className="font-bold text-[var(--color-text-primary)]">{part}</strong>;
+            return <strong key={i} className="font-bold text-slate-100">{part}</strong>;
           }
-          return part;
+          // Split by single * for italic segments
+          const subParts = part.split(/\*([^*]+)\*/g);
+          return subParts.map((sub, j) => {
+            if (j % 2 === 1) {
+              return <em key={j} className="italic text-slate-350">{sub}</em>;
+            }
+            return sub;
+          });
         });
+
         if (isBullet) {
           return (
             <div key={idx} className="flex items-start gap-2 pl-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-brand-400)]" />
-              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{renderedLine}</p>
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500/80" />
+              <p className="text-xs text-slate-300 leading-relaxed">{renderedLine}</p>
             </div>
           );
         } else {
           return (
-            <p key={idx} className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{renderedLine}</p>
+            <p key={idx} className="text-xs text-slate-300 leading-relaxed">{renderedLine}</p>
           );
         }
       })}
@@ -215,14 +225,14 @@ export default function PoliciesPage() {
             <div className="space-y-3">
               <button
                 onClick={() => setIsSourcesExpanded(!isSourcesExpanded)}
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] transition-colors text-xs font-semibold text-[var(--color-text-secondary)] cursor-pointer"
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-900 bg-slate-950 hover:bg-slate-900/50 transition-colors text-xs font-semibold text-slate-300 cursor-pointer"
               >
                 <span className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-[var(--color-text-muted)]" />
-                  Supporting Policy Sources
+                  <BookOpen className="h-4 w-4 text-slate-500" />
+                  View Supporting Policy Excerpts
                 </span>
-                <span className="text-[10px] font-medium text-[var(--color-text-muted)] flex items-center gap-1">
-                  {isSourcesExpanded ? "Hide Sources" : "Show Sources"}
+                <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                  {isSourcesExpanded ? "Hide Excerpts" : "Show Excerpts"}
                   {isSourcesExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                 </span>
               </button>
