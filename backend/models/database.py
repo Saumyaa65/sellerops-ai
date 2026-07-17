@@ -27,9 +27,14 @@ AsyncSessionLocal = async_sessionmaker(
 async def init_db() -> None:
     """Create all tables on startup."""
     from models.base import Base
+    import asyncio
+    from seed import run_seed
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Auto-seed the database if it is empty
+    await asyncio.to_thread(run_seed)
 
 
 async def close_db() -> None:

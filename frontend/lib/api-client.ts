@@ -11,6 +11,22 @@ export const apiClient = axios.create({
   timeout: 30_000,
 });
 
+// Request interceptor — attach token if it exists in localStorage
+apiClient.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("auth_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor — unwrap ApiResponse.data automatically
 apiClient.interceptors.response.use(
   (response) => {

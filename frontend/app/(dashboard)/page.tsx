@@ -180,15 +180,15 @@ export default function CommandCenterPage() {
           description="Rohan Enterprises · SellerOps AI is watching your account"
         />
         <div className="p-6">
-          <div className="rounded-xl border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 p-6 flex flex-col items-center gap-4 text-center">
-            <AlertTriangle className="h-10 w-10 text-[var(--color-error)]" />
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-12 flex flex-col items-center gap-4 text-center">
+            <AlertTriangle className="h-8 w-8 text-[var(--color-text-muted)]" />
             <div>
-              <p className="text-lg font-semibold text-[var(--color-error)]">Could not load your store</p>
-              <p className="text-sm text-[var(--color-text-secondary)] mt-1">{error || "Data load failed"}</p>
+              <p className="text-sm font-semibold text-[var(--color-text-primary)]">No store metrics available.</p>
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">{error || "Data load failed"}</p>
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[var(--color-surface-3)] hover:bg-[var(--color-surface-4)] text-sm rounded-lg border border-[var(--color-border)] transition-colors text-[var(--color-text-primary)]"
+              className="px-4 py-2 bg-[var(--color-surface-3)] hover:bg-[var(--color-surface-4)] text-xs rounded border border-[var(--color-border)] transition-colors text-[var(--color-text-primary)] cursor-pointer"
             >
               Try Again
             </button>

@@ -1,124 +1,157 @@
-"""
-Mock data service — loads seller simulation data from /data/mock/.
-In production this would be replaced with real marketplace API adapters.
-"""
+from typing import Any, Dict, List, Optional
+from sqlalchemy.future import select
+from models.database import AsyncSessionLocal
+from models.listing import Listing
+from models.order import Order
+from models.payout import Payout
+from models.seller_metrics import SellerMetric
+from models.review import Review
+from models.customer_chat import CustomerChat
+from models.support_ticket import SupportTicket
+from models.scenario import InvestigationScenario
+from models.seller import Seller
 
-import json
-from functools import lru_cache
-from pathlib import Path
-from typing import Any, Dict, List
+def model_to_dict(model) -> Dict[str, Any]:
+    if model is None:
+        return {}
+    d = {}
+    for col in model.__table__.columns:
+        val = getattr(model, col.name)
+        d[col.name] = val
+    return d
 
-from config.settings import get_settings
-from utils.logger import logger
+async def get_listings(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(Listing).where(Listing.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(l) for l in result.scalars().all()]
 
-settings = get_settings()
+async def get_orders(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(Order).where(Order.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(o) for o in result.scalars().all()]
 
-_DATA_DIR = Path(settings.mock_data_dir)
+async def get_payouts(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(Payout).where(Payout.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(p) for p in result.scalars().all()]
 
+async def get_seller_metrics(seller_id: str) -> Dict[str, Any]:
+    async with AsyncSessionLocal() as session:
+        query = select(SellerMetric).where(SellerMetric.seller_id == seller_id)
+        result = await session.execute(query)
+        metric = result.scalars().first()
+        if not metric:
+            return {}
+        
+        seller_query = select(Seller).where(Seller.id == seller_id)
+        s_result = await session.execute(seller_query)
+        seller = s_result.scalars().first()
+        
+        d = model_to_dict(metric)
+        if seller:
+            d["seller_name"] = seller.name
+            d["seller_tier"] = seller.tier
+            d["marketplace"] = seller.marketplace
+        return d
 
-def _load(filename: str) -> Any:
-    path = _DATA_DIR / filename
-    if not path.exists():
-        logger.warning(f"Mock data file not found: {path}")
-        return []
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+async def get_reviews(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(Review).where(Review.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(r) for r in result.scalars().all()]
 
+async def get_customer_chats(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(CustomerChat).where(CustomerChat.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(c) for c in result.scalars().all()]
 
-@lru_cache(maxsize=1)
-def get_listings() -> List[Dict[str, Any]]:
-    return _load("listings.json")
+async def get_support_tickets(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(SupportTicket).where(SupportTicket.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(t) for t in result.scalars().all()]
 
-
-@lru_cache(maxsize=1)
-def get_orders() -> List[Dict[str, Any]]:
-    return _load("orders.json")
-
-
-@lru_cache(maxsize=1)
-def get_payouts() -> List[Dict[str, Any]]:
-    return _load("payouts.json")
-
-
-@lru_cache(maxsize=1)
-def get_seller_metrics() -> Dict[str, Any]:
-    return _load("seller_metrics.json")
-
-
-@lru_cache(maxsize=1)
-def get_reviews() -> List[Dict[str, Any]]:
-    return _load("reviews.json")
-
-
-@lru_cache(maxsize=1)
-def get_customer_chats() -> List[Dict[str, Any]]:
-    return _load("customer_chats.json")
-
-
-@lru_cache(maxsize=1)
-def get_support_tickets() -> List[Dict[str, Any]]:
-    return _load("support_tickets.json")
-
-
-@lru_cache(maxsize=1)
-def get_investigation_scenarios() -> List[Dict[str, Any]]:
-    return _load("investigation_scenarios.json")
+async def get_investigation_scenarios(seller_id: str) -> List[Dict[str, Any]]:
+    async with AsyncSessionLocal() as session:
+        query = select(InvestigationScenario).where(InvestigationScenario.seller_id == seller_id)
+        result = await session.execute(query)
+        return [model_to_dict(s) for s in result.scalars().all()]
 
 
 # --- Derived / filtered helpers ---
 
-def get_returns() -> List[Dict[str, Any]]:
+async def get_returns(seller_id: str) -> List[Dict[str, Any]]:
     """Filter orders that are returns."""
-    orders = get_orders()
-    return [o for o in orders if o.get("is_return", False)]
+    async with AsyncSessionLocal() as session:
+        query = select(Order).where(Order.seller_id == seller_id, Order.is_return == True)
+        result = await session.execute(query)
+        return [model_to_dict(o) for o in result.scalars().all()]
 
-
-def get_payout_anomalies() -> List[Dict[str, Any]]:
+async def get_payout_anomalies(seller_id: str) -> List[Dict[str, Any]]:
     """Filter payouts flagged as anomalous."""
-    payouts = get_payouts()
-    return [p for p in payouts if p.get("is_anomaly", False)]
+    async with AsyncSessionLocal() as session:
+        query = select(Payout).where(Payout.seller_id == seller_id, Payout.is_anomaly == True)
+        result = await session.execute(query)
+        return [model_to_dict(p) for p in result.scalars().all()]
 
-
-def get_flagged_listings() -> List[Dict[str, Any]]:
+async def get_flagged_listings(seller_id: str) -> List[Dict[str, Any]]:
     """Return listings that have one or more violations."""
-    listings = get_listings()
+    listings = await get_listings(seller_id)
     return [lst for lst in listings if lst.get("violations")]
 
-
-def get_flagged_reviews() -> List[Dict[str, Any]]:
+async def get_flagged_reviews(seller_id: str) -> List[Dict[str, Any]]:
     """Return reviews that have been flagged."""
-    reviews = get_reviews()
-    return [r for r in reviews if r.get("flagged", False)]
+    async with AsyncSessionLocal() as session:
+        query = select(Review).where(Review.seller_id == seller_id, Review.flagged == True)
+        result = await session.execute(query)
+        return [model_to_dict(r) for r in result.scalars().all()]
 
-
-def get_open_tickets() -> List[Dict[str, Any]]:
+async def get_open_tickets(seller_id: str) -> List[Dict[str, Any]]:
     """Return support tickets that are open or under review."""
-    tickets = get_support_tickets()
-    return [t for t in tickets if t.get("status") in ("open", "under_review", "escalated", "pending_response")]
+    async with AsyncSessionLocal() as session:
+        query = select(SupportTicket).where(
+            SupportTicket.seller_id == seller_id,
+            SupportTicket.status.in_(["open", "under_review", "escalated", "pending_response"])
+        )
+        result = await session.execute(query)
+        return [model_to_dict(t) for t in result.scalars().all()]
 
-
-def get_scenario_by_id(scenario_id: str) -> Dict[str, Any] | None:
+async def get_scenario_by_id(scenario_id: str, seller_id: str) -> Optional[Dict[str, Any]]:
     """Return a specific investigation scenario by ID."""
-    scenarios = get_investigation_scenarios()
-    return next((s for s in scenarios if s["scenario_id"] == scenario_id), None)
+    async with AsyncSessionLocal() as session:
+        query = select(InvestigationScenario).where(
+            InvestigationScenario.scenario_id == scenario_id,
+            InvestigationScenario.seller_id == seller_id
+        )
+        result = await session.execute(query)
+        scenario = result.scalars().first()
+        return model_to_dict(scenario) if scenario else None
 
-
-def get_orders_for_product(product_id: str) -> List[Dict[str, Any]]:
+async def get_orders_for_product(product_id: str, seller_id: str) -> List[Dict[str, Any]]:
     """Return all orders for a specific product listing."""
-    orders = get_orders()
-    return [o for o in orders if o.get("product_id") == product_id]
+    async with AsyncSessionLocal() as session:
+        query = select(Order).where(Order.seller_id == seller_id, Order.product_id == product_id)
+        result = await session.execute(query)
+        return [model_to_dict(o) for o in result.scalars().all()]
 
-
-def get_return_rate_for_product(product_id: str) -> float:
+async def get_return_rate_for_product(product_id: str, seller_id: str) -> float:
     """Calculate return rate for a specific product."""
-    product_orders = get_orders_for_product(product_id)
+    product_orders = await get_orders_for_product(product_id, seller_id)
     if not product_orders:
         return 0.0
     returns = [o for o in product_orders if o.get("is_return")]
     return len(returns) / len(product_orders)
 
-
-def get_fraud_suspected_orders() -> List[Dict[str, Any]]:
+async def get_fraud_suspected_orders(seller_id: str) -> List[Dict[str, Any]]:
     """Return orders with fraud flags."""
-    orders = get_orders()
-    return [o for o in orders if o.get("fraud_suspected", False) or o.get("suspicious", False)]
+    async with AsyncSessionLocal() as session:
+        query = select(Order).where(
+            Order.seller_id == seller_id,
+            (Order.fraud_suspected == True) | (Order.suspicious == True)
+        )
+        result = await session.execute(query)
+        return [model_to_dict(o) for o in result.scalars().all()]

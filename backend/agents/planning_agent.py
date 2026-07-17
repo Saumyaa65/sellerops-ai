@@ -46,6 +46,13 @@ class PlanningAgent(BaseAgent):
 
     async def run(self, state: AgentState) -> AgentState:
         run_id = state["run_id"]
+
+        if state.get("retrieved_from_memory"):
+            doc = state.get("retrieved_memory_doc") or {}
+            action_plan = doc.get("action_plan", [])
+            await self.emit_step(run_id, "⚡ AI Memory Hit — retrieved planning steps from agent memory")
+            return {**state, "action_plan": action_plan}  # type: ignore[return-value]
+
         await self.emit_step(run_id, "Generating action plan...")
 
         investigation = state.get("investigation_result", {})

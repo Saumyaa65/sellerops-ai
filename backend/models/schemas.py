@@ -116,3 +116,21 @@ class HealthResponse(BaseModel):
     version: str
     environment: str
     services: Dict[str, str]
+
+
+# --------------------------------------------------------------------------- #
+#  Auth Schemas
+# --------------------------------------------------------------------------- #
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    token: str
+    seller_id: str
+    seller_name: str
+    marketplace: str
+    seller_tier: str
+

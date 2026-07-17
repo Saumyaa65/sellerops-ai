@@ -178,9 +178,9 @@ export default function PoliciesPage() {
                 <FileText className="h-8 w-8 text-[var(--color-brand-400)]" />
               </div>
               <div className="text-center max-w-md">
-                <p className="text-sm font-medium text-[var(--color-text-primary)]">Ask about any marketplace rule</p>
+                <p className="text-sm font-medium text-[var(--color-text-primary)]">Search marketplace policies to get started.</p>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                  Type a question or click one of the suggestions above. The AI will search the official policy manuals and explain what applies to you.
+                  Type a question or use the search bar above. The AI will search the official policy manuals and explain what applies to you.
                 </p>
               </div>
             </div>

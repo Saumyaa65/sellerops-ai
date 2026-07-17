@@ -54,6 +54,7 @@ interface InvestigationData {
   allIssues?: any[];
   businessImpact?: BusinessImpactObj;
   emailSent?: boolean;
+  retrievedFromMemory?: boolean;
 }
 
 const stripMarkdown = (text: any): string => {
@@ -121,6 +122,8 @@ function InvestigationsContent() {
   // Copy state
   const [isCopied, setIsCopied] = useState(false);
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
+  const [errorReason, setErrorReason] = useState<string | null>(null);
+  const [lastScenario, setLastScenario] = useState<InvestigationScenario | null>(null);
 
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -185,6 +188,8 @@ function InvestigationsContent() {
 
   const handleStartInvestigation = async () => {
     try {
+      setErrorReason(null);
+      setLastScenario(null);
       setSelectedRun(null);
       setInvestigationData(null);
       setActiveLogs([]);
@@ -219,12 +224,22 @@ function InvestigationsContent() {
     } catch (err: any) {
       console.error(err);
       setActiveStatus("failed");
-      toast.error("Failed to start AI investigation");
+      const message = err?.message || String(err);
+      if (message.includes("429") || message.includes("Rate limit")) {
+        setErrorReason("Rate limit reached");
+      } else if (message.includes("Network Error") || message.includes("NetworkError") || !navigator.onLine) {
+        setErrorReason("Network connection lost");
+      } else {
+        setErrorReason("AI service temporarily unavailable");
+      }
+      toast.error("Investigation couldn't be completed.");
     }
   };
 
   const handleLaunchScenario = async (scenario: InvestigationScenario) => {
     try {
+      setErrorReason(null);
+      setLastScenario(scenario);
       setSelectedRun(null);
       setInvestigationData(null);
       setActiveLogs([]);
@@ -261,7 +276,15 @@ function InvestigationsContent() {
     } catch (err: any) {
       console.error(err);
       setActiveStatus("failed");
-      toast.error("Failed to launch scenario pipeline");
+      const message = err?.message || String(err);
+      if (message.includes("429") || message.includes("Rate limit")) {
+        setErrorReason("Rate limit reached");
+      } else if (message.includes("Network Error") || message.includes("NetworkError") || !navigator.onLine) {
+        setErrorReason("Network connection lost");
+      } else {
+        setErrorReason("AI service temporarily unavailable");
+      }
+      toast.error("Investigation couldn't be completed.", { id: "launch-s" });
     }
   };
 
@@ -271,7 +294,11 @@ function InvestigationsContent() {
     }
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-    const es = new EventSource(`${apiUrl}/api/v1/agents/${runId}/stream`);
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    const streamUrl = token 
+      ? `${apiUrl}/api/v1/agents/${runId}/stream?token=${encodeURIComponent(token)}`
+      : `${apiUrl}/api/v1/agents/${runId}/stream`;
+    const es = new EventSource(streamUrl);
     eventSourceRef.current = es;
 
     const handleEvent = (data: any, type: string) => {
@@ -349,7 +376,12 @@ function InvestigationsContent() {
     es.addEventListener("error", (e: Event) => {
       es.close();
       setActiveStatus("failed");
-      toast.error("SSE connection encountered an error");
+      if (!navigator.onLine) {
+        setErrorReason("Network connection lost");
+      } else {
+        setErrorReason("AI service temporarily unavailable");
+      }
+      toast.error("Investigation couldn't be completed.");
     });
   };
 
@@ -457,6 +489,7 @@ function InvestigationsContent() {
       allIssues: state.detected_issues || [],
       businessImpact,
       emailSent: !!state.email_sent,
+      retrievedFromMemory: !!state.retrieved_from_memory,
     };
 
     setInvestigationData(data);
@@ -573,7 +606,7 @@ function InvestigationsContent() {
                   </div>
                 ) : runs.length === 0 ? (
                   <div className="text-center py-6 text-xs text-[var(--color-text-muted)]">
-                    No investigations run yet
+                    No completed investigations.
                   </div>
                 ) : (
                   runs.map((r) => {
@@ -708,6 +741,35 @@ function InvestigationsContent() {
                     </div>
                   )}
                 </div>
+
+                {activeStatus === "failed" && (
+                  <div className="p-4 rounded-lg bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 flex flex-col items-center justify-center text-center gap-3 animate-fade-in">
+                    <AlertTriangle className="h-6 w-6 text-[var(--color-error)]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--color-text-primary)]">Investigation couldn't be completed.</p>
+                      {errorReason && (
+                        <p className="text-xs text-[var(--color-text-secondary)] mt-1 flex items-center justify-center gap-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-error)]" />
+                          {errorReason}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        if (lastScenario) {
+                          handleLaunchScenario(lastScenario);
+                        } else {
+                          handleStartInvestigation();
+                        }
+                      }}
+                      className="mt-1"
+                    >
+                      Retry Investigation
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           )}
@@ -742,6 +804,11 @@ function InvestigationsContent() {
                     <Shield className="h-4 w-4 text-[var(--color-brand-400)]" />
                     AI Diagnostics Report
                   </CardTitle>
+                  {displayData.retrievedFromMemory && (
+                    <span className="text-[10px] text-[var(--color-brand-300)] bg-[var(--color-brand-500)]/10 border border-[var(--color-brand-500)]/20 px-2.5 py-0.5 rounded font-medium flex items-center gap-1 select-none">
+                      ⚡ Retrieved from AI Memory (Saved ~5s)
+                    </span>
+                  )}
                 </CardHeader>
                 
                 <div className="p-4 space-y-4 text-xs">
@@ -907,7 +974,7 @@ function InvestigationsContent() {
             !showActivePanel && (
               <Card className="py-20 flex flex-col items-center justify-center text-center">
                 <HelpCircle className="h-10 w-10 text-[var(--color-text-muted)] mb-2" />
-                <p className="text-sm font-semibold text-[var(--color-text-primary)]">No active investigation loaded</p>
+                <p className="text-sm font-semibold text-[var(--color-text-primary)]">No previous investigations yet.</p>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1 max-w-sm">
                   Select a past investigation run from history, click one of the demo presets on the left, or trigger a new AI audit.
                 </p>

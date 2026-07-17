@@ -35,3 +35,5 @@ class AgentState(TypedDict):
     is_complete: bool
     error: Optional[str]
     email_sent: Optional[bool]
+    retrieved_from_memory: Optional[bool]
+    retrieved_memory_doc: Optional[Dict[str, Any]]

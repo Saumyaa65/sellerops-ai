@@ -13,13 +13,19 @@ from utils.logger import logger
 
 class EventBus:
     def __init__(self) -> None:
-        self._queues: Dict[str, asyncio.Queue] = defaultdict(asyncio.Queue)
+        self._queues: Dict[str, asyncio.Queue] = {}
 
     def get_queue(self, run_id: str) -> asyncio.Queue:
+        if run_id not in self._queues:
+            self._queues[run_id] = asyncio.Queue()
         return self._queues[run_id]
 
     async def emit(self, run_id: str, event_type: str, data: dict) -> None:
-        """Push an event onto the run's queue."""
+        """Push an event onto the run's queue if the client is actively listening."""
+        if run_id not in self._queues:
+            # Client has disconnected or is not listening, skip putting items in queue
+            logger.debug(f"EventBus.emit | run={run_id} has no active queue listener (skipping)")
+            return
         payload = {**data, "timestamp": utc_now_iso(), "event_type": event_type}
         queue = self._queues[run_id]
         await queue.put(payload)
@@ -30,6 +36,8 @@ class EventBus:
         Async generator that yields SSE-formatted strings.
         Yields a 'done' sentinel event to signal completion.
         """
+        if run_id not in self._queues:
+            self._queues[run_id] = asyncio.Queue()
         queue = self._queues[run_id]
         while True:
             event = await queue.get()

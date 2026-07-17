@@ -21,13 +21,14 @@ class MonitoringAgent(BaseAgent):
         run_id = state["run_id"]
         input_data = state.get("input_data", {})
         scenario_id = input_data.get("scenario_id")
+        seller_id = input_data.get("seller_id", "SELLER-IND-001")
 
         detected_issues = []
         severity = "low"
 
         if scenario_id:
             from services.data_service import get_scenario_by_id
-            scenario = get_scenario_by_id(scenario_id)
+            scenario = await get_scenario_by_id(scenario_id, seller_id)
             if scenario:
                 await self.emit_step(run_id, f"Executing investigation scenario {scenario_id}: {scenario['name']}...")
                 for issue_type in scenario.get("expected_issues", []):
@@ -45,10 +46,10 @@ class MonitoringAgent(BaseAgent):
             await self.emit_step(run_id, "Scanning orders, returns, and payouts for anomalies...")
             
             # Check return rate
-            orders = get_orders()
+            orders = await get_orders(seller_id)
             returns = [o for o in orders if o.get("is_return")]
             return_rate = len(returns) / max(len(orders), 1)
-
+ 
             if return_rate > self.HIGH_RETURN_RATE_THRESHOLD:
                 detected_issues.append({
                     "type": "high_return_rate",
@@ -57,9 +58,9 @@ class MonitoringAgent(BaseAgent):
                     "data": {"return_rate": return_rate, "return_count": len(returns)},
                 })
                 severity = "high"
-
+ 
             # Check seller metrics
-            metrics = get_seller_metrics()
+            metrics = await get_seller_metrics(seller_id)
             rating = metrics.get("seller_rating", 5.0)
             if rating < self.LOW_RATING_THRESHOLD:
                 detected_issues.append({
@@ -70,9 +71,9 @@ class MonitoringAgent(BaseAgent):
                 })
                 if severity == "low":
                     severity = "medium"
-
+ 
             # Check payout anomalies
-            anomalies = get_payout_anomalies()
+            anomalies = await get_payout_anomalies(seller_id)
             if len(anomalies) >= self.PAYOUT_ANOMALY_COUNT_THRESHOLD:
                 detected_issues.append({
                     "type": "payout_anomalies",
@@ -81,7 +82,7 @@ class MonitoringAgent(BaseAgent):
                     "data": {"anomaly_count": len(anomalies)},
                 })
                 severity = "critical"
-
+ 
         should_escalate = severity in ("high", "critical")
 
         await self.emit_step(

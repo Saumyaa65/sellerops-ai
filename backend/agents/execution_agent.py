@@ -16,6 +16,13 @@ class ExecutionAgent(BaseAgent):
 
     async def run(self, state: AgentState) -> AgentState:
         run_id = state["run_id"]
+
+        if state.get("retrieved_from_memory"):
+            doc = state.get("retrieved_memory_doc") or {}
+            generated_output = doc.get("generated_output", "")
+            await self.emit_step(run_id, "⚡ AI Memory Hit — retrieved generated appeal letter from agent memory")
+            return {**state, "generated_output": generated_output}  # type: ignore[return-value]
+
         await self.emit_step(run_id, "Generating seller communication and appeal...")
 
         issues = state.get("detected_issues", [])

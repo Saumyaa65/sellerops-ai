@@ -1,20 +1,22 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
   Search,
   ShoppingCart,
-  FileText,
   ChevronLeft,
   Zap,
   FlaskConical,
   BookOpen,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/useUIStore";
+import apiClient from "@/lib/api-client";
 
 const NAV_ITEMS = [
   { href: "/", label: "My Store", icon: LayoutDashboard },
@@ -27,7 +29,50 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const [profile, setProfile] = useState<{ name: string; tier: string; marketplace: string } | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await apiClient.get("/seller-metrics");
+        if (res.data) {
+          setProfile({
+            name: res.data.seller_name || "Demo Seller",
+            tier: res.data.seller_tier || "Bronze",
+            marketplace: res.data.marketplace || "Meesho",
+          });
+        }
+      } catch (err) {
+        // Fallback to email matched values
+        const email = localStorage.getItem("auth_token") || "";
+        if (email.includes("priya")) {
+          setProfile({ name: "Priya Fashion", tier: "Silver", marketplace: "Meesho" });
+        } else if (email.includes("electro")) {
+          setProfile({ name: "ElectroKart", tier: "Gold", marketplace: "Meesho" });
+        } else {
+          setProfile({ name: "Rohan Enterprises", tier: "Bronze", marketplace: "Meesho" });
+        }
+      }
+    };
+    fetchProfile();
+  }, [pathname]); // Refresh on navigation to sync if account changed
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("seller_id");
+    router.replace("/login");
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
 
   return (
     <aside
@@ -96,31 +141,49 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      {!sidebarCollapsed && (
-        <div className="border-t border-[var(--color-border)] p-4">
+      {/* Footer Profile & Logout */}
+      {!sidebarCollapsed && profile && (
+        <div className="border-t border-[var(--color-border)] p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-accent-600)] flex items-center justify-center text-xs font-bold text-white">
-              R
+            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-accent-600)] flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0">
+              {getInitials(profile.name)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-[var(--color-text-primary)] truncate">Rohan Enterprises</p>
-              <p className="text-xs text-[var(--color-text-muted)] truncate">Meesho · Bronze Tier</p>
+              <p className="text-xs font-semibold text-[var(--color-text-primary)] truncate">{profile.name}</p>
+              <p className="text-[10px] text-[var(--color-text-muted)] truncate">
+                {profile.marketplace.charAt(0).toUpperCase() + profile.marketplace.slice(1)} · {profile.tier}
+              </p>
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 w-full rounded-md border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)] hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all font-medium justify-center"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Logout Profile
+          </button>
         </div>
       )}
 
-      {/* Expand button when collapsed */}
+      {/* Collapsed Expand / Logout actions */}
       {sidebarCollapsed && (
-        <button
-          onClick={toggleSidebar}
-          id="sidebar-expand-btn"
-          className="border-t border-[var(--color-border)] p-4 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] flex justify-center transition-colors"
-          aria-label="Expand sidebar"
-        >
-          <ChevronLeft className="h-4 w-4 rotate-180" />
-        </button>
+        <div className="border-t border-[var(--color-border)] flex flex-col items-center py-2">
+          <button
+            onClick={handleLogout}
+            className="p-3 text-[var(--color-text-muted)] hover:text-red-400 transition-colors"
+            title="Logout Profile"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+          <button
+            onClick={toggleSidebar}
+            id="sidebar-expand-btn"
+            className="p-3 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] flex justify-center transition-colors"
+            aria-label="Expand sidebar"
+          >
+            <ChevronLeft className="h-4 w-4 rotate-180" />
+          </button>
+        </div>
       )}
     </aside>
   );

@@ -31,7 +31,9 @@ export function useSSE<T extends { event_type?: string }>(
   useEffect(() => {
     if (!url || !enabled) return;
 
-    const es = new EventSource(url);
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    const finalUrl = token ? `${url}${url.includes("?") ? "&" : "?"}token=${encodeURIComponent(token)}` : url;
+    const es = new EventSource(finalUrl);
     esRef.current = es;
 
     es.onopen = () => onOpen?.();

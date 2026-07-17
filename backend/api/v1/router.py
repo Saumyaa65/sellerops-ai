@@ -2,10 +2,11 @@
 
 from fastapi import APIRouter
 
-from api.v1 import agents, health, listings, orders, payouts, policies, reviews, tickets, scenarios, chats
+from api.v1 import agents, health, listings, orders, payouts, policies, reviews, tickets, scenarios, chats, auth
 
 router = APIRouter(prefix="/api/v1")
 
+router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 router.include_router(health.router, tags=["Health"])
 router.include_router(agents.router, prefix="/agents", tags=["Agents"])
 router.include_router(listings.router, prefix="/listings", tags=["Listings"])

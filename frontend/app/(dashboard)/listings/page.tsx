@@ -441,7 +441,11 @@ export default function ListingsPage() {
 
         {/* Listings Grid/List */}
         <div className="space-y-4">
-          {filteredListings.length === 0 ? (
+          {listings.length === 0 ? (
+            <Card className="py-12 text-center text-xs text-[var(--color-text-muted)] italic">
+              No listings available.
+            </Card>
+          ) : filteredListings.length === 0 ? (
             <Card className="py-12 text-center text-xs text-[var(--color-text-muted)] italic">
               No matching listings in this category or tab.
             </Card>

@@ -1,11 +1,12 @@
 """Health check endpoint."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from config.settings import get_settings
 from models.schemas import HealthResponse, ApiResponse
 from services.groq_service import groq_service
 from services.qdrant_service import qdrant_service
+from api.v1.auth import get_current_seller_id
 
 router = APIRouter()
 settings = get_settings()
@@ -30,9 +31,11 @@ async def health_check() -> HealthResponse:
 
 
 @router.get("/seller-metrics", response_model=ApiResponse[dict])
-async def get_seller_metrics_endpoint() -> ApiResponse[dict]:
+async def get_seller_metrics_endpoint(
+    seller_id: str = Depends(get_current_seller_id)
+) -> ApiResponse[dict]:
     """Return mock seller metrics data (rating, return rate, tier, etc.)"""
     from services.data_service import get_seller_metrics
-    return ApiResponse(data=get_seller_metrics())
+    return ApiResponse(data=await get_seller_metrics(seller_id))
 
 

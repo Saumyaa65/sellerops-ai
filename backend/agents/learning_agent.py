@@ -27,6 +27,12 @@ class LearningAgent(BaseAgent):
         import time
         start_time = time.perf_counter()
         run_id = state["run_id"]
+
+        if state.get("retrieved_from_memory"):
+            await self.emit_step(run_id, "⚡ AI Memory Hit — skipping redundant memory storage")
+            await self.emit(run_id, "completed", "Agent pipeline complete (Retrieved from AI Memory)", {"stored_in_memory": False})
+            return {**state, "is_complete": True}  # type: ignore[return-value]
+
         await self.emit_step(run_id, "Storing investigation into agent memory...")
 
         investigation = state.get("investigation_result")
@@ -51,7 +57,7 @@ class LearningAgent(BaseAgent):
             "severity": state.get("severity", "low"),
         }
 
-        text_to_embed = f"{' '.join(memory_doc['issue_types'])} {memory_doc['root_cause_analysis'][:500]}"
+        text_to_embed = " ".join(sorted(memory_doc['issue_types']))
 
         stored = False
         try:

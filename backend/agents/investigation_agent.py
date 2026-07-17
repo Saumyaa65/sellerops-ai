@@ -53,89 +53,124 @@ Output JSON with keys:
 - immediate_actions: A list of strings outlining actions to take.
 - confidence_score: A float between 0 and 1.""",
             },
-        ]
-
-        raw_analysis = await groq_service.chat(
-            messages,
-            temperature=0.3,
-            model=settings.groq_model_light,
-        )
-
-        # Normalize the raw LLM response so the schema is 100% consistent across all scenarios
-        normalized_data = {
-            "primary_cause": "Unknown operational issue.",
-            "contributing_factors": [],
-            "business_impact": {
-                "description": "High return rates or operational flags present a suspension risk.",
-                "estimated_impact": "High"
-            },
-            "immediate_actions": [],
-            "confidence_score": 0.8
-        }
+        ]        # Check Qdrant Memory Cache for existing matching investigation
+        retrieved_from_memory = False
+        retrieved_payload = None
         
         try:
-            clean_json = raw_analysis.strip()
-            if clean_json.startswith("```"):
-                lines = clean_json.split("\n")
-                if lines[0].startswith("```json") or lines[0].startswith("```"):
-                    clean_json = "\n".join(lines[1:-1]).strip()
+            from services.qdrant_service import qdrant_service
+            from rag.embedder import Embedder
             
-            parsed = json.loads(clean_json)
+            # Formulate query from issue types
+            issue_types_str = " ".join(sorted([i['type'] for i in issues]))
+            embedder = Embedder()
+            query_vector = await embedder.embed(issue_types_str)
             
-            # Handle nested list issues structure if outputted
-            if "issues" in parsed and isinstance(parsed["issues"], list) and len(parsed["issues"]) > 0:
-                parsed = parsed["issues"][0]
-                
-            # Normalize primary_cause
-            if "primary_cause" in parsed:
-                pc = parsed["primary_cause"]
-                if isinstance(pc, list):
-                    normalized_data["primary_cause"] = ", ".join(str(x) for x in pc)
-                elif isinstance(pc, dict):
-                    normalized_data["primary_cause"] = pc.get("description", str(pc))
-                else:
-                    normalized_data["primary_cause"] = str(pc)
-                    
-            # Normalize contributing_factors
-            if "contributing_factors" in parsed and isinstance(parsed["contributing_factors"], list):
-                normalized_data["contributing_factors"] = [str(x) for x in parsed["contributing_factors"]]
-                
-            # Normalize business_impact
-            if "business_impact" in parsed:
-                bi = parsed["business_impact"]
-                if isinstance(bi, dict):
-                    normalized_data["business_impact"]["description"] = str(bi.get("description", bi.get("text", str(bi))))
-                    normalized_data["business_impact"]["estimated_impact"] = str(bi.get("estimated_impact", bi.get("severity", bi.get("impact", "High"))))
-                elif isinstance(bi, list):
-                    normalized_data["business_impact"]["description"] = ", ".join(str(x) for x in bi)
-                else:
-                    normalized_data["business_impact"]["description"] = str(bi)
-                    
-            # Normalize immediate_actions
-            if "immediate_actions" in parsed:
-                ia = parsed["immediate_actions"]
-                if isinstance(ia, list):
-                    normalized_data["immediate_actions"] = [str(x) for x in ia]
-                elif isinstance(ia, str):
-                    normalized_data["immediate_actions"] = [x.strip() for x in ia.split("\n") if x.strip()]
-                    
-            # Normalize confidence_score
-            if "confidence_score" in parsed:
-                try:
-                    normalized_data["confidence_score"] = float(parsed["confidence_score"])
-                except ValueError:
-                    pass
-                    
-            raw_analysis = json.dumps(normalized_data, indent=2)
+            await qdrant_service.ensure_collection(
+                settings.qdrant_collection_memory,
+                settings.embedding_dimension,
+            )
+            
+            memory_results = await qdrant_service.search(
+                collection_name=settings.qdrant_collection_memory,
+                query_vector=query_vector,
+                top_k=1,
+            )
+            
+            if memory_results and memory_results[0]["score"] >= 0.90:
+                retrieved_payload = memory_results[0]["payload"]
+                retrieved_from_memory = True
+                logger.info(f"AI Memory Hit! Reusing past investigation run_id={retrieved_payload.get('run_id')} (score: {memory_results[0]['score']:.2f})")
+                await self.emit_step(run_id, "⚡ AI Memory Hit — retrieved existing root cause analysis from agent memory")
         except Exception as e:
-            logger.warning(f"Failed to normalize investigation JSON response: {e}. Raw response: {raw_analysis[:200]}...")
-            # Fall back to structured JSON even on failure to guarantee frontend contract
-            raw_analysis = json.dumps(normalized_data, indent=2)
+            logger.warning(f"AI Memory Cache Check failed: {e}")
+
+        if retrieved_from_memory and retrieved_payload:
+            raw_analysis = retrieved_payload["root_cause_analysis"]
+        else:
+            raw_analysis = await groq_service.chat(
+                messages,
+                temperature=0.3,
+                model=settings.groq_model_light,
+            )
+
+            # Normalize the raw LLM response so the schema is 100% consistent across all scenarios
+            normalized_data = {
+                "primary_cause": "Unknown operational issue.",
+                "contributing_factors": [],
+                "business_impact": {
+                    "description": "High return rates or operational flags present a suspension risk.",
+                    "estimated_impact": "High"
+                },
+                "immediate_actions": [],
+                "confidence_score": 0.8
+            }
+            
+            try:
+                clean_json = raw_analysis.strip()
+                if clean_json.startswith("```"):
+                    lines = clean_json.split("\n")
+                    if lines[0].startswith("```json") or lines[0].startswith("```"):
+                        clean_json = "\n".join(lines[1:-1]).strip()
+                
+                parsed = json.loads(clean_json)
+                
+                # Handle nested list issues structure if outputted
+                if "issues" in parsed and isinstance(parsed["issues"], list) and len(parsed["issues"]) > 0:
+                    parsed = parsed["issues"][0]
+                    
+                # Normalize primary_cause
+                if "primary_cause" in parsed:
+                    pc = parsed["primary_cause"]
+                    if isinstance(pc, list):
+                        normalized_data["primary_cause"] = ", ".join(str(x) for x in pc)
+                    elif isinstance(pc, dict):
+                        normalized_data["primary_cause"] = pc.get("description", str(pc))
+                    else:
+                        normalized_data["primary_cause"] = str(pc)
+                        
+                # Normalize contributing_factors
+                if "contributing_factors" in parsed and isinstance(parsed["contributing_factors"], list):
+                    normalized_data["contributing_factors"] = [str(x) for x in parsed["contributing_factors"]]
+                    
+                # Normalize business_impact
+                if "business_impact" in parsed:
+                    bi = parsed["business_impact"]
+                    if isinstance(bi, dict):
+                        normalized_data["business_impact"]["description"] = str(bi.get("description", bi.get("text", str(bi))))
+                        normalized_data["business_impact"]["estimated_impact"] = str(bi.get("estimated_impact", bi.get("severity", bi.get("impact", "High"))))
+                    elif isinstance(bi, list):
+                        normalized_data["business_impact"]["description"] = ", ".join(str(x) for x in bi)
+                    else:
+                        normalized_data["business_impact"]["description"] = str(bi)
+                        
+                # Normalize immediate_actions
+                if "immediate_actions" in parsed:
+                    ia = parsed["immediate_actions"]
+                    if isinstance(ia, list):
+                        normalized_data["immediate_actions"] = [str(x) for x in ia]
+                    elif isinstance(ia, str):
+                        normalized_data["immediate_actions"] = [x.strip() for x in ia.split("\n") if x.strip()]
+                        
+                # Normalize confidence_score
+                if "confidence_score" in parsed:
+                    try:
+                        normalized_data["confidence_score"] = float(parsed["confidence_score"])
+                    except ValueError:
+                        pass
+                        
+                raw_analysis = json.dumps(normalized_data, indent=2)
+            except Exception as e:
+                logger.warning(f"Failed to normalize investigation JSON response: {e}. Raw response: {raw_analysis[:200]}...")
+                # Fall back to structured JSON even on failure to guarantee frontend contract
+                raw_analysis = json.dumps(normalized_data, indent=2)
 
         await self.emit_step(run_id, "Root cause analysis complete", {"analysis_length": len(raw_analysis)})
 
         return {
             **state,
             "investigation_result": {"raw": raw_analysis, "issues_analyzed": len(issues)},
+            "retrieved_from_memory": retrieved_from_memory,
+            "retrieved_memory_doc": retrieved_payload,
         }  # type: ignore[return-value]
 

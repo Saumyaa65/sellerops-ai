@@ -17,7 +17,8 @@ class PreventionAgent(BaseAgent):
         run_id = state["run_id"]
         await self.emit_step(run_id, "Scanning listings for issues...")
 
-        listings = get_listings()
+        seller_id = state.get("input_data", {}).get("seller_id", "SELLER-IND-001")
+        listings = await get_listings(seller_id)
         issues = []
 
         for listing in listings:

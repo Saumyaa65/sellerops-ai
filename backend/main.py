@@ -25,6 +25,13 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.app_name} v{settings.app_version} [{settings.environment}]")
     await init_db()
     logger.info("Database initialized")
+    
+    # Pre-warm/load embedding model on startup
+    from rag.embedder import Embedder
+    logger.info("Pre-warming embedding model...")
+    Embedder()._get_model()
+    logger.info("Embedding model loaded successfully")
+    
     yield
     # Shutdown
     await close_db()
