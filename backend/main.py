@@ -20,20 +20,33 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup → serve → shutdown."""
+
     # Startup
     setup_logger(debug=settings.debug)
-    logger.info(f"Starting {settings.app_name} v{settings.app_version} [{settings.environment}]")
+    logger.info(
+        f"Starting {settings.app_name} v{settings.app_version} [{settings.environment}]"
+    )
+
+    logger.info("========== STARTUP BEGIN ==========")
+
+    logger.info("STEP 1: Initializing database...")
     await init_db()
-    logger.info("Database initialized")
-    
-    # Pre-warm/load embedding model on startup
+    logger.info("STEP 1 DONE: Database initialized")
+
+    logger.info("STEP 2: Importing Embedder...")
     from rag.embedder import Embedder
-    logger.info("Pre-warming embedding model...")
+    logger.info("STEP 2 DONE: Embedder imported")
+
+    logger.info("STEP 3: Loading embedding model...")
     Embedder()._get_model()
-    logger.info("Embedding model loaded successfully")
-    
+    logger.info("STEP 3 DONE: Embedding model loaded")
+
+    logger.info("========== STARTUP COMPLETE ==========")
+
     yield
+
     # Shutdown
+    logger.info("Shutdown started...")
     await close_db()
     logger.info("Application shutdown complete")
 
@@ -66,7 +79,11 @@ def create_app() -> FastAPI:
         logger.error(f"Unhandled exception: {exc}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "error": "Internal server error", "detail": str(exc)},
+            content={
+                "success": False,
+                "error": "Internal server error",
+                "detail": str(exc),
+            },
         )
 
     @app.get("/")
