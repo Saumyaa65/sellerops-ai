@@ -14,6 +14,8 @@ from utils.logger import logger
 settings = get_settings()
 
 
+import asyncio
+
 class Embedder:
     _model: Optional["SentenceTransformer"] = None
 
@@ -26,12 +28,12 @@ class Embedder:
 
     async def embed(self, text: str) -> List[float]:
         """Embed a single text string. Returns a list of floats."""
-        model = self._get_model()
-        vector = model.encode(text, normalize_embeddings=True)
+        model = await asyncio.to_thread(self._get_model)
+        vector = await asyncio.to_thread(model.encode, text, normalize_embeddings=True)
         return vector.tolist()
 
     async def embed_batch(self, texts: List[str]) -> List[List[float]]:
         """Embed multiple texts at once (more efficient than calling embed() in a loop)."""
-        model = self._get_model()
-        vectors = model.encode(texts, normalize_embeddings=True, batch_size=32)
+        model = await asyncio.to_thread(self._get_model)
+        vectors = await asyncio.to_thread(model.encode, texts, normalize_embeddings=True, batch_size=32)
         return [v.tolist() for v in vectors]

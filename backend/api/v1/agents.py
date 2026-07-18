@@ -47,6 +47,7 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict, seller_
         "retrieved_memory_doc": None,
     }
 
+    # 1. Update status to "running" in a short-lived database session
     async with AsyncSessionLocal() as db:
         try:
             stmt = select(AgentRun).where(AgentRun.id == run_id)
@@ -55,9 +56,29 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict, seller_
             if run:
                 run.status = "running"
                 await db.commit()
+        except Exception as startup_err:
+            logger.error(f"Failed to set agent run status to running: {startup_err}")
 
-            final_state = await graph.ainvoke(initial_state)
+    # 2. Run graph execution outside any active database session block
+    try:
+        final_state = await graph.ainvoke(initial_state)
+    except Exception as graph_err:
+        async with AsyncSessionLocal() as db:
+            stmt = select(AgentRun).where(AgentRun.id == run_id)
+            res = await db.execute(stmt)
+            run = res.scalars().first()
+            if run:
+                run.status = "failed"
+                run.error_message = str(graph_err)
+                await db.commit()
+        await event_bus.emit(run_id, "error", {"message": str(graph_err), "agent": agent_type})
+        logger.error(f"Agent run {run_id} failed during graph execution: {graph_err}")
+        return
 
+    # 3. Save graph results in a new short-lived database session
+    async with AsyncSessionLocal() as db:
+        try:
+            stmt = select(AgentRun).where(AgentRun.id == run_id)
             res = await db.execute(stmt)
             run = res.scalars().first()
             if run:
@@ -101,6 +122,7 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict, seller_
 
             logger.info(f"Agent run {run_id} completed successfully")
         except Exception as e:
+            stmt = select(AgentRun).where(AgentRun.id == run_id)
             res = await db.execute(stmt)
             run = res.scalars().first()
             if run:
@@ -108,7 +130,7 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict, seller_
                 run.error_message = str(e)
                 await db.commit()
             await event_bus.emit(run_id, "error", {"message": str(e), "agent": agent_type})
-            logger.error(f"Agent run {run_id} failed: {e}")
+            logger.error(f"Agent run {run_id} completed but failed to save results: {e}")
 
 
 @router.post("/run", response_model=ApiResponse[AgentRunResponse])

@@ -25,7 +25,11 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # CORS
-    cors_origins: List[str] = ["http://localhost:3000"]
+    cors_origins: List[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://sellerops-ai.vercel.app",
+    ]
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./sellerops.db"

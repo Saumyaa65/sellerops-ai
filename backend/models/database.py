@@ -4,6 +4,7 @@ Uses aiosqlite for prototype; swap DATABASE_URL for PostgreSQL in production.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import event
 
 from config.settings import get_settings
 
@@ -14,6 +15,15 @@ engine = create_async_engine(
     echo=settings.debug,
     connect_args={"check_same_thread": False},  # SQLite-specific
 )
+
+# Set SQLite Pragmas dynamically for high concurrency (WAL Mode & Normal Sync)
+@event.listens_for(engine.sync_engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    if "sqlite" in settings.database_url.lower():
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+        cursor.close()
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
