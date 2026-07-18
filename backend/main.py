@@ -33,14 +33,6 @@ async def lifespan(app: FastAPI):
     await init_db()
     logger.info("STEP 1 DONE: Database initialized")
 
-    logger.info("STEP 2: Importing Embedder...")
-    from rag.embedder import Embedder
-    logger.info("STEP 2 DONE: Embedder imported")
-
-    logger.info("STEP 3: Loading embedding model...")
-    Embedder()._get_model()
-    logger.info("STEP 3 DONE: Embedding model loaded")
-
     logger.info("========== STARTUP COMPLETE ==========")
 
     yield
