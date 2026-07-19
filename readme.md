@@ -1,38 +1,37 @@
-# SellerOps AI 🚀
+# SellerOps AI
 
-SellerOps AI is an AI-powered autonomous operations manager designed for e-commerce marketplace (Meesho) sellers. It automates catalog compliance checks, monitors store operations, audits payouts, diagnoses suspensions, and drafts policy-compliant appeals using a multi-agent orchestration workflow.
+SellerOps AI is an operations management application designed for e-commerce marketplace (Meesho) sellers. It facilitates catalog compliance checks, monitors store alert metrics, logs payout anomalies, diagnoses store health alerts, and generates policy-compliant appeals using an orchestrated multi-agent workflow.
 
 ---
 
 ## 🌟 Key Features
 
-1. **Unified Seller Dashboard:** Real-time visibility into store health metrics, listing statuses, and payout anomalies, prioritized by severity (`Critical` → `High` → `Medium`).
-2. **Multi-Agent AI Diagnostics (LangGraph):** Orchestrated pipelines that trace events step-by-step:
-   * **Monitoring:** Watches metrics and flags listing issues.
-   * **Investigation:** Gathers context and checks historical memory caches.
-   * **Policy:** Queries Qdrant RAG database to extract relevant rules.
+1. **Unified Seller Dashboard:** Shows store health metrics, listing compliance statuses, and payout anomalies, categorized by severity (`Critical`, `High`, `Medium`).
+2. **Orchestrated Diagnostics (LangGraph):** Orchestrates multi-agent pipelines to handle store issues:
+   * **Monitoring:** Evaluates listing stats and logs ticket counts.
+   * **Investigation:** Assesses problem context and queries historical memory caches.
+   * **Policy:** Queries Qdrant vector database to load relevant rules.
    * **Planning:** Formulates response strategies.
-   * **Execution:** Drafts finalized, professional appeal letters.
-3. **Preventive Policy Scanner:** Semantic policy RAG verifying product catalog metadata against official marketplace rules before listings go live.
-4. **Financial Payout Audits:** Compares settled payout figures against standard commission brackets to identify settlement discrepancies.
-5. **Simulated Customer Ticket Solver:** Instantly generates context-aware, helpful replies to customer support queries.
+   * **Execution:** Drafts professional compliance appeal letters.
+3. **Preventive Policy Scanner:** Uses a semantic search (RAG) to cross-reference listing details against official marketplace policy rules before publication.
+4. **Payout Monitoring & Anomaly Detection:** Compares orders data against estimated payout schedules to identify and flag discrepancies.
 
 ---
 
 ## 🛠️ Technology Stack
 
-* **Backend:** FastAPI (Python 3.11/3.13), SQLite (async via `aiosqlite`/SQLAlchemy), LangGraph (Agent State Orchestrator), Qdrant (Vector Database), FastEmbed (ONNX Local Embedding Engine), Groq API (Llama 3.3 70B model).
+* **Backend:** FastAPI (Python 3.11/3.13), SQLite (async via `aiosqlite`/SQLAlchemy), LangGraph (Agent Orchestrator), Qdrant (Vector Database), FastEmbed (ONNX Local Embedding Engine), Groq API (Llama 3.3 70B model).
 * **Frontend:** Next.js (TypeScript, App Router), Tailwind CSS (v4), Axios, Sonner toasts, Lucide icons.
 
 ---
 
-## ⚡ Architectural Performance Highlights
+## ⚡ Architectural Performance Details
 
-To support deployment on highly resource-constrained hosting (e.g. Render Free Tier with 512 MB RAM), the codebase features the following optimizations:
-* **FastEmbed ONNX Migration:** Replaced heavyweight PyTorch (`torch`/`sentence-transformers`) with a lightweight ONNX runtime wrapper. Memory usage drops from `~800 MB` to **`~120 MB`** without requiring database re-indexing.
-* **SQLite WAL & Concurrency Mode:** Configured SQLite connection listeners to run in `journal_mode=WAL` and `synchronous=NORMAL` to support high concurrent reads and writes.
-* **Decoupled DB Sessions:** Closed active SQLite connections prior to launching slow network calls (e.g. LLM generations, external APIs) to prevent "database is locked" errors.
-* **Render Boot UX Guard:** The frontend intercepts network failures during cold starts, showing an elegant booting screen with automatic retries instead of loading broken pages or raw API failures.
+To ensure the backend runs reliably under Render's free tier memory constraints (512 MB RAM), the following design decisions were implemented:
+* **FastEmbed ONNX Migration:** Replaced the heavyweight `sentence-transformers` library (PyTorch) with `fastembed` (ONNX Runtime). This avoids importing PyTorch or Transformers, reducing the runtime memory footprint to fit within the Render free-tier budget.
+* **SQLite Concurrency (WAL Mode):** Configured database connections to run in Write-Ahead Logging (`WAL`) mode with `synchronous=NORMAL` to allow concurrent database reads while writes are active.
+* **Decoupled Database Sessions:** Structured the agent background execution loop to commit and release database connections prior to running slow network requests (such as Groq LLM generations), preventing SQLite file-lock collisions.
+* **Render Cold-Start Resilience:** Implemented client-side API interceptors and retry loops on `/login` and the dashboard layout to show a loading screen while waiting for the sleeping container to wake up.
 
 ---
 
@@ -41,7 +40,7 @@ To support deployment on highly resource-constrained hosting (e.g. Render Free T
 ```text
 ├── backend/                   # FastAPI Python server
 │   ├── agents/                # LangGraph node agents (Monitoring, Investigation, Policy, etc.)
-│   ├── api/v1/                # Routes (auth, listings, payout anomalies, tickets, scenarios)
+│   ├── api/v1/                # Routes (auth, listings, payout anomalies, chats, tickets)
 │   ├── config/                # Environment config setups and settings
 │   ├── models/                # SQLite base models, schema initializations, and WAL pragmas
 │   ├── rag/                   # Policy retrievers and FastEmbed wrapper implementations
@@ -132,10 +131,30 @@ You can log in instantly by selecting one of the workspace accounts on the login
 1. Deploy as a **Web Service** on Render pointing to the root repository folder.
 2. Root Directory: `backend`
 3. Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Set the required Environment Variables in Render's dashboard (e.g. `GROQ_API_KEY`, `DATABASE_URL=sqlite+aiosqlite:///./sellerops.db`, `ALERT_EMAIL`).
+4. Set the required Environment Variables in Render's dashboard (e.g. `GROQ_API_KEY`, `DATABASE_URL=sqlite+aiosqlite:///./sellerops-ai.db`, `ALERT_EMAIL`).
 
 ### Frontend (Vercel)
 1. Import the project repository into Vercel.
 2. Root Directory: `frontend`
 3. Configure the environment variable:
    * `NEXT_PUBLIC_API_URL` = Your backend Render deployment URL (e.g., `https://sellerops-ai.onrender.com`)
+
+---
+
+## 📜 Open Source Attribution
+
+This project is built using the following open-source libraries and services:
+
+| Dependency | Version | License | Role in Project | Repository Link |
+| :--- | :--- | :--- | :--- | :--- |
+| **FastAPI** | `0.115.5` | MIT | ASGI web application framework. | [GitHub](https://github.com/fastapi/fastapi) |
+| **Next.js** | `16.2.10` | MIT | React-based frontend web framework. | [GitHub](https://github.com/vercel/next.js) |
+| **React** | `19.2.4` | MIT | UI rendering and client-side component state. | [GitHub](https://github.com/facebook/react) |
+| **Tailwind CSS** | `^4.0.0` | MIT | CSS styling framework. | [GitHub](https://github.com/tailwindlabs/tailwindcss) |
+| **LangGraph** | `0.2.60` | MIT | State-based agent graph orchestration engine. | [GitHub](https://github.com/langchain-ai/langgraph) |
+| **SQLAlchemy** | `2.0.36` | MIT | Database object-relational mapping (ORM) layer. | [GitHub](https://github.com/sqlalchemy/sqlalchemy) |
+| **aiosqlite** | `0.20.0` | MIT | Asynchronous driver wrapper for SQLite database engine. | [GitHub](https://github.com/omnilib/aiosqlite) |
+| **Qdrant Client** | `1.12.1` | Apache-2.0 | API interface to query Qdrant Cloud vector collections. | [GitHub](https://github.com/qdrant/qdrant-client) |
+| **FastEmbed** | `0.8.0` | Apache-2.0 | ONNX-based lightweight local embedding generation. | [GitHub](https://github.com/qdrant/fastembed) |
+| **Axios** | `1.18.1` | MIT | Promise-based HTTP request client. | [GitHub](https://github.com/axios/axios) |
+| **Groq API Client**| `0.13.0` | Apache-2.0 | Python SDK client for external Groq Cloud inference services. | [GitHub](https://github.com/groq/groq-python) |
