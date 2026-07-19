@@ -1,471 +1,757 @@
-# SellerOps AI Interview Prep
+# SellerOps AI — Interview Prep Guide
 
-Use this as a simple way to explain the project in interviews. The goal is to sound clear, confident, and practical.
+Use this document to explain the project clearly in interviews.  
+Language is kept simple. Structure is designed for easy recall.
+
+---
 
 ## 1) One-line summary
 
-SellerOps AI is an AI-powered operations assistant for e-commerce sellers. It watches seller data, finds problems like risky listings, returns, or payout anomalies, checks marketplace policies, and suggests or triggers the next best action.
+**SellerOps AI** is an AI-powered operations assistant for marketplace sellers (Meesho / Amazon / Flipkart). It watches seller data, finds risks early, checks marketplace policies, and helps the seller take the next action — like fixing a listing, writing an appeal, or understanding a payout issue.
+
+---
 
 ## 2) Problem statement
 
-Marketplace sellers often manage many things at once: listings, orders, returns, payouts, and policy compliance. The hard part is not collecting the data. The hard part is noticing issues early and deciding what action to take.
+Marketplace sellers juggle many things at once:
 
-Common pain points:
+- Listings and product quality  
+- Orders, returns, and cancellations  
+- Payouts and deductions  
+- Support tickets and bad reviews  
+- Long, changing marketplace policies  
 
-- Sellers miss policy violations until they get penalized.
-- Return spikes and payout mismatches are noticed too late.
-- Manual monitoring takes time and is easy to get wrong.
-- Policy documents are long, so finding the right rule is slow.
-- Teams need a system that can monitor, explain, and respond faster than manual review.
+**The real problem is not “missing data.”**  
+Sellers usually have data. The hard part is:
+
+1. **Noticing problems early** (before account health drops or suspension risk rises)  
+2. **Understanding why** the problem happened  
+3. **Knowing what to do next** according to marketplace rules  
+
+### Pain points (easy to say in interviews)
+
+| Pain | Why it hurts |
+|------|----------------|
+| Policy violations noticed too late | Penalties, listing suppression, suspension |
+| High return rate / low rating | Account health falls, sales drop |
+| Payout mismatches | Money lost, hard to dispute manually |
+| Manual monitoring | Slow, error-prone, not scalable |
+| Policy docs are huge | Hard to find the exact rule that applies |
+| No memory of past fixes | Same issues get re-investigated from scratch |
+
+**Interview-friendly problem line:**
+
+> “Sellers don’t fail because they lack dashboards. They fail because they can’t detect risk early, map it to policy, and act fast.”
+
+---
 
 ## 3) Solution approach
 
-SellerOps AI solves this by combining a dashboard, APIs, and AI agents.
+SellerOps AI combines:
 
-What it does:
+1. **A seller dashboard** (Next.js) — store health, products, orders/payments, AI diagnosis  
+2. **A FastAPI backend** — APIs for data, auth, agents, policies  
+3. **A multi-agent AI workflow** (LangGraph) — monitor → investigate → check policy → plan → execute → learn  
+4. **RAG over policies** (Qdrant + embeddings + Groq) — answers grounded in real policy text  
+5. **Live progress streaming** (SSE) — user sees what the agents are doing in real time  
 
-- Reads seller data from the backend.
-- Monitors health signals like returns, ratings, active listings, and payout anomalies.
-- Uses a graph of AI agents to inspect issues step by step.
-- Retrieves policy context from a searchable knowledge store.
-- Generates a response or action plan.
-- Streams progress back to the frontend in real time.
+### Core idea (remember this)
 
-Simple idea:
+```
+Detect → Investigate → Check Policy → Plan → Act → Learn
+```
 
-1. Detect the issue.
-2. Investigate the cause.
-3. Check policy rules.
-4. Decide what to do.
-5. Learn from the outcome.
+Two main agent modes:
+
+| Mode | Purpose |
+|------|---------|
+| **Investigation graph** | Find operational issues, root-cause them, draft actions/appeals |
+| **Prevention graph** | Scan listings before/while live for missing images, price errors, size charts, etc. |
+
+### What the product can do today
+
+- Login as a seller and see personalized store metrics  
+- View listings, orders, payouts, tickets, reviews  
+- Run AI diagnosis on real issues or demo **scenarios**  
+- Ask policy questions with RAG (Meesho / Amazon / Flipkart docs)  
+- Upload / manage products with prevention checks  
+- Get **email alerts** for critical issues  
+- Store past investigations in **agent memory** so similar cases can reuse results  
+
+---
 
 ## 4) Impact
 
-Business impact:
+### Business impact
 
-- Faster issue detection.
-- Lower manual effort for seller operations teams.
-- Better policy compliance.
-- Early warning for risky listings or payout problems.
-- More consistent decisions because the system follows the same workflow each time.
+- Faster issue detection (rules + AI, not only manual review)  
+- Better policy compliance (answers tied to retrieved policy chunks)  
+- Less manual ops effort (appeal drafts, action plans generated)  
+- Early warning for account risk (returns, rating, payouts, violations)  
+- More consistent decisions (same agent workflow every time)  
 
-Engineering impact:
+### Engineering impact
 
-- Clear separation between API, agent logic, data, and UI.
-- Easy to add more checks or agents later.
-- Real-time updates through SSE make the experience feel responsive.
+- Clear layers: UI → API → agents → data/RAG  
+- Easy to add new agents or checks  
+- Real-time UX via SSE  
+- Demo-ready with seed data + scenarios, but structured for real marketplace APIs later  
 
-## 5) 60-second answer
+### Impact line for interviews
 
-SellerOps AI is an operations assistant for marketplace sellers. The problem is that sellers have to track listings, orders, returns, payouts, and policy changes manually, and issues often get noticed too late. This system solves that by combining a FastAPI backend, a Next.js dashboard, and a LangGraph-based agent workflow. The backend loads seller data, checks for issues, and exposes APIs for listings, orders, payouts, policies, and agent runs. The agent graph moves through monitoring, investigation, policy lookup, planning, execution, and learning. For policy questions, it uses RAG with Qdrant and Groq to find relevant policy content and generate helpful answers. The frontend shows seller health metrics, issues, and agent activity in a simple dashboard. The main value is faster monitoring, better compliance, and less manual work.
+> “We reduce the time from ‘something looks wrong’ to ‘here is the root cause, the policy rule, and the next action.’”
 
-## 6) 2-minute answer
+---
 
-SellerOps AI is built to help e-commerce sellers manage day-to-day operations more intelligently. Sellers usually have to watch a lot of moving parts at the same time: active listings, order health, return rate, payouts, and marketplace policies. The problem is that small issues can turn into costly problems if they are not caught early.
+## 5) 60-second answer (memorize this)
 
-The project solves this with a layered system. The FastAPI backend acts as the main service layer and exposes endpoints for health, listings, orders, payouts, policies, and agents. The frontend is a Next.js dashboard that shows the seller’s current status, alerts, and issue summary. Under the hood, the AI part is organized as a LangGraph pipeline, so the system can move through monitoring, investigation, policy checking, planning, execution, and learning in a controlled way instead of doing one big LLM call.
+SellerOps AI is an AI operations assistant for e-commerce sellers. Sellers struggle to track listings, returns, payouts, and marketplace policies at the same time, so issues are often caught too late. Our solution is a Next.js dashboard plus a FastAPI backend with a LangGraph multi-agent pipeline. The system monitors seller health, investigates root causes with Groq, retrieves relevant policy text from Qdrant using RAG, then plans and drafts actions like appeal letters. Progress streams to the UI over SSE. We also added login, SQLite persistence, product prevention checks, email alerts, and demo scenarios. The value is faster detection, better compliance, and less manual ops work.
 
-For policy-related questions, the backend uses retrieval from Qdrant and generation through Groq. That means the system can search policy documents first and then produce a grounded answer. It also streams agent progress back to the UI using SSE, so the user can see what is happening in real time.
+---
 
-Overall, the project is useful because it reduces manual monitoring, gives faster insight into risks, and makes seller operations more proactive.
+## 6) 3-minute answer (use this for deeper rounds)
 
-## 7) Step-by-step workflow
+**Problem.**  
+Marketplace sellers manage many moving parts — products, orders, returns, payouts, tickets, and long policy documents. Small signals like a rising return rate or a payout deduction can become account health problems or suspension risk if nobody notices early. Manual monitoring does not scale.
 
-Here is the easiest way to explain the flow:
+**Solution.**  
+SellerOps AI is a full-stack prototype of an autonomous seller ops assistant.
 
-1. The dashboard loads seller metrics.
-2. The frontend calls backend APIs for seller data, listings, and payout anomalies.
-3. The backend reads mock data now, but the structure is ready for real marketplace integrations later.
-4. The dashboard highlights risks such as low rating, high return rate, or payout issues.
-5. If an agent run is started, the backend creates a run ID and sends the task to the LangGraph pipeline.
-6. The graph starts with monitoring.
-7. If an issue is found, it moves to investigation.
-8. The policy agent checks relevant marketplace rules.
-9. If escalation is needed, the planning agent creates an action plan.
-10. The execution agent carries out the next step.
-11. The learning agent stores the result so future runs can improve.
-12. The frontend listens to SSE events and shows progress in real time.
+- The **frontend** is a Next.js App Router dashboard with pages for My Store, AI Diagnosis, Products, Orders & Payments, Scenarios, and Marketplace Rules.  
+- The **backend** is FastAPI with versioned APIs (`/api/v1`) for auth, listings, orders, payouts, policies, reviews, tickets, chats, scenarios, and agents.  
+- Seller data lives in **SQLite** via SQLAlchemy async (seeded from mock JSON for demos).  
+- The AI brain is **LangGraph**:  
+  - **Monitoring** detects anomalies with thresholds (return rate, rating, payout anomalies) or scenario triggers.  
+  - **Investigation** uses Groq (Llama) for root-cause analysis.  
+  - **Policy** retrieves relevant rules from Qdrant.  
+  - **Planning / Execution** create action plans and seller-ready appeal text.  
+  - **Learning** stores successful cases into agent memory for reuse.  
+  - A separate **Prevention** agent checks listings for quality issues.  
+- Users see agent steps live through **SSE**. Critical issues can trigger **SMTP email alerts**.
+
+**Why this design.**  
+We did not put everything in one giant LLM prompt. A graph gives control, debuggability, and clear stages. RAG reduces hallucination on policy questions. Mock/seed data keeps demos reliable while the architecture stays ready for real marketplace APIs.
+
+**Impact.**  
+Sellers get one place to see risk, understand “why,” map it to policy, and get a concrete next action — faster and more consistently than manual ops.
+
+---
+
+## 7) Step-by-step workflow (what happens when a user uses it)
+
+### A. Login flow
+
+1. User opens `/login` and enters email + password.  
+2. Frontend calls `POST /api/v1/auth/login`.  
+3. Backend checks `User` in SQLite and returns a token (demo: token = email), seller id, name, marketplace, tier.  
+4. Frontend stores token in `localStorage` and attaches `Authorization: Bearer <token>` on later API calls.  
+5. Dashboard loads seller-specific metrics.
+
+### B. Command center (My Store)
+
+1. Dashboard fetches seller metrics, active listings count, payout anomalies, open tickets, recent agent runs.  
+2. UI highlights risks (low rating, high returns, violations, payout issues).  
+3. User can open an issue and jump into diagnosis / a related scenario.
+
+### C. AI investigation run
+
+1. User starts a run from Investigations / Scenarios / Agents.  
+2. Frontend calls `POST /api/v1/agents/run`.  
+3. Backend creates an `AgentRun` row, returns `run_id`, starts a **background task**.  
+4. Frontend opens an **SSE** stream for that `run_id`.  
+5. LangGraph investigation pipeline runs:
+
+```
+START
+  → Monitoring
+      → (if issues) Investigation
+          → Policy (RAG)
+              → (if escalate) Planning → Execution → Learning → END
+              → (else) Learning → END
+      → (if no issues) END
+```
+
+6. Each agent emits step events → Event Bus → SSE → UI timeline.  
+7. Final state is saved to DB; investigation record may be created.  
+8. If severity is critical, monitoring can trigger an alert email.
+
+### D. Prevention / product checks
+
+1. User works on listings (view / upload / edit).  
+2. Prevention agent scans images, price vs MRP, size charts, description length, guideline-style image issues.  
+3. Optional OCR (PaddleOCR) can extract text from images when available; otherwise the system degrades gracefully.
+
+### E. Policy Q&A
+
+1. User asks a policy question on Marketplace Rules.  
+2. Backend embeds the query → searches Qdrant policy collection → sends top chunks + question to Groq.  
+3. Answer is grounded in retrieved policy text (Meesho / Amazon / Flipkart).
+
+### F. Scenarios (demo / interview gold)
+
+1. Predefined situations like “high return rate,” “counterfeit suspicion,” “payout dispute.”  
+2. Monitoring uses scenario expected issues instead of only live metrics.  
+3. Makes demos predictable and impressive in interviews.
+
+---
 
 ## 8) System architecture
 
-Think of the architecture in 5 layers.
+### Layers (say “5 layers”)
 
-### A. Frontend layer
+| Layer | What | Tech |
+|-------|------|------|
+| 1. Frontend | Dashboard, login, live agent UI | Next.js, React, Tailwind, Zustand, React Query, Axios |
+| 2. API | REST + SSE | FastAPI, Pydantic, Uvicorn |
+| 3. Agents | Multi-step AI workflow | LangGraph agents + shared `AgentState` |
+| 4. Data | Seller ops data + users | SQLite + SQLAlchemy async + seed scripts |
+| 5. Knowledge / AI | Policy RAG + LLM + memory | Qdrant, FastEmbed, Groq, Event Bus / SSE |
 
-- Next.js App Router for the dashboard.
-- React client components for live data and interaction.
-- UI components for cards, badges, status dots, and loading states.
-
-### B. API layer
-
-- FastAPI serves all backend routes.
-- API versioning is used through `/api/v1`.
-- Separate routers exist for agents, listings, orders, payouts, policies, and health.
-
-### C. Agent orchestration layer
-
-- LangGraph controls the agent flow.
-- Each agent handles one job.
-- The graph decides the next step based on state.
-
-### D. Data and knowledge layer
-
-- Mock JSON data is used for listings, orders, payouts, and seller metrics.
-- Policy documents are stored as text files.
-- Qdrant is used for vector search over policy content.
-
-### E. AI and event layer
-
-- Groq is used for fast LLM responses.
-- SSE is used to stream agent events to the UI.
-- A simple event bus connects backend runs to live updates.
-
-### Architecture flow
+### Architecture diagram
 
 ```mermaid
-flowchart LR
-  U[Seller / User] --> F[Next.js Dashboard]
-  F --> A[FastAPI API]
-  A --> D[Mock Data Services]
-  A --> G[LangGraph Agent Pipeline]
-  G --> M[Monitoring Agent]
-  M --> I[Investigation Agent]
+flowchart TB
+  U[Seller User] --> FE[Next.js Dashboard]
+  FE -->|REST + Auth Bearer| API[FastAPI /api/v1]
+  FE -->|SSE stream| SSE[Event Bus / SSE]
+
+  API --> AUTH[Auth]
+  API --> DATA[Data APIs: listings orders payouts tickets reviews]
+  API --> AG[Agents API]
+  API --> POL[Policies API]
+
+  AUTH --> DB[(SQLite)]
+  DATA --> DB
+  AG --> DB
+  AG --> LG[LangGraph]
+
+  LG --> M[Monitoring]
+  M --> I[Investigation]
   I --> P[Policy Agent]
-  P --> PL[Planning Agent]
-  PL --> E[Execution Agent]
-  E --> L[Learning Agent]
-  P --> Q[Qdrant Policy Search]
-  P --> LLM[Groq LLM]
-  A --> S[SSE Event Stream]
-  S --> F
+  P --> PL[Planning]
+  PL --> E[Execution]
+  E --> L[Learning]
+  LG --> PR[Prevention Agent]
+
+  P --> Q[(Qdrant Policies)]
+  L --> QM[(Qdrant Agent Memory)]
+  I --> G[Groq LLM]
+  PL --> G
+  E --> G
+  P --> EMB[FastEmbed]
+  L --> EMB
+
+  M --> MAIL[SMTP Email Alerts]
+  AG --> SSE
 ```
 
-## 9) Why each technology was used
+### Key backend modules (good to remember)
 
-### Next.js
+| Path | Role |
+|------|------|
+| `backend/main.py` | App factory, CORS, lifespan, error handler |
+| `backend/api/v1/*` | Route modules |
+| `backend/agents/graph.py` | Investigation + prevention graphs |
+| `backend/agents/*_agent.py` | One job per agent |
+| `backend/rag/*` | Embedder, indexer, retriever |
+| `backend/services/*` | Data, Groq, Qdrant, OCR, event bus |
+| `backend/models/*` | SQLAlchemy models + Pydantic schemas |
+| `backend/seed.py` | Seeds DB from mock JSON |
+| `data/policies/*.txt` | Marketplace policy source docs |
+| `data/mock/*.json` | Demo seller data + scenarios |
 
-Why:
+### Frontend pages
 
-- Good for modern dashboards.
-- App Router makes page and layout structure clean.
-- Server and client components help with performance and flexibility.
+| Route | Name in UI | Purpose |
+|-------|------------|---------|
+| `/login` | Login | Auth |
+| `/` | My Store | Command center / health |
+| `/investigations` | AI Diagnosis | Run/view investigations |
+| `/listings` | My Products | Products + prevention |
+| `/operations` | Orders & Payments | Orders / payouts ops |
+| `/scenarios` | Try a Situation | Demo scenarios |
+| `/policies` | Marketplace Rules | Policy RAG Q&A |
 
-Possible alternatives:
+---
 
-- React + Vite for a simpler SPA.
-- Angular if the team wants a more opinionated framework.
+## 9) Technology choices — why + alternatives
 
-### FastAPI
+### Next.js (App Router) + React + Tailwind
 
-Why:
+**Why:** Modern dashboard UX, clean routing/layouts, fast iteration, good TypeScript DX.  
+**Alternatives:** React + Vite SPA, Remix, Angular.
 
-- Very fast to build APIs with Python.
-- Easy async support.
-- Great for AI and data-heavy services.
-- Strong request validation with Pydantic.
+### FastAPI + Uvicorn + Pydantic
 
-Possible alternatives:
-
-- Flask for a smaller app.
-- Django for a more full-stack monolith.
+**Why:** Fast Python APIs, async-friendly, excellent validation, natural fit for AI services and SSE.  
+**Alternatives:** Flask (simpler/smaller), Django (heavier full-stack), NestJS if fully JS stack.
 
 ### LangGraph
 
-Why:
+**Why:** Multi-step, conditional workflows need structure. Explicit nodes/edges are easier to debug than one mega-prompt.  
+**Alternatives:** Plain LangChain chains, custom state machine, Temporal/Prefect for heavy production orchestration.
 
-- Good for multi-step AI workflows.
-- Makes the agent flow explicit.
-- Easier to debug than a single prompt chain.
+### Groq (Llama 3.3 70B + lighter 8B)
 
-Possible alternatives:
-
-- LangChain chains and tools.
-- Custom workflow engine.
-- Temporal or Prefect if the logic becomes more enterprise-grade.
-
-### Groq
-
-Why:
-
-- Very fast LLM inference.
-- Useful when low latency matters in an interactive product.
-
-Possible alternatives:
-
-- OpenAI.
-- Anthropic.
-- Local open-source models if cost control is the main goal.
+**Why:** Very low latency for interactive ops UX; light model used for cheaper summarization tasks.  
+**Alternatives:** OpenAI, Anthropic, Gemini, self-hosted open models.
 
 ### Qdrant
 
-Why:
+**Why:** Vector DB for policy RAG and agent memory; filter by marketplace.  
+**Alternatives:** Pinecone, Weaviate, pgvector, Elasticsearch vectors.
 
-- Good for vector search over policy documents.
-- Easy to store and retrieve embeddings.
-- Suitable for RAG use cases.
+### FastEmbed (ONNX) — `all-MiniLM-L6-v2`
 
-Possible alternatives:
+**Why:** Lighter/faster than heavy SentenceTransformers for deploy; 384-dim embeddings match collection config.  
+**Alternatives:** SentenceTransformers, OpenAI embeddings, Cohere embeddings.  
+**Note:** We switched from SentenceTransformers → FastEmbed after deploy/runtime issues (see Bugs section).
 
-- Pinecone.
-- Weaviate.
-- Elasticsearch vector search.
+### SQLite + SQLAlchemy async (aiosqlite)
 
-### SQLite / SQLAlchemy
+**Why:** Zero-ops DB for prototype; easy seeding; enough for demo concurrency with WAL.  
+**Alternatives:** PostgreSQL (production default), MySQL.  
+**Honest take:** SQLite is great for demo; Postgres is the right production upgrade.
 
-Why:
+### SSE (Server-Sent Events)
 
-- Simple to start with.
-- Enough for a prototype or demo.
-- SQLAlchemy gives a clean ORM layer.
+**Why:** Simple one-way live updates for agent progress.  
+**Alternatives:** WebSockets (two-way), polling (simpler but laggy).
 
-Possible alternatives:
+### Zustand + React Query + Axios
 
-- PostgreSQL for production.
-- MySQL if existing infra already uses it.
+**Why:** Light client state + server cache + clean HTTP layer with auth interceptor.  
+**Alternatives:** Redux Toolkit, SWR, fetch wrappers.
 
-### SSE
+### SMTP email alerts
 
-Why:
+**Why:** Critical issues should reach the seller even if they are not on the dashboard.  
+**Alternatives:** SendGrid/SES, Slack/WhatsApp webhooks.
 
-- Simple way to stream backend events to the frontend.
-- Good for one-way live updates.
+### PaddleOCR (optional)
 
-Possible alternatives:
+**Why:** Extract text from listing images to catch mismatches; optional so deploys don’t break if OCR isn’t installed.  
+**Alternatives:** Tesseract, cloud Vision APIs.
 
-- WebSockets for two-way communication.
-- Polling if real-time updates are not important.
+---
 
-### Pydantic
+## 10) Your likely contributions (how to talk about ownership)
 
-Why:
+Be honest about what you personally built. Based on the repo and commit history, strong claimable areas include:
 
-- Strong validation.
-- Clear API contracts.
-- Helps keep request and response data clean.
+- Built / extended the **FastAPI backend** and `/api/v1` routers  
+- Designed **LangGraph** investigation + prevention workflows  
+- Implemented agents: monitoring, investigation, policy, planning, execution, learning, prevention  
+- Built **RAG** pipeline (embed → Qdrant → retrieve → Groq answer)  
+- Added **auth + login UI** and seller-scoped data access  
+- Migrated from mock/in-memory toward **SQLite persistence + seeding**  
+- Built dashboard pages (store health, listings, investigations, policies, scenarios)  
+- Wired **SSE** streaming for live agent steps  
+- Added **email alert** notifications for critical issues  
+- Added **product upload / prevention checks**  
+- Debugged **deployment, concurrency, and embedding** issues (see below)  
 
-Possible alternatives:
+**Safe interview phrasing:**
 
-- Marshmallow.
-- Manual validation, but that is more error-prone.
+> “I owned the backend APIs and agent orchestration, and I also worked on connecting the dashboard so sellers can see live investigation progress. I also handled several production-style bugs around SQLite concurrency, async embeddings, and email personalization.”
 
-## 10) Likely contributions you can claim
+Adjust this to match your real split with teammates.
 
-Based on the repo structure, these are the most likely areas you worked on:
+---
 
-- Built or helped build the FastAPI backend.
-- Designed the API routes for listings, orders, payouts, policies, and agents.
-- Created the LangGraph agent workflow.
-- Added the monitoring, investigation, policy, planning, execution, and learning agents.
-- Built the dashboard shell and overview page in Next.js.
-- Connected the frontend to backend services.
-- Added SSE-based streaming for live agent progress.
-- Set up mock data and policy files for demo and testing.
-- Added Qdrant and Groq integration for policy search and LLM output.
+## 11) Bugs we hit and how we fixed them (very useful in interviews)
 
-If you want, you can say this in a safe way:
+Interviewers love “what went wrong.” Use these stories.
 
-- “I worked on the backend APIs and agent orchestration, and also helped wire the dashboard to show live operational status.”
+### Bug 1 — SQLite locking / concurrency during agent runs
 
-## 11) Key challenges
+**Symptom:** Agent runs failed or DB errors when graph execution held a long DB session open while the LLM/RAG work ran.  
+**Cause:** Long-lived SQLAlchemy session around slow graph work; SQLite does not like concurrent writers.  
+**Fix:**
+- Run graph **outside** DB session blocks  
+- Use **short-lived sessions** for: set status → run graph → save results  
+- Enable SQLite **WAL mode** + `synchronous=NORMAL`  
+**Commit idea:** “Fix SQLite concurrency and async embedding blocking”
 
-### 1. Turning raw data into useful signals
+**Interview line:**
 
-Challenge:
+> “We were holding DB connections open during LLM calls. I split DB writes into short sessions and turned on WAL so concurrent agent runs stopped colliding.”
 
-- Seller data alone does not tell a story unless it is turned into health metrics and alerts.
+### Bug 2 — Embedding calls blocked the async event loop
 
-Trade-off:
+**Symptom:** API felt stuck / timeouts while embedding text.  
+**Cause:** CPU-heavy embedding ran directly inside async request path.  
+**Fix:** Wrap model load + embed in `asyncio.to_thread(...)`.  
+**Later improvement:** Switched SentenceTransformers → **FastEmbed (ONNX)** for lighter deploys.
 
-- Simple rules are easy to understand, but they are less flexible.
+**Interview line:**
 
-### 2. Making AI behavior predictable
+> “Embedding is CPU-bound. Running it inline blocked FastAPI’s event loop, so I offloaded it to a thread and later moved to FastEmbed for faster, lighter inference.”
 
-Challenge:
+### Bug 3 — Deployment / dependency / Python version issues
 
-- A single LLM prompt is hard to control.
+**Symptom:** Deploy failed on Render (and similar) due to heavy deps / wrong Python.  
+**Fixes reflected in history:**
+- Pin / clean `requirements.txt`  
+- Force **Python 3.11**  
+- Add logging for startup debugging  
+- Reduce heavy ML deps where possible  
 
-Trade-off:
+**Interview line:**
 
-- LangGraph adds structure, but it also adds more moving parts.
+> “Prototype deps that work locally can break in cloud builds. We cleaned requirements, locked Python 3.11, and replaced heavier embedding stacks.”
 
-### 3. Keeping answers grounded in policy
+### Bug 4 — Email alerts not personalized / config mismatches
 
-Challenge:
+**Symptom:** Alerts went to wrong place or used generic seller details.  
+**Fix:** Look up seller + user email from DB by `seller_id`; map SMTP settings via env aliases (`SMTP_FROM`, `ALERT_EMAIL`); improve login UX alongside email fix.  
+**Commit idea:** “Email Fix”
 
-- LLMs can hallucinate if they answer from memory only.
+### Bug 5 — Auth + data isolation migration
 
-Trade-off:
+**Symptom:** Early prototype was not truly multi-seller; mock JSON was global.  
+**Fix:** Added User/Seller models, login token flow, seller_id scoping on APIs, seed multiple demo sellers (e.g. Rohan / Priya / ElectroKart style accounts).
 
-- RAG improves accuracy, but retrieval quality becomes important.
+### Bug 6 — Product upload / UI consistency bugs
 
-### 4. Real-time updates
+**Symptom:** Listings UX and investigation pages had bugs while adding upload + prevention.  
+**Fix:** Iterative UI fixes plus prevention agent checks (images, MRP, size charts, description).
 
-Challenge:
+### Bug 7 — OCR dependency too heavy
 
-- Users want to see progress while agents are working.
+**Symptom:** PaddleOCR may fail to import in some environments.  
+**Fix:** Soft dependency — log warning and skip OCR features instead of crashing the app.
 
-Trade-off:
+---
 
-- SSE is easy for streaming, but it is one-way only.
+## 12) Key challenges, limitations, and trade-offs
 
-### 5. Prototype vs production
+### Challenges
 
-Challenge:
+1. **Turning raw seller data into useful signals**  
+   Thresholds are simple and explainable, but not as smart as learned anomaly models.
 
-- The repo uses mock data and in-memory run storage for now.
+2. **Keeping AI predictable**  
+   Multi-agent graph adds control, but also more moving parts and failure points.
 
-Trade-off:
+3. **Grounding answers in policy**  
+   RAG helps, but bad chunks ⇒ weak answers. Retrieval quality matters as much as the LLM.
 
-- This makes development faster, but it is not yet production-ready.
+4. **Real-time UX**  
+   SSE is great for progress, but one-way only; reconnect/history needs care.
 
-## 12) Limitations
+5. **Prototype vs production**  
+   Seeded SQLite + demo auth is perfect for hackathon/demo, not for real multi-tenant SaaS yet.
 
-- Mock data is used instead of live marketplace integrations.
-- Runs are stored in memory, so history is not durable.
-- Some flows depend on external services like Groq and Qdrant.
-- The system is more of an intelligent operations assistant than a fully autonomous fix-all product.
-- Policy answers depend on the quality of indexed documents.
+### Limitations (be honest)
 
-## 13) Future scope
+- Not fully connected to live Meesho/Amazon/Flipkart seller APIs (uses seeded/mock-style data)  
+- Auth is demo-grade (token ≈ email; passwords stored simply — not production security)  
+- SQLite is not ideal for high multi-user write load  
+- Some image “AI checks” are rule/hash-simulated for demo reliability  
+- External dependency on Groq + Qdrant availability  
+- Agent memory helps similar cases, but evaluation/metrics are still early  
 
-Good improvement ideas:
+### Trade-offs
 
-- Replace mock data with real marketplace APIs.
-- Store runs and agent history in a real database.
-- Add authentication and role-based access.
-- Add alerts by email, Slack, or WhatsApp.
-- Add more agents for pricing, inventory, and seller support.
-- Add better memory for repeated issue patterns.
-- Add evaluation metrics for agent accuracy and response quality.
-- Add dashboards for trends over time, not just current status.
-- Add human approval for risky actions before execution.
+| Choice | Gain | Cost |
+|--------|------|------|
+| LangGraph multi-agent | Control, clarity | More complexity than one prompt |
+| RAG for policies | Less hallucination | Needs good chunking/indexing |
+| SQLite | Fast to ship | Weaker concurrency vs Postgres |
+| SSE | Simple live updates | Not bidirectional |
+| Seeded scenarios | Great demos | Not the same as live marketplace chaos |
+| FastEmbed | Lighter deploy | May need re-index if vector dims/models change |
+| Demo auth | Ships login UX quickly | Must be replaced with JWT/OAuth + hashed passwords |
 
-## 14) Common interview questions
+---
+
+## 13) Realistic improvements / future scope
+
+Prioritize like a product engineer:
+
+### High business value
+
+1. Real marketplace API connectors (orders, listings, payouts webhooks)  
+2. Proper auth (JWT/OAuth2, password hashing, RBAC)  
+3. Human-in-the-loop approval before sending appeals / making account changes  
+4. Slack / WhatsApp / email escalation with richer workflows  
+
+### High engineering value
+
+5. Move DB to **PostgreSQL** (+ maybe Redis for queues/events)  
+6. Persist SSE/run history durably; support reconnect  
+7. Agent evaluation harness (accuracy, groundedness, latency, cost)  
+8. Better chunking + hybrid search (keyword + vector) for policies  
+9. Replace simulated image checks with real CV models where needed  
+10. Observability: OpenTelemetry traces per agent node  
+
+### Nice product expansions
+
+11. Pricing / inventory / ads agents  
+12. Trend dashboards over time (not only current snapshot)  
+13. Multi-marketplace unified inbox for tickets + chats  
+14. Auto-generated weekly seller health report  
+
+---
+
+## 14) Easy memory aids
+
+### 5-stage pipeline
+
+**Monitor → Investigate → Policy → Plan → Execute** (+ Learn)
+
+### One-sentence pitch
+
+> SellerOps AI helps sellers catch problems early, understand marketplace rules, and respond faster with AI.
+
+### Architecture in one breath
+
+> Next.js UI, FastAPI APIs, LangGraph agents, SQLite data, Qdrant RAG, Groq generation, SSE live updates.
+
+### Demo path (if asked to walk through)
+
+Login → My Store risks → Run scenario → Watch SSE steps → See appeal/action plan → Ask a policy question → Mention email alert + memory reuse.
+
+---
+
+## 15) Common interview questions + strong answers + follow-ups
 
 ### Q1. What problem does this project solve?
 
-Sample answer:
+**Answer:**  
+It helps marketplace sellers detect operational risks early — like high returns, low ratings, payout anomalies, and policy violations — then explains the root cause and suggests the next action using a policy-aware AI workflow.
 
-It helps e-commerce sellers monitor operational health in one place. Instead of checking listings, returns, payouts, and policy documents manually, the system detects issues and guides the next action.
+**Follow-ups:**
+- How do you detect issues without an LLM?  
+- Which issue types matter most for account health?
 
-Follow-up questions:
+---
 
-- How is the issue detection done?
-- What data sources does it use?
+### Q2. Why LangGraph instead of one big prompt?
 
-### Q2. Why did you use LangGraph?
+**Answer:**  
+Because seller ops is a pipeline with conditions. Sometimes there are no issues. Sometimes you need policy context. Sometimes you escalate to planning and appeal generation. LangGraph makes those stages explicit, testable, and easier to debug than one uncontrolled prompt.
 
-Sample answer:
+**Follow-ups:**
+- How do conditional edges work in your graph?  
+- What state do you pass between nodes?
 
-I used LangGraph because the workflow is multi-step and conditional. The system should not jump straight to an answer. It should monitor first, investigate if needed, then check policy, plan, execute, and learn.
+---
 
-Follow-up questions:
+### Q3. How does RAG work in your project?
 
-- Why not use a single agent prompt?
-- How do you decide the next node?
+**Answer:**  
+We index marketplace policy text into Qdrant using embeddings. At query time we embed the question or issue types, retrieve top relevant chunks (optionally filtered by marketplace), and pass that context to Groq so answers are grounded in real policy language.
 
-### Q3. Why did you use FastAPI?
+**Follow-ups:**
+- How do you chunk documents?  
+- What if retrieval returns irrelevant chunks?  
+- Why Qdrant over pgvector?
 
-Sample answer:
+---
 
-FastAPI is a good fit because the project needs clean APIs, async support, and strong validation. It also works well for AI services where multiple requests and streams can happen at the same time.
+### Q4. Why FastAPI?
 
-Follow-up questions:
+**Answer:**  
+We needed async APIs, strong request/response validation, and easy SSE streaming next to Python AI libraries. FastAPI fits that better than a classic sync Flask app for this use case.
 
-- How does FastAPI handle async tasks here?
-- Why not Flask?
+**Follow-ups:**
+- How do background agent runs work?  
+- How do you handle errors globally?
 
-### Q4. What is the role of Qdrant?
+---
 
-Sample answer:
+### Q5. Why Groq?
 
-Qdrant stores embeddings of policy content so the system can search policy documents by meaning, not just keyword match. That makes policy answers more relevant.
+**Answer:**  
+Latency. The dashboard is interactive — sellers watch agent steps live — so fast inference matters. We also use a lighter model for cheaper summarization tasks.
 
-Follow-up questions:
-
-- How do you chunk policy documents?
-- What if retrieval returns the wrong context?
-
-### Q5. Why use Groq?
-
-Sample answer:
-
-Groq gives fast LLM responses, which is useful when the user wants quick operational guidance. Speed matters because the dashboard and agent flow are interactive.
-
-Follow-up questions:
-
-- What would you use if cost mattered more than latency?
+**Follow-ups:**
+- How do you control cost?  
 - How do you reduce hallucinations?
+
+---
 
 ### Q6. How does the frontend get live updates?
 
-Sample answer:
+**Answer:**  
+Each agent run has a `run_id`. Agents push events into an in-memory Event Bus queue. The frontend opens an SSE connection to stream those events and render a live timeline.
 
-The backend exposes an SSE stream for each agent run. The frontend listens to that stream and updates the UI as events arrive.
+**Follow-ups:**
+- Why not WebSockets?  
+- What happens if the client disconnects?  
+- Are events persisted?
 
-Follow-up questions:
+---
 
-- Why SSE instead of WebSockets?
-- What kind of events are streamed?
+### Q7. Walk me through an investigation end-to-end.
 
-### Q7. What did you personally work on?
+**Answer:**  
+User triggers a run → API creates `AgentRun` → background task starts LangGraph → Monitoring finds issues (or loads a scenario) → Investigation asks Groq for root cause → Policy retrieves rules from Qdrant → if escalation needed, Planning + Execution draft actions/appeal → Learning stores memory → UI receives SSE events throughout → result saved in SQLite.
 
-Sample answer:
+**Follow-ups:**
+- Where can this pipeline fail?  
+- How do you show failures in UI?
 
-I worked on the backend APIs and the agent workflow, and I also helped connect the frontend to the live status data. If needed, I can go deeper into the exact pieces I owned.
+---
 
-Follow-up questions:
+### Q8. What did you personally build?
 
-- Which files or modules did you own?
-- What was the hardest part you solved?
+**Answer (customize):**  
+I worked on the backend APIs and LangGraph agent orchestration, connected the dashboard to live status via SSE, and fixed several reliability issues — especially SQLite concurrency during agent runs, async embedding blocking, and email alert personalization. I also helped with auth migration and listing prevention checks.
 
-### Q8. What is the biggest technical challenge?
+**Follow-ups:**
+- Hardest bug you fixed?  
+- What would you rewrite now?
 
-Sample answer:
+---
 
-The hardest part is making AI behavior reliable. The system must not just generate text. It has to follow a controlled workflow, use policy context, and return something useful for operations.
+### Q9. What was the hardest technical challenge?
 
-Follow-up questions:
+**Answer:**  
+Making the AI path reliable under real async/DB constraints. LLMs and embeddings are slow/CPU-heavy; if you keep DB sessions open or block the event loop, demos break. We had to redesign session lifetime and offload embeddings.
 
-- How do you test reliability?
-- What fails most often?
+**Follow-ups:**
+- How did you verify the fix?  
+- Would Postgres remove the problem completely?
 
-### Q9. What are the trade-offs in this design?
+---
 
-Sample answer:
+### Q10. How is auth implemented? Is it production-ready?
 
-The main trade-off is flexibility versus control. AI makes the system smarter, but a structured graph and strict schemas are needed to keep it predictable.
+**Answer:**  
+For the prototype, login validates email/password against SQLite and returns a bearer token (demo token is the email). The frontend stores it and sends it on requests; APIs resolve the seller from that token. It is **not** production-ready — we would move to hashed passwords, JWT/OAuth, refresh tokens, and proper session security.
 
-Follow-up questions:
+**Follow-ups:**
+- How do you scope data per seller?  
+- What are the security risks of the current design?
 
-- What did you sacrifice to keep it predictable?
-- What would you change in production?
+---
 
-### Q10. How would you improve it next?
+### Q11. Why SQLite? When would you switch?
 
-Sample answer:
+**Answer:**  
+SQLite made local demos and seeding simple. With WAL it handled our prototype concurrency better. For real multi-tenant production traffic, I’d switch to PostgreSQL and likely add a queue worker for agent jobs.
 
-I would connect real marketplace APIs, store run history in a database, add human approval for risky actions, and build better analytics for trends and repeated issues.
+**Follow-ups:**
+- What concurrency issues did you see?  
+- How does WAL help?
 
-Follow-up questions:
+---
 
-- Which improvement has the highest business value?
-- Which one is easiest to ship first?
+### Q12. What is the Prevention agent?
 
-## 15) Easy memory version
+**Answer:**  
+It’s a listing-quality gate. It checks missing/low image counts, price vs MRP, missing size charts for apparel, weak descriptions, and guideline-style image issues. Goal: catch problems before they become return-rate or suppression problems.
 
-Use this 5-word flow:
+**Follow-ups:**
+- Which checks are rules vs ML?  
+- How does OCR fit in?
 
-Monitor -> Investigate -> Policy -> Plan -> Execute
+---
 
-Use this short product pitch:
+### Q13. How do scenarios help?
 
-SellerOps AI helps sellers catch problems early, understand policy rules, and respond faster with AI.
+**Answer:**  
+Scenarios are curated incident packs — high returns, counterfeit suspicion, payout disputes, etc. They make demos predictable and help us test the full agent path without waiting for rare live failures.
 
-Use this simple architecture summary:
+**Follow-ups:**
+- How is a scenario different from normal monitoring?  
+- How many scenarios do you support?
 
-Next.js UI, FastAPI backend, LangGraph agent flow, Qdrant policy search, Groq for generation, SSE for live updates.
+---
 
-## 16) Good closing line
+### Q14. How do you stop the system from hallucinating policy advice?
 
-I built a seller operations assistant that combines real-time monitoring, AI-driven investigation, and policy-aware answers to help sellers act faster and reduce operational risk.
+**Answer:**  
+We retrieve policy chunks first and generate from that context. We also keep agent roles narrow (policy agent retrieves; planning/execution consume context). Still, retrieval mistakes can happen — so production needs citation UI, confidence, and human approval for high-risk actions.
+
+**Follow-ups:**
+- Do you show source chunks in UI?  
+- How would you evaluate groundedness?
+
+---
+
+### Q15. What are the biggest trade-offs in your design?
+
+**Answer:**  
+Control vs complexity (multi-agent graph), speed of demo vs production realism (seeded data + demo auth), and simplicity of SSE vs richer realtime infrastructure. We optimized for a credible, explainable prototype that can evolve into production.
+
+**Follow-ups:**
+- What would you change first for production?  
+- What did you intentionally not build?
+
+---
+
+### Q16. How would you scale this?
+
+**Answer:**  
+Postgres + managed vector DB, separate worker processes for agent graphs, Redis/queue for jobs, CDN/frontend on Vercel-style hosting, backend autoscaling, caching for repeated policy queries, and rate limits per seller. Add observability per agent node for latency/cost.
+
+**Follow-ups:**
+- Where are the bottlenecks today?  
+- How do you handle bursty agent runs?
+
+---
+
+### Q17. Tell me about a bug you fixed.
+
+**Pick one story (recommended: SQLite concurrency):**  
+While running agents, we kept a DB session open for the whole graph. LLM calls are slow, so SQLite lock/concurrency errors appeared and runs failed to save cleanly. I changed the flow to short DB sessions around status updates and final writes only, enabled WAL mode, and also moved embedding work off the event loop with `asyncio.to_thread`. After that, runs completed and persisted reliably.
+
+**Follow-ups:**
+- How did you reproduce it?  
+- Any remaining risks?
+
+---
+
+### Q18. Why not fully autonomous actions?
+
+**Answer:**  
+Seller account actions can be high risk — wrong appeal or wrong listing change can hurt trust. Our execution step currently generates recommended communications/actions. For production I’d add human approval for irreversible steps.
+
+**Follow-ups:**
+- Which actions are safe to auto-run?  
+- How would approval UX work?
+
+---
+
+### Q19. How does learning / memory work?
+
+**Answer:**  
+After a successful investigation + generated output, the Learning agent embeds a memory document into Qdrant. Later similar cases can retrieve that memory and skip redundant work — faster and more consistent responses.
+
+**Follow-ups:**
+- How do you avoid storing bad memories?  
+- How do you measure memory hit quality?
+
+---
+
+### Q20. What is your closing pitch?
+
+**Answer:**  
+SellerOps AI turns noisy seller operations data into a guided loop: detect risk, explain cause, check policy, and draft the next action — with a transparent multi-agent workflow sellers can actually trust and follow.
+
+---
+
+## 16) Quick cheat sheet (last-minute revision)
+
+| Topic | Say this |
+|-------|----------|
+| Problem | Sellers catch ops/policy issues too late |
+| Solution | Dashboard + FastAPI + LangGraph agents + RAG |
+| Pipeline | Monitor → Investigate → Policy → Plan → Execute → Learn |
+| Live UX | SSE event stream per run |
+| Data | SQLite seeded seller data + policy text files |
+| AI | Groq for generation, FastEmbed + Qdrant for retrieval/memory |
+| Extra | Auth, prevention checks, scenarios, email alerts |
+| Biggest bug | SQLite session lifetime + blocking embeddings |
+| Limitation | Demo data/auth; not full live marketplace integration yet |
+| Next step | Real APIs + Postgres + JWT + human approval |
+
+---
+
+## 17) Good closing line
+
+> I built a seller operations assistant that combines real-time monitoring, multi-agent investigation, and policy-aware RAG so marketplace sellers can detect risk earlier and act with clearer next steps.

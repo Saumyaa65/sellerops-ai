@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
-import { Zap, ShieldCheck, CheckCircle2, TrendingUp, Store } from "lucide-react";
+import { Zap, ShieldCheck, CheckCircle2, TrendingUp, Info } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -54,13 +54,49 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<number | null>(null);
+  const [isWakingUp, setIsWakingUp] = useState(false);
+  const [wakingUpReason, setWakingUpReason] = useState<"verifying" | "authenticating" | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (token) {
-      router.replace("/");
+      verifyTokenAndRedirect(token);
     }
   }, [router]);
+
+  const verifyTokenAndRedirect = async (token: string, attempt = 1) => {
+    setIsWakingUp(true);
+    setWakingUpReason("verifying");
+    setRetryCount(attempt);
+    try {
+      const res = await axios.get(`${API_URL}/api/v1/seller-metrics`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data && res.data.success) {
+        setIsWakingUp(false);
+        setWakingUpReason(null);
+        router.replace("/");
+      } else {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("seller_id");
+        setIsWakingUp(false);
+        setWakingUpReason(null);
+      }
+    } catch (err: any) {
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("seller_id");
+        setIsWakingUp(false);
+        setWakingUpReason(null);
+        toast.error("Session expired. Please log in again.");
+      } else {
+        setTimeout(() => {
+          verifyTokenAndRedirect(token, attempt + 1);
+        }, 3000);
+      }
+    }
+  };
 
   const handleDemoSelect = (index: number) => {
     setSelectedDemo(index);
@@ -76,10 +112,14 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
+    await attemptLogin(email, password, 1);
+  };
+
+  const attemptLogin = async (userEmail: string, userPass: string, attempt = 1) => {
     try {
       const res = await axios.post(`${API_URL}/api/v1/auth/login`, {
-        email,
-        password,
+        email: userEmail,
+        password: userPass,
       });
 
       if (res.data && res.data.success) {
@@ -87,17 +127,62 @@ export default function LoginPage() {
         localStorage.setItem("auth_token", token);
         localStorage.setItem("seller_id", seller_id);
         toast.success(`Welcome back!`);
+        setIsWakingUp(false);
+        setWakingUpReason(null);
         router.replace("/");
       } else {
         toast.error(res.data?.error ?? "Authentication failed");
+        setIsLoading(false);
+        setIsWakingUp(false);
+        setWakingUpReason(null);
       }
     } catch (err: any) {
-      const errMsg = err.response?.data?.error ?? err.response?.data?.detail ?? "Failed to connect to authentication service";
-      toast.error(errMsg);
-    } finally {
-      setIsLoading(false);
+      const status = err.response?.status;
+      if (status === 401 || status === 403 || status === 400) {
+        const errMsg = err.response?.data?.error ?? err.response?.data?.detail ?? "Invalid email or password";
+        toast.error(errMsg);
+        setIsLoading(false);
+        setIsWakingUp(false);
+        setWakingUpReason(null);
+      } else {
+        setIsWakingUp(true);
+        setWakingUpReason("authenticating");
+        setRetryCount(attempt);
+        setTimeout(() => {
+          attemptLogin(userEmail, userPass, attempt + 1);
+        }, 3000);
+      }
     }
   };
+
+  if (isWakingUp) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-slate-950 p-4 text-center select-none relative overflow-hidden font-sans">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[380px] w-[380px] rounded-full bg-indigo-650/5 blur-[90px] pointer-events-none" />
+        
+        <div className="relative w-full max-w-md p-8 rounded-2xl border border-slate-900/60 bg-slate-900/20 backdrop-blur-xl shadow-2xl space-y-6">
+          <div className="flex flex-col items-center space-y-4 animate-fade-slide-up">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+            
+            <h3 className="text-base font-bold text-slate-100 mt-2">
+              {wakingUpReason === "verifying" ? "Verifying workspace session..." : "Starting secure AI backend..."}
+            </h3>
+            
+            <div className="text-xs text-slate-400 space-y-3 leading-relaxed">
+              <p>This demo is hosted on Render's free tier, which automatically sleeps after periods of inactivity.</p>
+              <p className="text-indigo-300 font-medium bg-indigo-500/10 px-3 py-2 rounded-lg border border-indigo-500/20">
+                The first request may take around 30–60 seconds while the service wakes up. Thank you for your patience.
+              </p>
+              <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-mono pt-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                <span>Retrying connection... (Attempt #{retryCount})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-slate-955 font-sans flex flex-col lg:flex-row">
@@ -277,7 +362,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-3.5 text-xs font-semibold text-white shadow-md hover:from-indigo-600 hover:to-purple-750 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 border border-indigo-400/10 cursor-pointer"
+              className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-purple-650 py-3.5 text-xs font-semibold text-white shadow-md hover:from-indigo-600 hover:to-purple-750 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 border border-indigo-400/10 cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -288,6 +373,20 @@ export default function LoginPage() {
                 "Sign In"
               )}
             </button>
+
+            {isLoading && (
+              <div className="p-3.5 rounded-xl border border-blue-500/20 bg-blue-500/5 text-blue-300 flex items-start gap-2.5 animate-fade-slide-up">
+                <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="text-[11px] font-bold text-slate-200 leading-tight">
+                    Starting secure AI backend...
+                  </h4>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    This demo is hosted on Render's free tier, which automatically sleeps after periods of inactivity. The first request may take around 30–90 seconds while the service wakes up. Thank you for your patience.
+                  </p>
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </div>
