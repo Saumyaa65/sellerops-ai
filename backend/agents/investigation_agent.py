@@ -63,6 +63,14 @@ Output JSON with keys:
             
             # Formulate query from issue types
             issue_types_str = " ".join(sorted([i['type'] for i in issues]))
+            input_data = state.get("input_data", {})
+            scenario_id = input_data.get("scenario_id")
+            scenario_title = input_data.get("scenario_name") or input_data.get("scenario_id") or "General monitoring"
+            logger.info(
+                "[Memory] Search request | current_scenario_title=%r | query_text=%r",
+                scenario_title,
+                issue_types_str,
+            )
             embedder = Embedder()
             query_vector = await embedder.embed(issue_types_str)
             
@@ -74,13 +82,64 @@ Output JSON with keys:
             memory_results = await qdrant_service.search(
                 collection_name=settings.qdrant_collection_memory,
                 query_vector=query_vector,
-                top_k=1,
+                top_k=20,
             )
             
-            if memory_results and memory_results[0]["score"] >= 0.90:
-                retrieved_payload = memory_results[0]["payload"]
+            matching_memory = None
+            if memory_results:
+                matching_memory = next(
+                    (
+                        result
+                        for result in memory_results
+                        if scenario_id and result["payload"].get("scenario_id") == scenario_id
+                    ),
+                    None,
+                )
+                # Keep the top semantic candidate for debugging when no exact
+                # scenario match exists, but never reuse it.
+                candidate = matching_memory or memory_results[0]
+                candidate_payload = candidate["payload"]
+                score = candidate["score"]
+                retrieved_title = candidate_payload.get("scenario_title") or "Unknown (legacy memory)"
+                candidate_scenario_id = candidate_payload.get("scenario_id")
+                accepted = matching_memory is not None
+                reason = (
+                    f"exact scenario_id match: {scenario_id}"
+                    if accepted
+                    else f"scenario_id mismatch: current={scenario_id!r}, candidate={candidate_scenario_id!r}"
+                )
+                logger.info(
+                    "[Memory] Candidate | current_scenario_title=%r | retrieved_memory_title=%r "
+                    "| current_scenario_id=%r | retrieved_scenario_id=%r | retrieved_run_id=%s "
+                    "| retrieved_issue_types=%s | similarity_score=%.4f "
+                    "| accepted=%s | reason=%s",
+                    scenario_title,
+                    retrieved_title,
+                    scenario_id,
+                    candidate_scenario_id,
+                    candidate_payload.get("run_id"),
+                    candidate_payload.get("issue_types", []),
+                    score,
+                    accepted,
+                    reason,
+                )
+            else:
+                logger.info(
+                    "[Memory] No candidate found | current_scenario_title=%r | query_text=%r | fresh_investigation=true",
+                    scenario_title,
+                    issue_types_str,
+                )
+
+            if (
+                matching_memory
+            ):
+                retrieved_payload = matching_memory["payload"]
                 retrieved_from_memory = True
-                logger.info(f"AI Memory Hit! Reusing past investigation run_id={retrieved_payload.get('run_id')} (score: {memory_results[0]['score']:.2f})")
+                logger.info(
+                    "AI Memory Hit! Reusing past investigation run_id=%s (score: %.2f; exact scenario_id match)",
+                    retrieved_payload.get("run_id"),
+                    matching_memory["score"],
+                )
                 await self.emit_step(run_id, "⚡ AI Memory Hit — retrieved existing root cause analysis from agent memory")
         except Exception as e:
             logger.warning(f"AI Memory Cache Check failed: {e}")
@@ -172,4 +231,3 @@ Output JSON with keys:
             "retrieved_from_memory": retrieved_from_memory,
             "retrieved_memory_doc": retrieved_payload,
         }  # type: ignore[return-value]
-

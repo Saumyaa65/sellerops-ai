@@ -21,6 +21,7 @@ class MonitoringAgent(BaseAgent):
         run_id = state["run_id"]
         input_data = state.get("input_data", {})
         scenario_id = input_data.get("scenario_id")
+        scenario_name = None
         seller_id = input_data.get("seller_id", "SELLER-IND-001")
 
         detected_issues = []
@@ -30,6 +31,7 @@ class MonitoringAgent(BaseAgent):
             from services.data_service import get_scenario_by_id
             scenario = await get_scenario_by_id(scenario_id, seller_id)
             if scenario:
+                scenario_name = scenario["name"]
                 await self.emit_step(run_id, f"Executing investigation scenario {scenario_id}: {scenario['name']}...")
                 for issue_type in scenario.get("expected_issues", []):
                     detected_issues.append({
@@ -127,6 +129,10 @@ class MonitoringAgent(BaseAgent):
 
         return {
             **state,
+            "input_data": {
+                **input_data,
+                **({"scenario_name": scenario_name} if scenario_name else {}),
+            },
             "detected_issues": detected_issues,
             "severity": severity,
             "should_escalate": should_escalate,

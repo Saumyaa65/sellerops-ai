@@ -49,6 +49,8 @@ class LearningAgent(BaseAgent):
         # Build memory document
         memory_doc = {
             "run_id": run_id,
+            "scenario_id": state.get("input_data", {}).get("scenario_id"),
+            "scenario_title": state.get("input_data", {}).get("scenario_name"),
             "issue_types": [i["type"] for i in issues],
             "root_cause_analysis": investigation.get("raw", ""),
             "action_plan": state.get("action_plan", []),

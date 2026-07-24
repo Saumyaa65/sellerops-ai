@@ -53,8 +53,18 @@ interface InvestigationData {
   marketplace?: string;
   allIssues?: any[];
   businessImpact?: BusinessImpactObj;
+  contributingFactors: string[];
+  severity?: string;
+  retrievedMemory?: Record<string, unknown> | null;
   emailSent?: boolean;
   retrievedFromMemory?: boolean;
+}
+
+interface DerivedImpactCard {
+  label: string;
+  value: string;
+  detail?: string;
+  tone?: "default" | "risk";
 }
 
 const stripMarkdown = (text: any): string => {
@@ -89,6 +99,93 @@ const parseChecklistStep = (step: string) => {
     title: cleanStep,
     description: ""
   };
+};
+
+const humanizeIssueType = (issueType: unknown): string =>
+  String(issueType || "").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const deriveImpactCards = (data: InvestigationData): DerivedImpactCard[] => {
+  const issues = data.supportingEvidence || [];
+  const cards: DerivedImpactCard[] = [];
+  const issueNames = issues.map((issue) => humanizeIssueType(issue?.type)).filter(Boolean);
+  const riskLevel = data.businessImpact?.estimated_impact || data.severity;
+
+  if (data.businessImpact?.description) {
+    cards.push({
+      label: "Business Impact",
+      value: data.businessImpact.description,
+      detail: riskLevel ? `${riskLevel} risk` : undefined,
+      tone: "risk",
+    });
+  }
+
+  const returnCount = issues.reduce((total, issue) => total + Number(issue?.data?.return_count || 0), 0);
+  const anomalyCount = issues.reduce((total, issue) => total + Number(issue?.data?.anomaly_count || 0), 0);
+  if (returnCount > 0) {
+    cards.push({ label: "Returns Affected", value: `${returnCount} return${returnCount === 1 ? "" : "s"} flagged` });
+  } else if (anomalyCount > 0) {
+    cards.push({ label: "Payout Records Affected", value: `${anomalyCount} anomal${anomalyCount === 1 ? "y" : "ies"} detected` });
+  } else if (issues.length > 0) {
+    cards.push({
+      label: "Operational Signals",
+      value: `${issues.length} issue${issues.length === 1 ? "" : "s"} detected`,
+      detail: issueNames.join(", "),
+    });
+  }
+
+  const ratingIssue = issues.find((issue) => typeof issue?.data?.rating === "number");
+  if (ratingIssue) {
+    cards.push({
+      label: "Seller Rating Risk",
+      value: `Current rating: ${ratingIssue.data.rating}`,
+      detail: stripMarkdown(ratingIssue.message),
+      tone: "risk",
+    });
+  }
+
+  if (riskLevel && issueNames.length > 0) {
+    cards.push({
+      label: "Suspension / Compliance Risk",
+      value: `${riskLevel} severity`,
+      detail: issueNames.join(", "),
+      tone: "risk",
+    });
+  }
+
+  return cards;
+};
+
+const deriveReasoning = (data: InvestigationData): string[] => {
+  const reasoning: string[] = [];
+  const issues = data.supportingEvidence || [];
+  const primaryIssue = issues[0];
+
+  if (primaryIssue) {
+    reasoning.push(`Detected ${humanizeIssueType(primaryIssue.type)}: ${stripMarkdown(primaryIssue.message)}`);
+  }
+  if (data.primaryCause) reasoning.push(`Root cause identified: ${stripMarkdown(data.primaryCause)}`);
+  if (data.contributingFactors.length > 0) {
+    reasoning.push(`Contributing factors: ${data.contributingFactors.map(stripMarkdown).join("; ")}`);
+  }
+  if (issues.length > 1) {
+    reasoning.push(`Supporting evidence included ${issues.length} detected operational signals.`);
+  }
+
+  const policy = data.retrievedPolicies?.[0]?.payload;
+  if (policy?.text) {
+    const excerpt = stripMarkdown(policy.text).replace(/\s+/g, " ").trim();
+    reasoning.push(`Marketplace policy checked${policy.source ? ` (${policy.source})` : ""}: ${excerpt.slice(0, 220)}${excerpt.length > 220 ? "…" : ""}`);
+  }
+
+  if (data.retrievedFromMemory) {
+    const memoryTitle = String(data.retrievedMemory?.scenario_title || data.retrievedMemory?.scenario_id || "a matching prior investigation");
+    reasoning.push(`AI Memory reused ${memoryTitle} because the investigation matched the saved scenario.`);
+  }
+  if (data.confidenceScore > 0) {
+    reasoning.push(`Investigation confidence: ${Math.round(data.confidenceScore * 100)}%.`);
+  }
+
+  return reasoning;
 };
 
 function InvestigationsContent() {
@@ -471,10 +568,7 @@ function InvestigationsContent() {
     let confidenceScore = 0.8;
     let factors: string[] = [];
     let immediate_actions: string[] = [];
-    let businessImpact: BusinessImpactObj = {
-      description: "High return rates or operational flags present a suspension risk.",
-      estimated_impact: "High"
-    };
+    let businessImpact: BusinessImpactObj | undefined;
     
     try {
       let clean_json = raw_analysis.trim();
@@ -518,17 +612,17 @@ function InvestigationsContent() {
         if (typeof rawBusinessImpact === "object" && rawBusinessImpact !== null) {
           businessImpact = {
             description: String(rawBusinessImpact.description || rawBusinessImpact.text || JSON.stringify(rawBusinessImpact)),
-            estimated_impact: String(rawBusinessImpact.estimated_impact || rawBusinessImpact.severity || rawBusinessImpact.impact || "High")
+            estimated_impact: String(rawBusinessImpact.estimated_impact || rawBusinessImpact.severity || rawBusinessImpact.impact || "")
           };
         } else if (Array.isArray(rawBusinessImpact)) {
           businessImpact = {
             description: rawBusinessImpact.join(", "),
-            estimated_impact: "High"
+            estimated_impact: ""
           };
         } else {
           businessImpact = {
             description: String(rawBusinessImpact),
-            estimated_impact: "High"
+            estimated_impact: ""
           };
         }
       }
@@ -545,12 +639,8 @@ function InvestigationsContent() {
     } catch {
       let clean_raw = raw_analysis.replace(/```json/g, "").replace(/```/g, "").trim();
       primaryCause = clean_raw || "Root cause analysis complete.";
-      businessImpact = {
-        description: "High return rates or operational flags present a suspension risk.",
-        estimated_impact: "High"
-      };
-      factors = ["High return rates on apparel catalog", "Customer size mismatch complaints", "Payout penalties applied"];
-      immediate_actions = state.action_plan || ["Update size chart measurements", "Check raw QC records", "File payout deduction disputes"];
+      factors = [];
+      immediate_actions = state.action_plan || [];
     }
 
     const data: InvestigationData = {
@@ -564,6 +654,9 @@ function InvestigationsContent() {
       marketplace: state.input_data?.marketplace || "meesho",
       allIssues: state.detected_issues || [],
       businessImpact,
+      contributingFactors: factors,
+      severity: state.severity,
+      retrievedMemory: state.retrieved_memory_doc || null,
       emailSent: !!state.email_sent,
       retrievedFromMemory: !!state.retrieved_from_memory,
     };
@@ -598,6 +691,8 @@ function InvestigationsContent() {
   };
 
   const displayData = investigationData;
+  const impactCards = displayData ? deriveImpactCards(displayData) : [];
+  const reasoningItems = displayData ? deriveReasoning(displayData) : [];
 
   const PIPELINE_NODES = [
     { key: "monitoring_agent", label: "Monitoring Seller Metrics" },
@@ -986,43 +1081,37 @@ function InvestigationsContent() {
                     </div>
                   )}
 
-                  {/* Business Impact Details */}
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1">
-                      Business Impact Analysis
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-[var(--color-surface-3)] p-3 rounded-lg border border-[var(--color-border)]">
-                      <div className="space-y-0.5">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Estimated Revenue at Risk</span>
-                        <p className="font-semibold text-[var(--color-text-primary)]">₹18,600 (Current returns & pending payouts at suspension risk)</p>
-                      </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Orders Affected</span>
-                        <p className="font-semibold text-[var(--color-text-primary)]">15+ Orders (In violating apparel/pricing catalog segments)</p>
-                      </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Seller Rating Risk</span>
-                        <p className="font-semibold text-[var(--color-text-primary)]">⭐ Potential Rating Drop (SizeMismatch & Return Rate alerts)</p>
-                      </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[10px] text-[var(--color-text-muted)] block">Suspension Risk</span>
-                        <p className="font-semibold text-[var(--color-error)]">High Priority Violation (Needs immediate appeal & action checklist)</p>
+                  {/* Business Impact Details — derived from the completed investigation only */}
+                  {impactCards.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1">
+                        Business Impact Analysis
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                        {impactCards.map((card) => (
+                          <div key={card.label} className="space-y-0.5 bg-[var(--color-surface-3)] p-3 rounded-lg border border-[var(--color-border)]">
+                            <span className="text-[10px] text-[var(--color-text-muted)] block">{card.label}</span>
+                            <p className={`font-semibold ${card.tone === "risk" ? "text-[var(--color-error)]" : "text-[var(--color-text-primary)]"}`}>
+                              {stripMarkdown(card.value)}
+                            </p>
+                            {card.detail && <p className="text-[10px] text-[var(--color-text-muted)]">{stripMarkdown(card.detail)}</p>}
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Why AI Reached This Conclusion */}
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1">
-                      Why AI Reached This Conclusion
-                    </h3>
-                    <ul className="list-disc pl-4 space-y-1 text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
-                      <li>Return rate has exceeded acceptable marketplace threshold (15%) in the last 30 days.</li>
-                      <li>Cross-checked catalog metadata mapping for size charts in the retrieved policy chunks.</li>
-                      <li>Matched buyer return comments indicating size mismatches with the listing description.</li>
-                      <li>Similar resolution pattern detected from Qdrant historical vector case records.</li>
-                    </ul>
-                  </div>
+                  {/* Existing investigation evidence, policies, memory, and confidence — no new inference */}
+                  {reasoningItems.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-xs text-[var(--color-text-primary)] border-b border-[var(--color-border)] pb-1">
+                        Why AI Reached This Conclusion
+                      </h3>
+                      <ul className="list-disc pl-4 space-y-1 text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                        {reasoningItems.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </Card>
 
