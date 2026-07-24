@@ -126,6 +126,22 @@ function InvestigationsContent() {
   const [lastScenario, setLastScenario] = useState<InvestigationScenario | null>(null);
 
   const eventSourceRef = useRef<EventSource | null>(null);
+  const activeRunIdRef = useRef<string | null>(null);
+  const routeRequestSequenceRef = useRef(0);
+
+  const storeActiveRunId = (runId: string | null, source: string) => {
+    activeRunIdRef.current = runId;
+    console.info("[SellerOps run] active run_id stored in React state", { runId, source });
+    setActiveRunId(runId);
+  };
+
+  const storeSelectedRun = (run: any | null, source: string) => {
+    console.info("[SellerOps run] selected run stored in React state", {
+      runId: run?.run_id ?? null,
+      source,
+    });
+    setSelectedRun(run);
+  };
 
   const loadHistory = async () => {
     try {
@@ -154,43 +170,82 @@ function InvestigationsContent() {
     };
   }, []);
 
-  // Handle URL run_id param for immediate loading or polling
+  // The URL is the source of truth when navigating to a run. Ignore a response
+  // from a previous URL after the user has navigated to a newer run.
   useEffect(() => {
-    if (runIdParam && runs.length > 0) {
-      const match = runs.find((r) => r.run_id === runIdParam);
-      if (match) {
-        if (match.status === "running" || match.status === "pending") {
-          setActiveRunId(runIdParam);
-          setActiveStatus("running");
-          setShowActivePanel(true);
-          connectSSE(runIdParam);
-        } else {
-          handleSelectPastRun(match);
-        }
-      } else {
-        // Fallback: poll run details from api
-        agentService.getRun(runIdParam).then((r) => {
-          if (r.status === "running" || r.status === "pending") {
-            setActiveRunId(runIdParam);
-            setActiveStatus("running");
-            setShowActivePanel(true);
-            connectSSE(runIdParam);
-          } else {
-            setSelectedRun(r);
-            parseFinalState(r.output);
-          }
-        }).catch((err) => {
-          console.error(err);
+    if (!runIdParam) return;
+
+    const routeRunId = runIdParam;
+    const requestSequence = ++routeRequestSequenceRef.current;
+    let cancelled = false;
+    console.info("[SellerOps run] diagnosis route initialized", {
+      routeRunId,
+      historyRunIds: runs.map((run) => run.run_id),
+    });
+
+    const isCurrentRouteRequest = () => !cancelled && requestSequence === routeRequestSequenceRef.current;
+    const applyRun = (run: any, source: string) => {
+      if (activeRunIdRef.current && activeRunIdRef.current !== routeRunId) {
+        console.warn("[SellerOps run] ignoring route result for a previous run", {
+          routeRunId,
+          activeRunId: activeRunIdRef.current,
+          responseRunId: run?.run_id,
+          source,
         });
+        return;
       }
+
+      if (!isCurrentRouteRequest()) {
+        console.warn("[SellerOps run] ignoring stale diagnosis initialization", {
+          routeRunId,
+          responseRunId: run?.run_id,
+          source,
+        });
+        return;
+      }
+
+      if (run?.run_id !== routeRunId) {
+        console.error("[SellerOps run] run_id mismatch while initializing diagnosis", {
+          routeRunId,
+          responseRunId: run?.run_id,
+          source,
+        });
+        return;
+      }
+
+      if (run.status === "running" || run.status === "pending") {
+        storeActiveRunId(routeRunId, `route:${source}`);
+        setActiveStatus("running");
+        setShowActivePanel(true);
+        connectSSE(routeRunId);
+      } else {
+        storeActiveRunId(null, `route:${source}:completed`);
+        storeSelectedRun(run, `route:${source}`);
+        parseFinalState(run.output);
+      }
+    };
+
+    const historyMatch = runs.find((run) => run.run_id === routeRunId);
+    if (historyMatch) {
+      applyRun(historyMatch, "history");
+    } else {
+      agentService.getRun(routeRunId)
+        .then((run) => applyRun(run, "GET"))
+        .catch((err) => {
+          if (isCurrentRouteRequest()) console.error(err);
+        });
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [runIdParam, runs]);
 
   const handleStartInvestigation = async () => {
     try {
       setErrorReason(null);
       setLastScenario(null);
-      setSelectedRun(null);
+      storeSelectedRun(null, "start-investigation");
       setInvestigationData(null);
       setActiveLogs([]);
       setActiveStatus("pending");
@@ -214,7 +269,7 @@ function InvestigationsContent() {
       });
 
       const runId = run.run_id;
-      setActiveRunId(runId);
+      storeActiveRunId(runId, "start-investigation POST response");
       setActiveStatus("running");
       
       // Update URL search query
@@ -240,7 +295,7 @@ function InvestigationsContent() {
     try {
       setErrorReason(null);
       setLastScenario(scenario);
-      setSelectedRun(null);
+      storeSelectedRun(null, "launch-scenario");
       setInvestigationData(null);
       setActiveLogs([]);
       setActiveStatus("pending");
@@ -268,7 +323,7 @@ function InvestigationsContent() {
 
       toast.success("AI pipeline launched for scenario!", { id: "launch-s" });
       const runId = run.run_id;
-      setActiveRunId(runId);
+      storeActiveRunId(runId, "launch-scenario POST response");
       setActiveStatus("running");
       
       router.push(`/investigations?run_id=${runId}`, { scroll: false });
@@ -288,7 +343,11 @@ function InvestigationsContent() {
     }
   };
 
-  const connectSSE = (runId: string) => {
+  function connectSSE(runId: string) {
+    console.info("[SellerOps run] opening SSE stream", {
+      runId,
+      activeRunId: activeRunIdRef.current,
+    });
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
     }
@@ -301,7 +360,20 @@ function InvestigationsContent() {
     const es = new EventSource(streamUrl);
     eventSourceRef.current = es;
 
+    const isCurrentStream = () => {
+      const isCurrent = activeRunIdRef.current === runId;
+      if (!isCurrent) {
+        console.warn("[SellerOps run] ignoring event from stale SSE stream", {
+          streamRunId: runId,
+          activeRunId: activeRunIdRef.current,
+        });
+        es.close();
+      }
+      return isCurrent;
+    };
+
     const handleEvent = (data: any, type: string) => {
+      if (!isCurrentStream()) return;
       const agentName = data.agent || "";
       const message = data.message || "";
       const timestamp = data.timestamp || new Date().toISOString();
@@ -351,6 +423,7 @@ function InvestigationsContent() {
 
     es.addEventListener("completed", async (e: MessageEvent) => {
       try {
+        if (!isCurrentStream()) return;
         es.close();
         
         setActiveAgentStates({
@@ -367,6 +440,7 @@ function InvestigationsContent() {
         toast.success("AI operations investigation complete!");
 
         const finalRun = await agentService.getRun(runId);
+        if (!isCurrentStream()) return;
         parseFinalState(finalRun.output);
         loadHistory();
       } catch (err) {
@@ -375,6 +449,7 @@ function InvestigationsContent() {
     });
 
     es.addEventListener("error", (e: Event) => {
+      if (!isCurrentStream()) return;
       es.close();
       setActiveStatus("failed");
       if (!navigator.onLine) {
@@ -384,9 +459,9 @@ function InvestigationsContent() {
       }
       toast.error("Investigation couldn't be completed.");
     });
-  };
+  }
 
-  const parseFinalState = (state: any) => {
+  function parseFinalState(state: any) {
     if (!state) return;
 
     const investigation_result = state.investigation_result || {};
@@ -493,11 +568,15 @@ function InvestigationsContent() {
       retrievedFromMemory: !!state.retrieved_from_memory,
     };
 
+    console.info("[SellerOps run] investigation data stored in React state", {
+      runId: data.runId,
+    });
     setInvestigationData(data);
-  };
+  }
 
   const handleSelectPastRun = (run: any) => {
-    setSelectedRun(run);
+    storeActiveRunId(null, "history selection");
+    storeSelectedRun(run, "history selection");
     setShowActivePanel(false);
     setCheckedSteps({});
     parseFinalState(run.output);

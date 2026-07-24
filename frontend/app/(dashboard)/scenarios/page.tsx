@@ -56,6 +56,10 @@ export default function ScenariosPage() {
       });
 
       toast.success("Autonomous pipeline run initialized!", { id: "launch-scenario" });
+      console.info("[SellerOps run] scenario launch will navigate with returned run_id", {
+        runId: run.run_id,
+        scenarioId: scenario.scenario_id,
+      });
       router.push(`/investigations?run_id=${run.run_id}`);
     } catch (err: any) {
       console.error(err);
