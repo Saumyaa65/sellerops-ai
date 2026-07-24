@@ -36,8 +36,7 @@ class Settings(BaseSettings):
 
     # Groq / LLM
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"  # Groq Llama 3.3 70B
-    groq_model_light: str = "llama-3.1-8b-instant"  # Lightweight Groq Llama 3.1 8B
+    groq_model: str = "llama-3.1-8b-instant"  # Groq Llama 3.1 8B
     groq_cache_enabled: bool = True  # Enable in-memory prompt/response caching
 
     # Qdrant

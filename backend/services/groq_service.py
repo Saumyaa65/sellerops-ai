@@ -1,5 +1,5 @@
 """
-Groq LLM service — wraps the Groq Python SDK for Llama 3.3 inference.
+Groq LLM service — wraps the Groq Python SDK for Llama 3.1 inference.
 All LLM calls go through this service to keep agents decoupled from the SDK.
 """
 
@@ -65,22 +65,8 @@ class GroqService:
             )
             content = response.choices[0].message.content or ""
         except Exception as e:
-            err_msg = str(e).lower()
-            if "429" in err_msg or "rate limit" in err_msg or "quota" in err_msg:
-                light_model = settings.groq_model_light
-                if model != light_model:
-                    logger.warning(f"GroqService.chat | Rate limit/429 hit for {model}. Falling back to {light_model}...")
-                    response = await self.client.chat.completions.create(
-                        model=light_model,
-                        messages=messages,  # type: ignore[arg-type]
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                    )
-                    content = response.choices[0].message.content or ""
-                else:
-                    raise e
-            else:
-                raise e
+            logger.error(f"GroqService.chat | LLM call failed: {e}")
+            raise e
 
         # Store in cache if enabled
         if settings.groq_cache_enabled and cache_key:

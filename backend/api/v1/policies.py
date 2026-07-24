@@ -42,7 +42,6 @@ async def query_policy(body: PolicyQueryRequest) -> ApiResponse[PolicyQueryResul
             messages,
             temperature=0.2,
             max_tokens=400,
-            model=settings.groq_model_light,
         )
 
     return ApiResponse(

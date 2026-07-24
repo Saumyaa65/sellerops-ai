@@ -33,7 +33,6 @@ async def summarize_policies(policy_context: list) -> str:
             messages=prompt,
             temperature=0.1,
             max_tokens=150,
-            model=settings.groq_model_light
         )
         return summary.strip()
     except Exception as e:
@@ -81,7 +80,6 @@ Create a 5-step action plan to resolve this:""",
         plan_text = await groq_service.chat(
             messages,
             temperature=0.4,
-            model=settings.groq_model_light,
         )
         action_plan = [line.strip() for line in plan_text.strip().split("\n") if line.strip()]
 

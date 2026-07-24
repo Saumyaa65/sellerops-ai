@@ -20,7 +20,7 @@ SellerOps AI is an operations management application designed for e-commerce mar
 
 ## 🛠️ Technology Stack
 
-* **Backend:** FastAPI (Python 3.11/3.13), SQLite (async via `aiosqlite`/SQLAlchemy), LangGraph (Agent Orchestrator), Qdrant (Vector Database), FastEmbed (ONNX Local Embedding Engine), Groq API (Llama 3.3 70B model).
+* **Backend:** FastAPI (Python 3.11/3.13), SQLite (async via `aiosqlite`/SQLAlchemy), LangGraph (Agent Orchestrator), Qdrant (Vector Database), FastEmbed (ONNX Local Embedding Engine), Groq API (Llama 3.1 8B model).
 * **Frontend:** Next.js (TypeScript, App Router), Tailwind CSS (v4), Axios, Sonner toasts, Lucide icons.
 
 ---

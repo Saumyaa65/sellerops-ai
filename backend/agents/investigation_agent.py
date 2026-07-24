@@ -1,6 +1,6 @@
 """
 Investigation Agent — performs root cause analysis on detected issues.
-Uses Groq/Llama 3.3 to reason about patterns in seller data.
+Uses Groq/Llama 3.1 to reason about patterns in seller data.
 """
 
 import json
@@ -91,7 +91,6 @@ Output JSON with keys:
             raw_analysis = await groq_service.chat(
                 messages,
                 temperature=0.3,
-                model=settings.groq_model_light,
             )
 
             # Normalize the raw LLM response so the schema is 100% consistent across all scenarios
