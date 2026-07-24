@@ -57,11 +57,13 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict, seller_
                 run.status = "running"
                 await db.commit()
         except Exception as startup_err:
-            logger.error(f"Failed to set agent run status to running: {startup_err}")
+            logger.error(f"[run={run_id}] Failed to set agent run status to running: {startup_err}")
 
     # 2. Run graph execution outside any active database session block
+    logger.info(f"[run={run_id}] Graph execution starting (agent_type={agent_type})")
     try:
         final_state = await graph.ainvoke(initial_state)
+        logger.info(f"[run={run_id}] Graph execution completed successfully")
     except Exception as graph_err:
         async with AsyncSessionLocal() as db:
             stmt = select(AgentRun).where(AgentRun.id == run_id)
@@ -72,7 +74,7 @@ async def _execute_graph(run_id: str, agent_type: str, input_data: dict, seller_
                 run.error_message = str(graph_err)
                 await db.commit()
         await event_bus.emit(run_id, "error", {"message": str(graph_err), "agent": agent_type})
-        logger.error(f"Agent run {run_id} failed during graph execution: {graph_err}")
+        logger.error(f"[run={run_id}] Graph execution failed: {graph_err}")
         return
 
     # 3. Save graph results in a new short-lived database session
@@ -154,8 +156,18 @@ async def trigger_agent_run(
     )
     db.add(run)
     await db.commit()
+    logger.info(f"[POST /agents/run] AgentRun saved to DB | run_id={run_id}")
+
+    # Pre-create the event queue BEFORE scheduling the background task.
+    # This guarantees that any events emitted by the graph (including the very
+    # first monitoring_agent step) are buffered in the queue even if the SSE
+    # client has not connected yet. Without this, events fired before the client
+    # opens GET /agents/{run_id}/stream are silently dropped by event_bus.emit().
+    event_bus.get_queue(run_id)
+    logger.info(f"[POST /agents/run] Event queue pre-created | run_id={run_id}")
 
     background_tasks.add_task(_execute_graph, run_id, body.agent_type, body.input_data, seller_id)
+    logger.info(f"[POST /agents/run] Background graph task scheduled | run_id={run_id}")
 
     return ApiResponse(
         data=AgentRunResponse(
@@ -192,16 +204,26 @@ async def stream_agent_events(
             raise HTTPException(status_code=401, detail="Unauthorized")
 
     async def event_generator():
+        logger.info(f"[SSE] Stream endpoint entered | run_id={run_id}")
         try:
+            # Emit an immediate 'connected' confirmation so the frontend knows
+            # the SSE channel is open and can stop showing 'Awaiting connection...'
+            from utils.helpers import build_sse_message, utc_now_iso
+            connected_payload = {"event_type": "connected", "run_id": run_id, "timestamp": utc_now_iso()}
+            yield build_sse_message("connected", connected_payload)
+            logger.info(f"[SSE] 'connected' event emitted | run_id={run_id}")
+
             async for message in event_bus.stream(run_id):
                 if await request.is_disconnected():
-                    logger.info(f"[SSE] Client disconnected for run_id={run_id}")
+                    logger.info(f"[SSE] Client disconnected | run_id={run_id}")
                     break
+                logger.debug(f"[SSE] Emitting buffered event to client | run_id={run_id}")
                 yield message
         except asyncio.CancelledError:
-            logger.info(f"[SSE] Stream connection cancelled for run={run_id}")
+            logger.info(f"[SSE] Stream cancelled | run_id={run_id}")
         finally:
             event_bus.cleanup(run_id)
+            logger.info(f"[SSE] Stream cleanup complete | run_id={run_id}")
 
     return StreamingResponse(
         event_generator(),

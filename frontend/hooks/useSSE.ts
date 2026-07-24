@@ -52,7 +52,7 @@ export function useSSE<T extends { event_type?: string }>(
     };
 
     // Handle named events (e.g. event: step)
-    const eventTypes = ["step", "started", "tool_call", "completed", "error"];
+    const eventTypes = ["step", "started", "connected", "tool_call", "completed", "error"];
     eventTypes.forEach((type) => {
       es.addEventListener(type, (e: MessageEvent) => {
         try {
