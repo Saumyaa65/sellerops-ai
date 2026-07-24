@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/layout/TopBar";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -38,6 +38,8 @@ export default function ListingsPage() {
   const [scanning, setScanning] = useState(false);
   const [scanResults, setScanResults] = useState<Record<string, ListingIssue[]>>({});
   const [hasScanned, setHasScanned] = useState(false);
+  const autoScanStartedRef = useRef(false);
+  const scanInFlightRef = useRef(false);
 
   // Filters & Tabs
   const [activeTab, setActiveTab] = useState<"all" | "issues" | "healthy" | "draft">("all");
@@ -185,25 +187,44 @@ export default function ListingsPage() {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadListings() {
       try {
         setLoading(true);
         const data = await listingService.getListings();
+        if (cancelled) return;
         setListings(data);
+
+        // Use the same handler as the manual control so automatic and repeat
+        // scans always populate the page through one code path.
+        if (!autoScanStartedRef.current) {
+          autoScanStartedRef.current = true;
+          await handleScanListings(true);
+        }
       } catch (err: any) {
+        if (cancelled) return;
         console.error(err);
         toast.error("Failed to load listings");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     loadListings();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleScanListings = async () => {
+  async function handleScanListings(isInitialScan = false) {
+    if (scanInFlightRef.current) return;
+
+    scanInFlightRef.current = true;
     try {
       setScanning(true);
-      toast.info("Starting Prevention Agent listing check...");
+      toast.info(isInitialScan
+        ? "AI Prevention Agent scanning your catalog..."
+        : "Analyzing listings for marketplace compliance...");
       
       const results = await listingService.checkListings() as any[];
       const newResults: Record<string, ListingIssue[]> = {};
@@ -220,8 +241,9 @@ export default function ListingsPage() {
       toast.error(err.message || "Failed to scan listings");
     } finally {
       setScanning(false);
+      scanInFlightRef.current = false;
     }
-  };
+  }
 
   const handleOpenDrawer = async (listing: Listing) => {
     setSelectedListing(listing);
@@ -336,7 +358,7 @@ export default function ListingsPage() {
               variant="gradient"
               size="sm"
               id="scan-listings-btn"
-              onClick={handleScanListings}
+              onClick={() => handleScanListings()}
               disabled={scanning}
             >
               {scanning ? (
@@ -344,7 +366,7 @@ export default function ListingsPage() {
               ) : (
                 <Scan className="h-3.5 w-3.5" />
               )}
-              {scanning ? "Checking Products..." : "Check All Products"}
+              {scanning ? "Scanning Catalog..." : "Run Scan Again"}
             </Button>
           </div>
         }
@@ -359,6 +381,12 @@ export default function ListingsPage() {
               <h2 className="text-base font-bold text-slate-200 mt-0.5">
                 {hasScanned ? `${averageHealthScore}% Clean Catalog` : "Pending Catalog Scan"}
               </h2>
+              {scanning && (
+                <p className="text-xs text-indigo-300 mt-1 flex items-center gap-1.5">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  AI Prevention Agent scanning your catalog...
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-slate-400 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
