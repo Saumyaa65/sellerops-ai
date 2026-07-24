@@ -20,7 +20,6 @@ import {
   CheckCircle,
   Scan,
   Loader2,
-  Image as ImageIcon,
   MessageSquare,
   Star,
   Ticket as TicketIcon,
@@ -30,6 +29,31 @@ import {
   Filter,
   Check,
 } from "lucide-react";
+
+const DEFAULT_CATEGORY_IMAGE = "/images/categories/clothing.jpg";
+
+const CATEGORY_IMAGE_BY_CATEGORY: Record<string, string> = {
+  clothing: "/images/categories/clothing.jpg",
+  footwear: "/images/categories/footwear.jpg",
+  electronics: "/images/categories/electronics.jpg",
+  kitchen: "/images/categories/kitchen.jpg",
+  home: "/images/categories/home-decor.jpg",
+  home_decor: "/images/categories/home-decor.jpg",
+  "home-decor": "/images/categories/home-decor.jpg",
+  "home decor": "/images/categories/home-decor.jpg",
+};
+
+const getCategoryImage = (category?: string): string =>
+  CATEGORY_IMAGE_BY_CATEGORY[category?.trim().toLowerCase() ?? ""] ?? DEFAULT_CATEGORY_IMAGE;
+
+const handleCategoryImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+  const image = event.currentTarget;
+  if (image.src.endsWith(DEFAULT_CATEGORY_IMAGE)) {
+    image.style.visibility = "hidden";
+    return;
+  }
+  image.src = DEFAULT_CATEGORY_IMAGE;
+};
 
 export default function ListingsPage() {
   const router = useRouter();
@@ -496,15 +520,12 @@ export default function ListingsPage() {
                       {/* Product Overview */}
                       <div className="flex items-start gap-4">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 overflow-hidden">
-                          {listing.images && listing.images.length > 0 ? (
-                            <img 
-                              src={listing.images[0]} 
-                              alt={listing.name} 
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <ImageIcon className="h-6 w-6 text-slate-500" />
-                          )}
+                          <img
+                            src={getCategoryImage(listing.category)}
+                            alt={listing.name}
+                            className="h-full w-full object-cover"
+                            onError={handleCategoryImageError}
+                          />
                         </div>
                         
                         <div>
@@ -588,11 +609,12 @@ export default function ListingsPage() {
                   <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded bg-[var(--color-surface-3)] overflow-hidden shrink-0 border border-[var(--color-border)]">
-                        {selectedListing.images && selectedListing.images.length > 0 ? (
-                          <img src={selectedListing.images[0]} className="h-full w-full object-cover" />
-                        ) : (
-                          <ImageIcon className="h-5 w-5 text-[var(--color-text-muted)]" />
-                        )}
+                        <img
+                          src={getCategoryImage(selectedListing.category)}
+                          alt={selectedListing.name}
+                          className="h-full w-full object-cover"
+                          onError={handleCategoryImageError}
+                        />
                       </div>
                       <div>
                         <h2 className="text-sm font-bold text-[var(--color-text-primary)] leading-tight">{selectedListing.name}</h2>
